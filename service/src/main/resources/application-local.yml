@@ -1,0 +1,9 @@
+spring:
+  h2:
+    console:
+      enabled: true
+
+logging:
+  level:
+    co.prodly: DEBUG
+    org.hibernate.SQL: DEBUG
