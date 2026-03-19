@@ -29,7 +29,7 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
                                 Object handler, Exception ex) {
         String path = request.getRequestURI();
-        if (path.contains("/api/dashboard/events") || path.startsWith("/h2-console")) {
+        if (!shouldLog(path)) {
             return;
         }
 
@@ -49,5 +49,10 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
                 ""
         );
         requestLogService.log(entry);
+    }
+
+    private boolean shouldLog(String path) {
+        return path.startsWith("/services/")
+                || path.startsWith("/oauth/");
     }
 }

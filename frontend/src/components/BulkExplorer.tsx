@@ -79,13 +79,18 @@ export function BulkExplorer() {
   }
 
   return (
-    <div className="grid h-full grid-cols-[0.95fr,1.05fr] overflow-hidden">
+    <div className="grid h-full grid-cols-1 overflow-hidden xl:grid-cols-[0.95fr,1.05fr]">
       <div className="overflow-auto border-r border-slate-800 bg-slate-950 p-6">
         <div className="text-xs uppercase tracking-[0.2em] text-cyan-300">Feature 3</div>
         <h2 className="mt-2 text-2xl font-semibold text-white">Bulk API v2</h2>
         <p className="mt-1 text-sm text-slate-400">
           Create an ingest job, upload CSV rows, close it synchronously, and inspect result files.
         </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <StatusCard label="Mode" value="Synchronous close" tone="cyan" />
+          <StatusCard label="Result files" value="CSV mirrors" tone="emerald" />
+          <StatusCard label="Best use" value="Fast ingest parity" tone="amber" />
+        </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <Field label="Object">
@@ -130,7 +135,7 @@ export function BulkExplorer() {
         {error ? <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">{error}</div> : null}
       </div>
 
-      <div className="overflow-auto bg-slate-950 p-6">
+      <div className="overflow-auto border-t border-slate-800 bg-slate-950 p-6 xl:border-t-0">
         <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Job summary</h3>
@@ -172,3 +177,18 @@ function CsvCard({ title, csv }: { title: string; csv: string }) {
 const inputClass = 'w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-cyan-400'
 const primaryButton = 'rounded-xl bg-cyan-400 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60'
 const secondaryButton = 'rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60'
+
+function StatusCard({ label, value, tone }: { label: string; value: string; tone: 'cyan' | 'emerald' | 'amber' }) {
+  const styles = {
+    cyan: 'border-cyan-400/20 bg-cyan-400/10 text-cyan-100',
+    emerald: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-100',
+    amber: 'border-amber-400/20 bg-amber-400/10 text-amber-100',
+  }
+
+  return (
+    <div className={`rounded-2xl border px-4 py-4 ${styles[tone]}`}>
+      <div className="text-[10px] uppercase tracking-[0.18em] opacity-70">{label}</div>
+      <div className="mt-2 text-sm font-medium text-white">{value}</div>
+    </div>
+  )
+}

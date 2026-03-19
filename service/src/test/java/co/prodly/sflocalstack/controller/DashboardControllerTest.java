@@ -44,4 +44,18 @@ class DashboardControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].path").exists());
     }
+
+    @Test
+    void dashboardRequestsDoNotIncreaseCapturedRequestCount() throws Exception {
+        mockMvc.perform(get("/api/dashboard/overview"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.recentRequestCount").value(0));
+
+        mockMvc.perform(get("/api/dashboard/requests"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/dashboard/overview"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.recentRequestCount").value(0));
+    }
 }

@@ -45,6 +45,10 @@ public class RequestLogService {
         return buffer.size();
     }
 
+    public synchronized void reset() {
+        buffer.clear();
+    }
+
     public SseEmitter newEmitter() {
         SseEmitter emitter = new SseEmitter(0L);
         emitters.add(emitter);

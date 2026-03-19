@@ -18,6 +18,7 @@ export default function App() {
   const [selectedEntry, setSelectedEntry] = useState<RequestLogEntry | null>(null)
 
   const detailTitle = selectedEntry ? `${selectedEntry.method} ${selectedEntry.statusCode}` : 'Request detail'
+  const showDetailPane = selectedView === 'requests'
 
   function handleResetComplete() {
     setRefreshToken((value) => value + 1)
@@ -25,14 +26,15 @@ export default function App() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-950 text-slate-100">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.14),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.12),_transparent_22%)]" />
       <Sidebar
         selectedView={selectedView}
         onSelect={setSelectedView}
         overview={overview}
         onReset={handleResetComplete}
       />
-      <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 overflow-hidden border-r border-slate-800">
+      <div className="relative z-10 flex flex-1 flex-col overflow-hidden xl:flex-row">
+        <div className="min-h-0 flex-1 overflow-hidden border-b border-slate-800 xl:border-b-0 xl:border-r">
           {selectedView === 'overview' ? (
             <OverviewPanel overview={overview} loading={loading} error={error} />
           ) : selectedView === 'rest' ? (
@@ -51,12 +53,14 @@ export default function App() {
             />
           )}
         </div>
-        <div className="flex w-[28rem] flex-col overflow-hidden bg-slate-950">
-          <div className="border-b border-slate-800 px-4 py-3 text-xs uppercase tracking-[0.18em] text-slate-500">
-            {detailTitle}
+        {showDetailPane ? (
+          <div className="flex h-[20rem] flex-col overflow-hidden border-t border-slate-800 bg-slate-950/95 backdrop-blur xl:h-auto xl:w-[28rem] xl:border-l xl:border-t-0">
+            <div className="border-b border-slate-800 px-4 py-3 text-xs uppercase tracking-[0.18em] text-slate-500">
+              {detailTitle}
+            </div>
+            <RequestDetail entry={selectedEntry} />
           </div>
-          <RequestDetail entry={selectedEntry} />
-        </div>
+        ) : null}
       </div>
     </div>
   )

@@ -55,13 +55,18 @@ export function MetadataExplorer() {
   }
 
   return (
-    <div className="grid h-full grid-cols-[1fr,1fr] overflow-hidden">
+    <div className="grid h-full grid-cols-1 overflow-hidden xl:grid-cols-[1fr,1fr]">
       <div className="overflow-auto border-r border-slate-800 bg-slate-950 p-6">
         <div className="text-xs uppercase tracking-[0.2em] text-cyan-300">Feature 4</div>
         <h2 className="mt-2 text-2xl font-semibold text-white">Metadata Explorer</h2>
         <p className="mt-1 text-sm text-slate-400">
           Inspect Metadata SOAP responses and the tooling-backed helper queries used by `metadata-service`.
         </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <MetaCard label="SOAP coverage" value="describe/list/read" tone="cyan" />
+          <MetaCard label="Deploy helpers" value="status + cancel" tone="emerald" />
+          <MetaCard label="Tooling focus" value="Tabs, apps, flows" tone="fuchsia" />
+        </div>
 
         <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
           <div className="flex items-center justify-between">
@@ -81,7 +86,7 @@ export function MetadataExplorer() {
         </div>
       </div>
 
-      <div className="overflow-auto bg-slate-950 p-6">
+      <div className="overflow-auto border-t border-slate-800 bg-slate-950 p-6 xl:border-t-0">
         <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Tooling helper queries</h3>
@@ -106,3 +111,18 @@ export function MetadataExplorer() {
 const editorClass = 'w-full rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 font-mono text-sm text-slate-100 outline-none focus:border-cyan-400'
 const primaryButton = 'rounded-xl bg-cyan-400 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60'
 const presetButton = 'rounded-full border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 transition hover:border-cyan-400 hover:text-white'
+
+function MetaCard({ label, value, tone }: { label: string; value: string; tone: 'cyan' | 'emerald' | 'fuchsia' }) {
+  const styles = {
+    cyan: 'border-cyan-400/20 bg-cyan-400/10 text-cyan-100',
+    emerald: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-100',
+    fuchsia: 'border-fuchsia-400/20 bg-fuchsia-400/10 text-fuchsia-100',
+  }
+
+  return (
+    <div className={`rounded-2xl border px-4 py-4 ${styles[tone]}`}>
+      <div className="text-[10px] uppercase tracking-[0.18em] opacity-70">{label}</div>
+      <div className="mt-2 text-sm font-medium text-white">{value}</div>
+    </div>
+  )
+}

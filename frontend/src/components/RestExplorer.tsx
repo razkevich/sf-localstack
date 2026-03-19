@@ -112,7 +112,7 @@ export function RestExplorer({ overview }: Props) {
   }
 
   return (
-    <div className="grid h-full grid-cols-[1.1fr,0.9fr] overflow-hidden">
+    <div className="grid h-full grid-cols-1 overflow-hidden xl:grid-cols-[1.1fr,0.9fr]">
       <div className="overflow-auto border-r border-slate-800 bg-slate-950">
         <div className="border-b border-slate-800 px-6 py-5">
           <div className="text-xs uppercase tracking-[0.2em] text-cyan-300">Features 1-2</div>
@@ -120,6 +120,11 @@ export function RestExplorer({ overview }: Props) {
           <p className="mt-1 text-sm text-slate-400">
             Run supported SOQL, inspect object metadata, and exercise external-ID upsert flows from the same dashboard surface.
           </p>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <InsightCard label="Best for" value="Query and CRUD parity" tone="cyan" />
+            <InsightCard label="Seeded focus" value="Account + Contact" tone="emerald" />
+            <InsightCard label="Mutation path" value="External-ID upsert" tone="amber" />
+          </div>
         </div>
 
         <div className="p-6">
@@ -218,7 +223,7 @@ export function RestExplorer({ overview }: Props) {
         </div>
       </div>
 
-      <div className="overflow-auto bg-slate-950">
+      <div className="overflow-auto border-t border-slate-800 bg-slate-950 xl:border-t-0">
         <div className="border-b border-slate-800 px-6 py-5">
           <div className="text-xs uppercase tracking-[0.18em] text-slate-500">Object browser</div>
           <div className="mt-3 flex items-center gap-3">
@@ -298,6 +303,21 @@ function SummaryPill({ label, value }: { label: string; value: string }) {
     <div className="rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3">
       <div className="text-xs uppercase tracking-[0.16em] text-slate-500">{label}</div>
       <div className="mt-1 text-sm font-medium text-white">{value}</div>
+    </div>
+  )
+}
+
+function InsightCard({ label, value, tone }: { label: string; value: string; tone: 'cyan' | 'emerald' | 'amber' }) {
+  const styles = {
+    cyan: 'border-cyan-400/20 bg-cyan-400/10 text-cyan-100',
+    emerald: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-100',
+    amber: 'border-amber-400/20 bg-amber-400/10 text-amber-100',
+  }
+
+  return (
+    <div className={`rounded-2xl border px-4 py-4 ${styles[tone]}`}>
+      <div className="text-[10px] uppercase tracking-[0.18em] opacity-70">{label}</div>
+      <div className="mt-2 text-sm font-medium text-white">{value}</div>
     </div>
   )
 }

@@ -18,13 +18,18 @@ export function Sidebar({ selectedView, onSelect, overview, onReset }: Props) {
   ]
 
   return (
-    <div className="flex h-full w-72 flex-col border-r border-slate-800 bg-slate-950">
+    <div className="relative z-10 flex h-full w-72 flex-col border-r border-slate-800 bg-slate-950/95 backdrop-blur">
       <div className="border-b border-slate-800 p-5">
         <div className="text-xs uppercase tracking-[0.2em] text-cyan-300">sf-localstack</div>
         <h1 className="mt-2 text-lg font-semibold text-white">Salesforce API Emulator</h1>
         <p className="mt-1 text-sm text-slate-400">
           Build REST, Bulk, and Metadata support inside a working app shell.
         </p>
+        <div className="mt-4 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.16em] text-slate-400">
+          <span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2 py-1 text-cyan-200">REST</span>
+          <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-1 text-emerald-200">Bulk</span>
+          <span className="rounded-full border border-fuchsia-400/30 bg-fuchsia-400/10 px-2 py-1 text-fuchsia-200">Metadata</span>
+        </div>
       </div>
 
       <div className="border-b border-slate-800 px-5 py-4">
