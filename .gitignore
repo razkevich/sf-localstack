@@ -28,10 +28,6 @@ Thumbs.db
 # Maven build output
 target/
 
-# gstack browser binary (built locally)
-.claude/skills/gstack/browse/dist/
-.claude/skills/gstack/node_modules/
-
 # OMC state
 .omc/state/
 .omc/notepad.md
