@@ -29,6 +29,307 @@
   },
   "customNotes": [],
   "directoryMap": {},
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "TODOS.md",
+      "accessCount": 3,
+      "lastAccessed": 1773925093470,
+      "type": "file"
+    },
+    {
+      "path": "pom.xml",
+      "accessCount": 3,
+      "lastAccessed": 1773939853771,
+      "type": "file"
+    },
+    {
+      "path": "src/main/java/co/prodly/sflocalstack/SfLocalstackApplication.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939835980,
+      "type": "file"
+    },
+    {
+      "path": "src/main/java/co/prodly/sflocalstack/api/oauth/OAuthController.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939836269,
+      "type": "file"
+    },
+    {
+      "path": "src/main/resources/application.yml",
+      "accessCount": 2,
+      "lastAccessed": 1773939837118,
+      "type": "file"
+    },
+    {
+      "path": "src/main/java/co/prodly/sflocalstack/service/OrgStateService.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939837448,
+      "type": "file"
+    },
+    {
+      "path": "src/main/java/co/prodly/sflocalstack/api/dashboard/DashboardController.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939837786,
+      "type": "file"
+    },
+    {
+      "path": "src/main/java/co/prodly/sflocalstack/interceptor/RequestLoggingInterceptor.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939838594,
+      "type": "file"
+    },
+    {
+      "path": "src/main/java/co/prodly/sflocalstack/config/WebConfig.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939838988,
+      "type": "file"
+    },
+    {
+      "path": "src/main/java/co/prodly/sflocalstack/model/RequestLogEntry.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939839306,
+      "type": "file"
+    },
+    {
+      "path": "src/main/java/co/prodly/sflocalstack/service/SseEventBus.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939840161,
+      "type": "file"
+    },
+    {
+      "path": "src/main/java/co/prodly/sflocalstack/api/ResetController.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939840526,
+      "type": "file"
+    },
+    {
+      "path": "src/test/java/co/prodly/sflocalstack/api/oauth/OAuthControllerTest.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939841294,
+      "type": "file"
+    },
+    {
+      "path": "src/test/java/co/prodly/sflocalstack/service/SseEventBusTest.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939841510,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/resources/application.yml",
+      "accessCount": 2,
+      "lastAccessed": 1773939903637,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/SfLocalstackApplication.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939905050,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/model/RequestLogEntry.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939905791,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/service/OrgStateService.java",
+      "accessCount": 2,
+      "lastAccessed": 1773939960519,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/service/SoqlEngine.java",
+      "accessCount": 2,
+      "lastAccessed": 1773942336026,
+      "type": "file"
+    },
+    {
+      "path": "frontend/package.json",
+      "accessCount": 1,
+      "lastAccessed": 1773925538163,
+      "type": "file"
+    },
+    {
+      "path": "frontend/vite.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1773925539441,
+      "type": "file"
+    },
+    {
+      "path": "frontend/tsconfig.json",
+      "accessCount": 1,
+      "lastAccessed": 1773925542492,
+      "type": "file"
+    },
+    {
+      "path": "frontend/tsconfig.node.json",
+      "accessCount": 1,
+      "lastAccessed": 1773925544517,
+      "type": "file"
+    },
+    {
+      "path": "frontend/tailwind.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1773925545337,
+      "type": "file"
+    },
+    {
+      "path": "frontend/postcss.config.js",
+      "accessCount": 1,
+      "lastAccessed": 1773925545699,
+      "type": "file"
+    },
+    {
+      "path": "frontend/index.html",
+      "accessCount": 1,
+      "lastAccessed": 1773925549600,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/types/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1773925550717,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/hooks/useSse.ts",
+      "accessCount": 1,
+      "lastAccessed": 1773925555069,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/components/ResetButton.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1773925556723,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/components/Sidebar.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1773925561488,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/components/RequestDetail.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1773925573370,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/components/RequestLog.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1773925596004,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1773925599066,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/main.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1773925599817,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/index.css",
+      "accessCount": 1,
+      "lastAccessed": 1773925600195,
+      "type": "file"
+    },
+    {
+      "path": "service/pom.xml",
+      "accessCount": 1,
+      "lastAccessed": 1773939870996,
+      "type": "file"
+    },
+    {
+      "path": "client/pom.xml",
+      "accessCount": 1,
+      "lastAccessed": 1773939874799,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/resources/application-local.yml",
+      "accessCount": 1,
+      "lastAccessed": 1773939881173,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/resources/seed/default-seed.yml",
+      "accessCount": 1,
+      "lastAccessed": 1773939883531,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/model/SObjectRecord.java",
+      "accessCount": 1,
+      "lastAccessed": 1773939889274,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/model/SalesforceError.java",
+      "accessCount": 1,
+      "lastAccessed": 1773939891921,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/repository/SObjectRecordRepository.java",
+      "accessCount": 1,
+      "lastAccessed": 1773939910507,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/service/RequestLogService.java",
+      "accessCount": 1,
+      "lastAccessed": 1773939937282,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/service/SeedDataLoader.java",
+      "accessCount": 1,
+      "lastAccessed": 1773939943108,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/controller/OAuthController.java",
+      "accessCount": 1,
+      "lastAccessed": 1773939967911,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/controller/VersionController.java",
+      "accessCount": 1,
+      "lastAccessed": 1773939970094,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/controller/QueryController.java",
+      "accessCount": 1,
+      "lastAccessed": 1773939973146,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/controller/SObjectController.java",
+      "accessCount": 1,
+      "lastAccessed": 1773939981957,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/controller/ResetController.java",
+      "accessCount": 1,
+      "lastAccessed": 1773939984551,
+      "type": "file"
+    },
+    {
+      "path": "service/src/main/java/co/prodly/sflocalstack/controller/DashboardController.java",
+      "accessCount": 1,
+      "lastAccessed": 1773939988023,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }
