@@ -2,7 +2,6 @@ package co.prodly.sflocalstack.controller;
 
 import co.prodly.sflocalstack.model.SalesforceError;
 import co.prodly.sflocalstack.service.MetadataToolingService;
-import co.prodly.sflocalstack.service.SoqlEngine;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,33 +13,20 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/services/data/{apiVersion}")
-public class QueryController {
+@RequestMapping("/services/data/{apiVersion}/tooling")
+public class MetadataRestController {
 
-    private final SoqlEngine soqlEngine;
     private final MetadataToolingService metadataToolingService;
 
-    public QueryController(SoqlEngine soqlEngine, MetadataToolingService metadataToolingService) {
-        this.soqlEngine = soqlEngine;
+    public MetadataRestController(MetadataToolingService metadataToolingService) {
         this.metadataToolingService = metadataToolingService;
     }
 
     @GetMapping("/query")
     public ResponseEntity<?> query(@RequestParam("q") String soql) {
         try {
-            List<Map<String, Object>> records = soqlEngine.execute(soql);
-            if (records.isEmpty()) {
-                List<Map<String, Object>> metadataRecords = metadataToolingService.executeStandardMetadataQuery(soql);
-                if (!metadataRecords.isEmpty()) {
-                    records = metadataRecords;
-                }
-            }
-            Map<String, Object> result = Map.of(
-                    "totalSize", records.size(),
-                    "done", true,
-                    "records", records
-            );
-            return ResponseEntity.ok(result);
+            List<Map<String, Object>> records = metadataToolingService.executeToolingQuery(soql);
+            return ResponseEntity.ok(Map.of("totalSize", records.size(), "done", true, "records", records));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(List.of(new SalesforceError(ex.getMessage(), "MALFORMED_QUERY")));

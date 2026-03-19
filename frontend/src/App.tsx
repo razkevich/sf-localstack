@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { OverviewPanel } from './components/OverviewPanel'
 import { BulkExplorer } from './components/BulkExplorer'
+import { MetadataExplorer } from './components/MetadataExplorer'
 import { RestExplorer } from './components/RestExplorer'
 import { Sidebar } from './components/Sidebar'
 import { RequestLog } from './components/RequestLog'
@@ -10,7 +11,7 @@ import { useSse } from './hooks/useSse'
 import type { RequestLogEntry } from './types'
 
 export default function App() {
-  const [selectedView, setSelectedView] = useState<'overview' | 'requests' | 'rest' | 'bulk'>('overview')
+  const [selectedView, setSelectedView] = useState<'overview' | 'requests' | 'rest' | 'bulk' | 'metadata'>('overview')
   const [refreshToken, setRefreshToken] = useState(0)
   const { entries, connected, clear } = useSse(refreshToken)
   const { overview, loading, error } = useDashboardOverview(refreshToken)
@@ -36,6 +37,8 @@ export default function App() {
             <RestExplorer overview={overview} />
           ) : selectedView === 'bulk' ? (
             <BulkExplorer />
+          ) : selectedView === 'metadata' ? (
+            <MetadataExplorer />
           ) : (
             <RequestLog
               entries={entries}

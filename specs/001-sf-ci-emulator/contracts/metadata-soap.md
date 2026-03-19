@@ -3,7 +3,10 @@
 ## Scope
 
 - `POST /services/Soap/m/60.0`
-- Supported operations: `listMetadata`, `describeMetadata`, `deploy`, `checkDeployStatus`, `cancelDeploy`
+- Supported operations: `listMetadata`, `describeMetadata`, `readMetadata`, `deploy`, `checkDeployStatus`, `cancelDeploy`
+- Supporting query surfaces used by `metadata-service`:
+  - `GET /services/data/v60.0/tooling/query` for `TabDefinition`, `CustomApplication`, `EntityDefinition`, `FlowDefinition`, and `Flow`
+  - `GET /services/data/v60.0/query` for `FlowDefinitionView`
 
 ## Envelope Expectations
 
@@ -39,9 +42,15 @@
 
 - `listMetadata` returns deterministic `FileProperties` results for the supported metadata catalog.
 - `describeMetadata` returns deterministic `DescribeMetadataObject` entries for the same supported catalog.
+- `readMetadata` returns typed records for the supported metadata catalog (`CustomField`, `StandardValueSet`, `GlobalValueSet`, and generic typed reads).
 
 ## Behavioral Guarantees
 
 - SOAP operation routing is based on the first body element local name.
 - Namespace-tolerant parsing is required.
 - Reset clears all deploy jobs and restores the metadata catalog to baseline behavior.
+
+## Accepted Deltas
+
+- The emulator exposes only the metadata catalog entries and tooling/helper rows needed by current `metadata-service` flows; `dev20` returns a much larger real-org dataset.
+- The emulator accepts `FlowDefinitionView` through the standard query endpoint because that matches current service usage; querying `FlowDefinitionView` through Tooling returns `INVALID_TYPE` on `dev20`.

@@ -91,6 +91,16 @@ export interface BulkJob {
   lineEnding: string
 }
 
+export interface ToolingQueryResult {
+  totalSize: number
+  done: boolean
+  records: SalesforceRecord[]
+}
+
+export interface MetadataSoapResult {
+  xml: string
+}
+
 export interface DescribeResult {
   actionOverrides: unknown[]
   childRelationships: unknown[]

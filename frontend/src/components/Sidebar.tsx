@@ -2,8 +2,8 @@ import { ResetButton } from './ResetButton'
 import type { DashboardOverview } from '../types'
 
 interface Props {
-  selectedView: 'overview' | 'requests' | 'rest' | 'bulk'
-  onSelect: (view: 'overview' | 'requests' | 'rest' | 'bulk') => void
+  selectedView: 'overview' | 'requests' | 'rest' | 'bulk' | 'metadata'
+  onSelect: (view: 'overview' | 'requests' | 'rest' | 'bulk' | 'metadata') => void
   overview: DashboardOverview | null
   onReset: () => void
 }
@@ -13,6 +13,7 @@ export function Sidebar({ selectedView, onSelect, overview, onReset }: Props) {
     { id: 'overview', label: 'Overview', hint: 'Seed + app status' },
     { id: 'rest', label: 'REST Explorer', hint: 'SOQL + object browser' },
     { id: 'bulk', label: 'Bulk Explorer', hint: 'CSV ingest console' },
+    { id: 'metadata', label: 'Metadata', hint: 'SOAP + tooling helpers' },
     { id: 'requests', label: 'Request Log', hint: 'Live traffic inspector' },
   ]
 
@@ -45,7 +46,7 @@ export function Sidebar({ selectedView, onSelect, overview, onReset }: Props) {
           <button
             key={item.id}
             type="button"
-            onClick={() => onSelect(item.id as 'overview' | 'requests' | 'rest' | 'bulk')}
+            onClick={() => onSelect(item.id as 'overview' | 'requests' | 'rest' | 'bulk' | 'metadata')}
             className={`w-full rounded-xl px-3 py-3 text-left transition-colors ${
               selectedView === item.id
                 ? 'bg-cyan-500/15 text-white ring-1 ring-cyan-400/40'

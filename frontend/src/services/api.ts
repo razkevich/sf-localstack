@@ -6,6 +6,7 @@ import type {
   QueryResult,
   RequestLogEntry,
   SObjectListResult,
+  ToolingQueryResult,
 } from '../types'
 
 const DEFAULT_API_BASE = import.meta.env.VITE_API_BASE ?? ''
@@ -164,4 +165,33 @@ export async function fetchBulkCsvResult(
 
 export function eventStreamUrl(path: string): string {
   return url(path)
+}
+
+export async function runToolingQuery(soql: string): Promise<ToolingQueryResult> {
+  const response = await fetch(url(`/services/data/v60.0/tooling/query?q=${encodeURIComponent(soql)}`))
+  if (!response.ok) {
+    const body = await response.json().catch(() => null)
+    const message = Array.isArray(body) && body[0]?.message ? String(body[0].message) : 'Failed to run tooling query'
+    throw new Error(message)
+  }
+  return response.json() as Promise<ToolingQueryResult>
+}
+
+export async function callMetadataSoap(operationBody: string): Promise<string> {
+  const envelope = `<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:met="http://soap.sforce.com/2006/04/metadata">
+  <soapenv:Body>
+    ${operationBody}
+  </soapenv:Body>
+</soapenv:Envelope>`
+
+  const response = await fetch(url('/services/Soap/m/60.0'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/xml' },
+    body: envelope,
+  })
+  if (!response.ok) {
+    throw new Error('Failed to call metadata SOAP endpoint')
+  }
+  return response.text()
 }
