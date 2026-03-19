@@ -1,16 +1,21 @@
 import { useState } from 'react'
+import { resetOrg } from '../services/api'
 
 type Status = 'idle' | 'loading' | 'success' | 'error'
 
-export function ResetButton() {
+interface Props {
+  onReset?: () => void
+}
+
+export function ResetButton({ onReset }: Props) {
   const [status, setStatus] = useState<Status>('idle')
 
   async function handleReset() {
     setStatus('loading')
     try {
-      const res = await fetch('/reset', { method: 'POST' })
-      if (!res.ok) throw new Error('Failed')
+      await resetOrg()
       setStatus('success')
+      onReset?.()
       setTimeout(() => setStatus('idle'), 2000)
     } catch {
       setStatus('error')
@@ -28,10 +33,10 @@ export function ResetButton() {
     <button
       onClick={handleReset}
       disabled={status === 'loading'}
-      className={`w-full px-3 py-2 rounded text-sm font-medium transition-colors
+      className={`w-full rounded-xl px-3 py-3 text-sm font-medium transition-colors
         ${status === 'success' ? 'bg-green-600 text-white' :
           status === 'error' ? 'bg-red-600 text-white' :
-          'bg-gray-700 hover:bg-gray-600 text-gray-200'}`}
+          'bg-slate-100 text-slate-900 hover:bg-white'}`}
     >
       {label}
     </button>

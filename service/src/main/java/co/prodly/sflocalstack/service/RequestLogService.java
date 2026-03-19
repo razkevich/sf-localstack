@@ -41,6 +41,10 @@ public class RequestLogService {
         return all.subList(from, all.size());
     }
 
+    public synchronized int size() {
+        return buffer.size();
+    }
+
     public SseEmitter newEmitter() {
         SseEmitter emitter = new SseEmitter(0L);
         emitters.add(emitter);

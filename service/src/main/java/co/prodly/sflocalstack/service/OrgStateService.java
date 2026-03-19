@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class OrgStateService {
@@ -52,6 +53,15 @@ public class OrgStateService {
     @Transactional(readOnly = true)
     public List<SObjectRecord> findAll() {
         return repository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Integer> countByObjectType() {
+        return repository.findAll().stream()
+                .collect(Collectors.groupingBy(
+                        SObjectRecord::getObjectType,
+                        Collectors.collectingAndThen(Collectors.counting(), Long::intValue)
+                ));
     }
 
     @Transactional
