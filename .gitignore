@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+build/
+*.js.map
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# gstack browser binary (built locally)
+.claude/skills/gstack/browse/dist/
+.claude/skills/gstack/node_modules/
+
+# OMC state
+.omc/state/
+.omc/notepad.md
+
+# Serena
+.serena/
