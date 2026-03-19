@@ -39,6 +39,24 @@ export function OverviewPanel({ overview, loading, error }: Props) {
       </div>
 
       <div className="px-6 pb-6">
+        <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Suggested walkthrough</h3>
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              ['1', 'REST explorer', 'Run a seeded SOQL query and inspect the response envelope.'],
+              ['2', 'Upsert flow', 'Create then update a record with the same external ID.'],
+              ['3', 'Bulk explorer', 'Upload one CSV row and confirm the result file looks right.'],
+              ['4', 'Metadata', 'Call describe/list/read and compare helper query payloads.'],
+            ].map(([step, title, text]) => (
+              <div key={title} className="rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-4">
+                <div className="text-xs uppercase tracking-[0.18em] text-cyan-300">Step {step}</div>
+                <div className="mt-2 text-sm font-medium text-white">{title}</div>
+                <div className="mt-2 text-xs leading-5 text-slate-500">{text}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">

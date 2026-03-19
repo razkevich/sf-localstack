@@ -17,6 +17,8 @@ export default function App() {
   const { overview, loading, error } = useDashboardOverview(refreshToken)
   const [selectedEntry, setSelectedEntry] = useState<RequestLogEntry | null>(null)
 
+  const detailTitle = selectedEntry ? `${selectedEntry.method} ${selectedEntry.statusCode}` : 'Request detail'
+
   function handleResetComplete() {
     setRefreshToken((value) => value + 1)
   }
@@ -51,7 +53,7 @@ export default function App() {
         </div>
         <div className="flex w-[28rem] flex-col overflow-hidden bg-slate-950">
           <div className="border-b border-slate-800 px-4 py-3 text-xs uppercase tracking-[0.18em] text-slate-500">
-            Request detail
+            {detailTitle}
           </div>
           <RequestDetail entry={selectedEntry} />
         </div>

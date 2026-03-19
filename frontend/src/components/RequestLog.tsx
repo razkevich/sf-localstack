@@ -27,6 +27,16 @@ function methodBadge(method: string): string {
   }
 }
 
+function surfaceLabel(path: string): string {
+  if (path.includes('/jobs/ingest')) return 'Bulk'
+  if (path.includes('/Soap/m/')) return 'Metadata SOAP'
+  if (path.includes('/tooling/')) return 'Tooling'
+  if (path.includes('/query')) return 'REST Query'
+  if (path.includes('/sobjects/')) return 'REST Data'
+  if (path.includes('/reset')) return 'Reset'
+  return 'App'
+}
+
 function statusColor(code: number): string {
   if (code >= 200 && code < 300) return 'text-green-400'
   if (code >= 400 && code < 500) return 'text-yellow-400'
@@ -37,29 +47,33 @@ function statusColor(code: number): string {
 export function RequestLog({ entries, connected, selectedEntry, onSelect, onClear }: Props) {
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
-        <div className="flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500' : 'bg-gray-500'}`} />
-          <span className="text-sm text-gray-400">{connected ? 'Live' : 'Connecting...'}</span>
+      <div className="flex items-center justify-between border-b border-slate-800 px-5 py-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className={`h-2 w-2 rounded-full ${connected ? 'bg-emerald-400' : 'bg-slate-500'}`} />
+            <span className="text-sm text-slate-300">{connected ? 'Live request stream' : 'Connecting stream...'}</span>
+          </div>
+          <div className="mt-1 text-xs text-slate-500">{entries.length} requests captured in this session</div>
         </div>
         <button
           onClick={onClear}
-          className="text-xs text-gray-400 hover:text-gray-200 px-2 py-1 rounded hover:bg-gray-800"
+          className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 transition hover:border-slate-500 hover:text-white"
         >
           Clear
         </button>
       </div>
 
       {entries.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center text-gray-600 text-sm">
-          No requests yet. Make a call to the API to see logs here.
+        <div className="flex flex-1 items-center justify-center px-8 text-center text-sm text-slate-500">
+          No requests yet. Use the REST, Bulk, or Metadata explorers to generate traffic and inspect the envelopes here.
         </div>
       ) : (
         <div className="flex-1 overflow-auto">
           <table className="w-full text-sm">
-            <thead className="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-800">
+            <thead className="border-b border-slate-800 text-xs uppercase tracking-wider text-slate-500">
               <tr>
                 <th className="px-4 py-2 text-left">Time</th>
+                <th className="px-4 py-2 text-left">Surface</th>
                 <th className="px-4 py-2 text-left">Method</th>
                 <th className="px-4 py-2 text-left">Path</th>
                 <th className="px-4 py-2 text-left">Status</th>
@@ -71,24 +85,29 @@ export function RequestLog({ entries, connected, selectedEntry, onSelect, onClea
                 <tr
                   key={entry.id}
                   onClick={() => onSelect(entry)}
-                  className={`cursor-pointer border-b border-gray-800 hover:bg-gray-800 transition-colors
-                    ${selectedEntry?.id === entry.id ? 'bg-gray-800' : ''}`}
+                  className={`cursor-pointer border-b border-slate-800 transition-colors hover:bg-slate-900
+                    ${selectedEntry?.id === entry.id ? 'bg-slate-900' : ''}`}
                 >
-                  <td className="px-4 py-2 text-gray-400 font-mono text-xs">
+                  <td className="px-4 py-2 font-mono text-xs text-slate-400">
                     {formatTime(entry.timestamp)}
+                  </td>
+                  <td className="px-4 py-2">
+                    <span className="rounded-full border border-slate-700 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-slate-300">
+                      {surfaceLabel(entry.path)}
+                    </span>
                   </td>
                   <td className="px-4 py-2">
                     <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${methodBadge(entry.method)}`}>
                       {entry.method}
                     </span>
                   </td>
-                  <td className="px-4 py-2 text-gray-300 font-mono text-xs max-w-xs truncate">
+                  <td className="max-w-xs truncate px-4 py-2 font-mono text-xs text-slate-300">
                     {entry.path}
                   </td>
                   <td className={`px-4 py-2 font-mono text-xs ${statusColor(entry.statusCode)}`}>
                     {entry.statusCode}
                   </td>
-                  <td className="px-4 py-2 text-gray-400 text-xs">
+                  <td className="px-4 py-2 text-xs text-slate-400">
                     {entry.durationMs}ms
                   </td>
                 </tr>
