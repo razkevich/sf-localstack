@@ -25,6 +25,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# Maven build output
+target/
+
 # gstack browser binary (built locally)
 .claude/skills/gstack/browse/dist/
 .claude/skills/gstack/node_modules/
