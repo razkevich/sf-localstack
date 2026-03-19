@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { OverviewPanel } from './components/OverviewPanel'
+import { RestExplorer } from './components/RestExplorer'
 import { Sidebar } from './components/Sidebar'
 import { RequestLog } from './components/RequestLog'
 import { RequestDetail } from './components/RequestDetail'
@@ -8,7 +9,7 @@ import { useSse } from './hooks/useSse'
 import type { RequestLogEntry } from './types'
 
 export default function App() {
-  const [selectedView, setSelectedView] = useState<'overview' | 'requests'>('overview')
+  const [selectedView, setSelectedView] = useState<'overview' | 'requests' | 'rest'>('overview')
   const [refreshToken, setRefreshToken] = useState(0)
   const { entries, connected, clear } = useSse(refreshToken)
   const { overview, loading, error } = useDashboardOverview(refreshToken)
@@ -30,6 +31,8 @@ export default function App() {
         <div className="flex-1 overflow-hidden border-r border-slate-800">
           {selectedView === 'overview' ? (
             <OverviewPanel overview={overview} loading={loading} error={error} />
+          ) : selectedView === 'rest' ? (
+            <RestExplorer overview={overview} />
           ) : (
             <RequestLog
               entries={entries}

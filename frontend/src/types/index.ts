@@ -22,3 +22,38 @@ export interface DashboardOverview {
   recentRequestCount: number
   objectCounts: ObjectCount[]
 }
+
+export interface SalesforceAttributes {
+  type: string
+  url: string
+}
+
+export interface SalesforceRecord {
+  attributes?: SalesforceAttributes
+  [key: string]: unknown
+}
+
+export interface QueryResult {
+  totalSize: number
+  done: boolean
+  records: SalesforceRecord[]
+}
+
+export interface DescribeField {
+  name: string
+  label: string
+  type: string
+  filterable: boolean
+  sortable: boolean
+  nillable: boolean
+}
+
+export interface DescribeResult {
+  name: string
+  label: string
+  queryable: boolean
+  createable: boolean
+  updateable: boolean
+  deleteable: boolean
+  fields: DescribeField[]
+}

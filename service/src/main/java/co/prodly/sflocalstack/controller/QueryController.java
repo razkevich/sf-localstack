@@ -1,6 +1,8 @@
 package co.prodly.sflocalstack.controller;
 
+import co.prodly.sflocalstack.model.SalesforceError;
 import co.prodly.sflocalstack.service.SoqlEngine;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,13 +23,18 @@ public class QueryController {
     }
 
     @GetMapping("/query")
-    public ResponseEntity<Map<String, Object>> query(@RequestParam("q") String soql) {
-        List<Map<String, Object>> records = soqlEngine.execute(soql);
-        Map<String, Object> result = Map.of(
-                "totalSize", records.size(),
-                "done", true,
-                "records", records
-        );
-        return ResponseEntity.ok(result);
+    public ResponseEntity<?> query(@RequestParam("q") String soql) {
+        try {
+            List<Map<String, Object>> records = soqlEngine.execute(soql);
+            Map<String, Object> result = Map.of(
+                    "totalSize", records.size(),
+                    "done", true,
+                    "records", records
+            );
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(List.of(new SalesforceError(ex.getMessage(), "MALFORMED_QUERY")));
+        }
     }
 }

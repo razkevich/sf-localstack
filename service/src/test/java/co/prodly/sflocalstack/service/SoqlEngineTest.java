@@ -1,5 +1,6 @@
 package co.prodly.sflocalstack.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 class SoqlEngineTest {
@@ -16,29 +17,63 @@ class SoqlEngineTest {
     @Autowired
     private SoqlEngine soqlEngine;
 
-    @Test
-    void parseBasicSelectDoesNotThrow() {
-        assertThatNoException().isThrownBy(() ->
-                soqlEngine.execute("SELECT Id, Name FROM Account"));
+    @Autowired
+    private OrgStateService orgStateService;
+
+    @Autowired
+    private SeedDataLoader seedDataLoader;
+
+    @BeforeEach
+    void reset() {
+        orgStateService.reset();
+        seedDataLoader.load();
     }
 
     @Test
-    void selectAllReturnsRecords() {
-        // After seed load, we should have Account records
-        List<Map<String, Object>> results = soqlEngine.execute("SELECT Id, Name FROM Account");
-        assertThat(results).isNotNull();
+    void equalityFilterMatchesSeededAccount() {
+        List<Map<String, Object>> results = soqlEngine.execute("SELECT Id, Name FROM Account WHERE Name = 'Acme Corp'");
+
+        assertThat(results).hasSize(1);
+        assertThat(results.getFirst()).containsEntry("Name", "Acme Corp");
     }
 
     @Test
-    void limitIsRespected() {
-        List<Map<String, Object>> results = soqlEngine.execute("SELECT Id FROM Account LIMIT 1");
-        assertThat(results).hasSizeLessThanOrEqualTo(1);
+    void likeFilterMatchesBothSeededAccounts() {
+        List<Map<String, Object>> results = soqlEngine.execute("SELECT Id, Name FROM Account WHERE Name LIKE '%Corp%'");
+
+        assertThat(results).hasSize(2);
     }
 
     @Test
-    void unsupportedQueryReturnsEmpty() {
-        // Malformed / unsupported queries return empty list, not exception
-        List<Map<String, Object>> results = soqlEngine.execute("NOT VALID SOQL");
-        assertThat(results).isEmpty();
+    void relationshipProjectionUsesNestedObjectShape() {
+        List<Map<String, Object>> results = soqlEngine.execute(
+                "SELECT Id, FirstName, Account.Name FROM Contact WHERE LastName = 'Doe'");
+
+        assertThat(results).hasSize(1);
+        assertThat(results.getFirst()).containsEntry("FirstName", "John");
+        assertThat(results.getFirst()).containsKey("Account");
+        assertThat(results.getFirst().get("Account")).isEqualTo(Map.of("Name", "Acme Corp"));
+    }
+
+    @Test
+    void countAggregateReturnsExpr0() {
+        List<Map<String, Object>> results = soqlEngine.execute("SELECT COUNT() FROM Account");
+
+        assertThat(results).containsExactly(Map.of("expr0", 2));
+    }
+
+    @Test
+    void limitIsRespectedAfterFiltering() {
+        List<Map<String, Object>> results = soqlEngine.execute(
+                "SELECT Id FROM Account WHERE Name LIKE '%Corp%' LIMIT 1");
+
+        assertThat(results).hasSize(1);
+    }
+
+    @Test
+    void unsupportedQueryThrows() {
+        assertThatThrownBy(() -> soqlEngine.execute("NOT VALID SOQL"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Unsupported SOQL");
     }
 }

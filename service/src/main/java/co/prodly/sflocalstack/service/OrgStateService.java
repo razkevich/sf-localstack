@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,6 +53,12 @@ public class OrgStateService {
     }
 
     @Transactional(readOnly = true)
+    public Optional<SObjectRecord> findByTypeAndId(String objectType, String id) {
+        return repository.findById(id)
+                .filter(record -> objectType.equalsIgnoreCase(record.getObjectType()));
+    }
+
+    @Transactional(readOnly = true)
     public List<SObjectRecord> findAll() {
         return repository.findAll();
     }
@@ -62,6 +70,87 @@ public class OrgStateService {
                         SObjectRecord::getObjectType,
                         Collectors.collectingAndThen(Collectors.counting(), Long::intValue)
                 ));
+    }
+
+    @Transactional(readOnly = true)
+    public Object resolveFieldValue(String objectType, Map<String, Object> fields, String fieldPath) {
+        if (fields.containsKey(fieldPath)) {
+            return fields.get(fieldPath);
+        }
+
+        if (!fieldPath.contains(".")) {
+            return fields.get(fieldPath);
+        }
+
+        String[] parts = fieldPath.split("\\.", 2);
+        String relationshipName = parts[0];
+        String relatedField = parts[1];
+
+        Object literalValue = fields.get(fieldPath);
+        if (literalValue != null) {
+            return literalValue;
+        }
+
+        Object relationshipId = fields.get(relationshipName + "Id");
+        if (!(relationshipId instanceof String relationshipRecordId)) {
+            return null;
+        }
+
+        String relatedObjectType = inferObjectTypeFromRelationship(relationshipName);
+        return findByTypeAndId(relatedObjectType, relationshipRecordId)
+                .map(SObjectRecord::getFieldsJson)
+                .map(this::fromJson)
+                .map(relatedFields -> resolveFieldValue(relatedObjectType, relatedFields, relatedField))
+                .orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> toSalesforceRecord(String apiVersion, String objectType, Map<String, Object> fields) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("attributes", Map.of(
+                "type", objectType,
+                "url", "/services/data/" + apiVersion + "/sobjects/" + objectType + "/" + fields.get("Id")
+        ));
+
+        fields.forEach((key, value) -> {
+            if ("attributes".equals(key)) {
+                return;
+            }
+
+            if (key.contains(".")) {
+                addNestedValue(result, key, value);
+            } else {
+                result.put(key, value);
+            }
+        });
+
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> describeFields(String objectType) {
+        return findByType(objectType).stream()
+                .map(SObjectRecord::getFieldsJson)
+                .map(this::fromJson)
+                .flatMap(fields -> fields.entrySet().stream())
+                .filter(entry -> !"attributes".equals(entry.getKey()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> guessFieldType(entry.getValue()),
+                        (left, right) -> left,
+                        LinkedHashMap::new
+                ))
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.naturalOrder()))
+                .map(entry -> Map.<String, Object>of(
+                        "name", entry.getKey(),
+                        "label", entry.getKey(),
+                        "type", entry.getValue(),
+                        "filterable", true,
+                        "sortable", true,
+                        "nillable", true
+                ))
+                .toList();
     }
 
     @Transactional
@@ -117,5 +206,48 @@ public class OrgStateService {
                 : objectType.toUpperCase();
         String uid = UUID.randomUUID().toString().replace("-", "").substring(0, 15);
         return prefix + uid;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addNestedValue(Map<String, Object> target, String fieldPath, Object value) {
+        String[] parts = fieldPath.split("\\.");
+        Map<String, Object> current = target;
+        for (int index = 0; index < parts.length - 1; index++) {
+            Object existing = current.get(parts[index]);
+            if (!(existing instanceof Map<?, ?> existingMap)) {
+                Map<String, Object> nested = new LinkedHashMap<>();
+                current.put(parts[index], nested);
+                current = nested;
+            } else {
+                current = (Map<String, Object>) existingMap;
+            }
+        }
+        current.put(parts[parts.length - 1], value);
+    }
+
+    private String guessFieldType(Object value) {
+        if (value == null) {
+            return "string";
+        }
+        if (value instanceof Boolean) {
+            return "boolean";
+        }
+        if (value instanceof Integer || value instanceof Long) {
+            return "int";
+        }
+        if (value instanceof Float || value instanceof Double) {
+            return "double";
+        }
+        if (value instanceof String stringValue && stringValue.matches("\\d{4}-\\d{2}-\\d{2}T.*Z")) {
+            return "datetime";
+        }
+        return "string";
+    }
+
+    private String inferObjectTypeFromRelationship(String relationshipName) {
+        if (relationshipName.endsWith("__r")) {
+            return relationshipName.substring(0, relationshipName.length() - 3) + "__c";
+        }
+        return relationshipName;
     }
 }

@@ -1,4 +1,4 @@
-import type { DashboardOverview, RequestLogEntry } from '../types'
+import type { DashboardOverview, DescribeResult, QueryResult, RequestLogEntry } from '../types'
 
 const DEFAULT_API_BASE = import.meta.env.VITE_API_BASE ?? ''
 
@@ -30,6 +30,37 @@ export async function resetOrg(): Promise<void> {
   if (!response.ok) {
     throw new Error('Failed to reset org')
   }
+}
+
+export async function runSoqlQuery(soql: string): Promise<QueryResult> {
+  const response = await fetch(url(`/services/data/v60.0/query?q=${encodeURIComponent(soql)}`))
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => null)
+    const message = Array.isArray(errorBody) && errorBody[0]?.message
+      ? String(errorBody[0].message)
+      : 'Failed to run query'
+    throw new Error(message)
+  }
+
+  return response.json() as Promise<QueryResult>
+}
+
+export async function fetchObjectRecords(objectType: string): Promise<QueryResult> {
+  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}`))
+  if (!response.ok) {
+    throw new Error(`Failed to load ${objectType} records`)
+  }
+
+  return response.json() as Promise<QueryResult>
+}
+
+export async function fetchDescribe(objectType: string): Promise<DescribeResult> {
+  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}/describe`))
+  if (!response.ok) {
+    throw new Error(`Failed to describe ${objectType}`)
+  }
+
+  return response.json() as Promise<DescribeResult>
 }
 
 export function eventStreamUrl(path: string): string {

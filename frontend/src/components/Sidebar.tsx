@@ -2,8 +2,8 @@ import { ResetButton } from './ResetButton'
 import type { DashboardOverview } from '../types'
 
 interface Props {
-  selectedView: 'overview' | 'requests'
-  onSelect: (view: 'overview' | 'requests') => void
+  selectedView: 'overview' | 'requests' | 'rest'
+  onSelect: (view: 'overview' | 'requests' | 'rest') => void
   overview: DashboardOverview | null
   onReset: () => void
 }
@@ -11,6 +11,7 @@ interface Props {
 export function Sidebar({ selectedView, onSelect, overview, onReset }: Props) {
   const navItems = [
     { id: 'overview', label: 'Overview', hint: 'Seed + app status' },
+    { id: 'rest', label: 'REST Explorer', hint: 'SOQL + object browser' },
     { id: 'requests', label: 'Request Log', hint: 'Live traffic inspector' },
   ]
 
@@ -43,7 +44,7 @@ export function Sidebar({ selectedView, onSelect, overview, onReset }: Props) {
           <button
             key={item.id}
             type="button"
-            onClick={() => onSelect(item.id as 'overview' | 'requests')}
+            onClick={() => onSelect(item.id as 'overview' | 'requests' | 'rest')}
             className={`w-full rounded-xl px-3 py-3 text-left transition-colors ${
               selectedView === item.id
                 ? 'bg-cyan-500/15 text-white ring-1 ring-cyan-400/40'

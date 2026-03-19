@@ -22,7 +22,9 @@ public class SObjectController {
     }
 
     @GetMapping("/describe")
-    public ResponseEntity<Map<String, Object>> describe(@PathVariable String objectType) {
+    public ResponseEntity<Map<String, Object>> describe(
+            @PathVariable String apiVersion,
+            @PathVariable String objectType) {
         return ResponseEntity.ok(Map.of(
                 "name", objectType,
                 "label", objectType,
@@ -30,15 +32,17 @@ public class SObjectController {
                 "createable", true,
                 "updateable", true,
                 "deleteable", true,
-                "fields", List.of()
+                "fields", orgStateService.describeFields(objectType)
         ));
     }
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> list(@PathVariable String objectType) {
+    public ResponseEntity<Map<String, Object>> list(
+            @PathVariable String apiVersion,
+            @PathVariable String objectType) {
         List<SObjectRecord> records = orgStateService.findByType(objectType);
         List<Map<String, Object>> fields = records.stream()
-                .map(r -> orgStateService.fromJson(r.getFieldsJson()))
+                .map(r -> orgStateService.toSalesforceRecord(apiVersion, objectType, orgStateService.fromJson(r.getFieldsJson())))
                 .toList();
         return ResponseEntity.ok(Map.of(
                 "totalSize", fields.size(),
@@ -48,13 +52,16 @@ public class SObjectController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable String objectType, @PathVariable String id) {
+    public ResponseEntity<?> getById(
+            @PathVariable String apiVersion,
+            @PathVariable String objectType,
+            @PathVariable String id) {
         Optional<SObjectRecord> record = orgStateService.findById(id);
         if (record.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(List.of(new SalesforceError("Record not found", "NOT_FOUND")));
         }
-        return ResponseEntity.ok(orgStateService.fromJson(record.get().getFieldsJson()));
+        return ResponseEntity.ok(orgStateService.toSalesforceRecord(apiVersion, objectType, orgStateService.fromJson(record.get().getFieldsJson())));
     }
 
     @PostMapping

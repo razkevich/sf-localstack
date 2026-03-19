@@ -93,4 +93,4 @@ Content-Type: application/json
 
 ## Accepted Deltas
 
-- Feature 0 baseline parity check against `dev20` confirms that version discovery and basic query envelopes are compatible enough to continue, but emulator query records currently omit Salesforce's per-record `attributes` object. This delta is accepted for the scaffold slice and should be addressed as REST fidelity improves in Feature 1.
+- Feature 1 parity checks against `dev20` show that query envelopes now include Salesforce-style `attributes` objects, but `describe` remains intentionally narrow: the emulator currently returns only fields inferred from the seeded local org state instead of Salesforce's full Account field catalog. This delta is accepted for the current slice and should be revisited as describe fidelity expands.
