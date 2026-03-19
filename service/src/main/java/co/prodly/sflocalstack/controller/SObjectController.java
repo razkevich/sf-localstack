@@ -4,6 +4,7 @@ import co.prodly.sflocalstack.model.SObjectRecord;
 import co.prodly.sflocalstack.model.SalesforceError;
 import co.prodly.sflocalstack.service.OrgStateService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -76,6 +77,23 @@ public class SObjectController {
                     .body(List.of(new SalesforceError("Record not found", "NOT_FOUND")));
         }
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{externalIdField}/{externalIdValue}")
+    public ResponseEntity<?> upsert(
+            @PathVariable String apiVersion,
+            @PathVariable String objectType,
+            @PathVariable String externalIdField,
+            @PathVariable String externalIdValue,
+            @RequestBody Map<String, Object> fields) {
+        var result = orgStateService.upsert(objectType, externalIdField, externalIdValue, fields);
+        if (result.created()) {
+            String location = "/services/data/" + apiVersion + "/sobjects/" + objectType + "/" + result.record().getId();
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .header(HttpHeaders.LOCATION, location)
+                    .body(Map.of("id", result.record().getId(), "success", true, "errors", List.of(), "created", true));
+        }
+        return ResponseEntity.ok(Map.of("id", result.record().getId(), "success", true, "errors", List.of(), "created", false));
     }
 
     @DeleteMapping("/{id}")

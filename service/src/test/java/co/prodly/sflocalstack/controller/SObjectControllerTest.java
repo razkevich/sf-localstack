@@ -8,8 +8,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -43,5 +46,47 @@ class SObjectControllerTest {
                 .andExpect(jsonPath("$.objectDescribe.urls.sobject").value("/services/data/v60.0/sobjects/Account"))
                 .andExpect(jsonPath("$.recentItems[0].attributes.type").value("Account"))
                 .andExpect(jsonPath("$.recentItems[0].attributes.url").exists());
+    }
+
+    @Test
+    void externalIdUpsertCreatesRecordWithLocationHeader() throws Exception {
+        mockMvc.perform(patch("/services/data/v60.0/sobjects/Account/External_Id__c/EXT-001")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"Name\":\"Upsert Created\",\"Industry\":\"Testing\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("/services/data/v60.0/sobjects/Account/")))
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.success").value(true));
+    }
+
+    @Test
+    void externalIdUpsertUpdatesExistingRecordWithNoContent() throws Exception {
+        mockMvc.perform(patch("/services/data/v60.0/sobjects/Account/External_Id__c/EXT-001")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"Name\":\"Upsert Created\",\"Industry\":\"Testing\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(patch("/services/data/v60.0/sobjects/Account/External_Id__c/EXT-001")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"Name\":\"Upsert Updated\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.created").value(false));
+
+        mockMvc.perform(get("/services/data/v60.0/query")
+                        .param("q", "SELECT Id, Name FROM Account WHERE External_Id__c = 'EXT-001'"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSize").value(1))
+                .andExpect(jsonPath("$.records[0].Name").value("Upsert Updated"));
+    }
+
+    @Test
+    void missingRecordUpdateReturnsSalesforceStyleNotFound() throws Exception {
+        mockMvc.perform(patch("/services/data/v60.0/sobjects/Account/001MISSING")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"Name\":\"Nope\"}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$[0].errorCode").value("NOT_FOUND"));
     }
 }

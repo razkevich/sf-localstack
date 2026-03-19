@@ -174,6 +174,26 @@ public class OrgStateService {
     }
 
     @Transactional
+    public synchronized UpsertResult upsert(
+            String objectType,
+            String externalIdField,
+            String externalIdValue,
+            Map<String, Object> fields) {
+        Optional<SObjectRecord> existing = findByType(objectType).stream()
+                .filter(record -> externalIdValue.equals(String.valueOf(fromJson(record.getFieldsJson()).get(externalIdField))))
+                .findFirst();
+
+        if (existing.isPresent()) {
+            SObjectRecord updated = update(existing.get().getId(), mergeExternalId(fields, externalIdField, externalIdValue))
+                    .orElseThrow();
+            return new UpsertResult(updated, false);
+        }
+
+        SObjectRecord created = create(objectType, mergeExternalId(fields, externalIdField, externalIdValue));
+        return new UpsertResult(created, true);
+    }
+
+    @Transactional
     public boolean delete(String id) {
         if (repository.existsById(id)) {
             repository.deleteById(id);
@@ -266,5 +286,11 @@ public class OrgStateService {
             case "datetime" -> "xsd:dateTime";
             default -> "xsd:string";
         };
+    }
+
+    private Map<String, Object> mergeExternalId(Map<String, Object> fields, String externalIdField, String externalIdValue) {
+        Map<String, Object> merged = new LinkedHashMap<>(fields);
+        merged.put(externalIdField, externalIdValue);
+        return merged;
     }
 }

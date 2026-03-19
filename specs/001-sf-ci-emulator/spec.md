@@ -9,7 +9,7 @@
 
 - **Salesforce Surface**: `REST`, `Bulk API v2`, and `Metadata API`
 - **Compatibility Target**: Common Salesforce client flows used against API version `v60.0`, with behavior close enough that backend engineers can swap a real org URL for `localhost` without client code changes.
-- **In-Scope Operations**: App scaffold and dashboard shell; REST version discovery, query, describe, CRUD, and external-ID upsert flows; Bulk API v2 ingest create/upload/close/status/delete/result flows; Metadata API deploy, deploy-status, cancel-deploy, list-metadata, and describe-metadata flows; resettable seeded org usage; request/response inspection in the dashboard.
+- **In-Scope Operations**: App scaffold and dashboard shell; REST version discovery, query, describe, CRUD, and external-ID upsert flows; Bulk API v2 ingest create/upload/close/status/delete/result flows; Metadata API deploy, deploy-status, cancel-deploy, list-metadata, describe-metadata, and supported Metadata REST resource flows; resettable seeded org usage; request/response inspection in the dashboard.
 - **Out-of-Scope Operations**: Docker, deployment packaging, CI automation, Bulk query jobs, advanced SOQL beyond the approved filter set, Metadata retrieve/retrieveResult flows, packaging semantics, auth model changes, and production-scale performance simulation.
 - **API Shape Commitments**: In-scope operations must keep Salesforce-compatible paths, versioned routing, request field names, success envelopes, SOAP response shapes, status codes, and operation state values expected by common Prodly-style clients. Any unsupported input inside the in-scope surface must fail with a deterministic, Salesforce-like error response instead of silent fallback behavior.
 - **Frontend Scope**: The dashboard must evolve with each backend slice and expose the active emulator features through navigable views for request logs, query exploration, org-state inspection, Bulk job monitoring, Metadata workflow inspection, and reset guidance.
@@ -114,27 +114,28 @@ An engineer runs Bulk API v2 ingest flows against localhost and inspects job pro
 
 ---
 
-### Feature 4 - Metadata SOAP (Priority: P5)
+### Feature 4 - Metadata APIs (Priority: P5)
 
-An engineer submits a basic metadata deploy, checks deploy status, and inspects supported metadata listings and descriptions locally through both SOAP clients and the dashboard.
+An engineer submits a basic metadata deploy, checks deploy status, and inspects supported metadata listings and descriptions locally through SOAP clients, supported Metadata REST resources, and the dashboard.
 
 **Why this priority**: Metadata compatibility broadens the app from data APIs to deployment-oriented workflows used by Salesforce integration platforms.
 
-**Independent Test**: Send deploy, status, cancel, list, and describe SOAP requests to the emulator, inspect the returned envelopes in the dashboard, and verify the same flows against supported client expectations.
+**Independent Test**: Send deploy, status, cancel, list, and describe SOAP requests plus supported Metadata REST requests to the emulator, inspect the returned payloads in the dashboard, and verify the same flows against supported client expectations.
 
 **Acceptance Scenarios**:
 
 1. **Given** a basic deploy request, **When** the client submits it and later checks status, **Then** the emulator returns a deploy identifier and a completed status payload that the client can interpret successfully.
 2. **Given** a client requests metadata listings or metadata type descriptions, **When** the emulator receives those requests, **Then** it returns compatible SOAP responses for the supported metadata types.
-3. **Given** the engineer opens the dashboard Metadata views, **When** they inspect supported SOAP workflows, **Then** they can see request details, response envelopes, and deploy lifecycle state.
+3. **Given** a client requests supported Metadata REST resources, **When** the emulator receives those requests, **Then** it returns Salesforce-compatible REST payloads for the approved metadata slices.
+4. **Given** the engineer opens the dashboard Metadata views, **When** they inspect supported SOAP or REST metadata workflows, **Then** they can see request details, response envelopes, and deploy lifecycle state.
 
 **Frontend Deliverables**:
 
-- Metadata workflow explorer with deploy/status panels, supported type browser, and SOAP envelope inspection.
+- Metadata workflow explorer with deploy/status panels, supported type browser, and SOAP plus Metadata REST inspection.
 
 **Parity Check**:
 
-- Compare representative Metadata deploy, status, cancel, listMetadata, and describeMetadata SOAP flows against `dev20`, focusing on body shape, key fields, and parseable fault behavior.
+- Compare representative Metadata deploy, status, cancel, listMetadata, and describeMetadata SOAP flows plus supported Metadata REST resource flows against `dev20`, focusing on body shape, key fields, status codes, and parseable fault behavior.
 
 ---
 
@@ -181,7 +182,7 @@ An engineer uses the app as a coherent local Salesforce emulator, with consisten
 - **FR-006**: System MUST support realistic SOQL filtering and relationship field projection for the approved query slice.
 - **FR-007**: System MUST support external-ID upsert behavior that distinguishes between update and create outcomes using Salesforce-compatible request paths, status codes, and success bodies.
 - **FR-008**: System MUST support synchronous Bulk API v2 ingest job workflows for the supported operation set.
-- **FR-009**: System MUST support basic Metadata API deploy, deploy-status, cancel-deploy, list-metadata, and describe-metadata workflows with compatible SOAP envelopes and operation result shapes.
+- **FR-009**: System MUST support basic Metadata API deploy, deploy-status, cancel-deploy, list-metadata, describe-metadata, and approved Metadata REST resource workflows with compatible SOAP or REST result shapes.
 - **FR-010**: System MUST define and execute parity verification for each supported slice against `dev20` before the slice is considered complete.
 - **FR-011**: System MUST clean up temporary `dev20` records created during parity verification unless an explicit exception is documented.
 - **FR-012**: System MUST keep Docker, CI automation, and deployment packaging out of the current implementation scope.

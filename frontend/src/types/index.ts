@@ -59,9 +59,23 @@ export interface DescribeField {
   name: string
   label: string
   type: string
+  custom?: boolean
+  createable?: boolean
+  updateable?: boolean
+  deprecatedAndHidden?: boolean
   filterable: boolean
   sortable: boolean
+  soapType?: string
   nillable: boolean
+}
+
+export interface MutationResult {
+  id?: string
+  success: boolean
+  errors: unknown[]
+  status: number
+  created?: boolean
+  location?: string | null
 }
 
 export interface DescribeResult {

@@ -1,4 +1,11 @@
-import type { DashboardOverview, DescribeResult, QueryResult, RequestLogEntry, SObjectListResult } from '../types'
+import type {
+  DashboardOverview,
+  DescribeResult,
+  MutationResult,
+  QueryResult,
+  RequestLogEntry,
+  SObjectListResult,
+} from '../types'
 
 const DEFAULT_API_BASE = import.meta.env.VITE_API_BASE ?? ''
 
@@ -61,6 +68,39 @@ export async function fetchDescribe(objectType: string): Promise<DescribeResult>
   }
 
   return response.json() as Promise<DescribeResult>
+}
+
+export async function upsertByExternalId(
+  objectType: string,
+  externalIdField: string,
+  externalIdValue: string,
+  fields: Record<string, unknown>,
+): Promise<MutationResult> {
+  const response = await fetch(
+    url(`/services/data/v60.0/sobjects/${objectType}/${externalIdField}/${encodeURIComponent(externalIdValue)}`),
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fields),
+    },
+  )
+
+  const body = await response.json().catch(() => null)
+  if (!response.ok) {
+    const message = Array.isArray(body) && body[0]?.message
+      ? String(body[0].message)
+      : 'Upsert failed'
+    throw new Error(message)
+  }
+
+  return {
+    id: body?.id,
+    success: Boolean(body?.success),
+    errors: Array.isArray(body?.errors) ? body.errors : [],
+    status: response.status,
+    created: typeof body?.created === 'boolean' ? body.created : undefined,
+    location: response.headers.get('Location'),
+  }
 }
 
 export function eventStreamUrl(path: string): string {
