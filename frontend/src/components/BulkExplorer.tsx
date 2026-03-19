@@ -9,6 +9,12 @@ import {
 import type { BulkJob } from '../types'
 
 const DEFAULT_CSV = 'Name,Industry\nBulk Corp,Technology\n'
+const BULK_PRESETS = {
+  insert: 'Name,Industry\nBulk Corp,Technology\n',
+  update: 'Id,Name\n001000000000001AAA,Updated Bulk Corp\n',
+  delete: 'Id\n001000000000001AAA\n',
+  upsert: 'External_Id__c,Name,Industry\nEXT-BULK-001,Bulk Upsert Corp,Technology\n',
+} as const
 
 export function BulkExplorer() {
   const [objectType, setObjectType] = useState('Account')
@@ -78,6 +84,16 @@ export function BulkExplorer() {
     }
   }
 
+  async function copyText(value: string) {
+    if (!value) return
+    await navigator.clipboard.writeText(value)
+  }
+
+  function applyPreset(nextOperation: 'insert' | 'update' | 'delete' | 'upsert') {
+    setOperation(nextOperation)
+    setCsv(BULK_PRESETS[nextOperation])
+  }
+
   return (
     <div className="grid h-full grid-cols-1 overflow-hidden xl:grid-cols-[0.95fr,1.05fr]">
       <div className="overflow-auto border-r border-slate-800 bg-slate-950 p-6">
@@ -115,6 +131,18 @@ export function BulkExplorer() {
         ) : null}
 
         <div className="mt-4">
+          <div className="mb-3 flex flex-wrap gap-2">
+            {(['insert', 'update', 'delete', 'upsert'] as const).map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => applyPreset(preset)}
+                className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 transition hover:border-slate-500 hover:text-white"
+              >
+                {preset} preset
+              </button>
+            ))}
+          </div>
           <Field label="CSV payload">
             <textarea value={csv} onChange={(e) => setCsv(e.target.value)} className={`${inputClass} h-56 font-mono`} />
           </Field>
@@ -130,6 +158,9 @@ export function BulkExplorer() {
           <button onClick={() => void handleRefresh()} disabled={loading || !job} className={secondaryButton}>
             Refresh
           </button>
+          <button onClick={() => void copyText(csv)} className={secondaryButton}>
+            Copy CSV
+          </button>
         </div>
 
         {error ? <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">{error}</div> : null}
@@ -139,11 +170,34 @@ export function BulkExplorer() {
         <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Job summary</h3>
-            <span className="text-xs text-slate-500">{job?.state ?? 'No job yet'}</span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-slate-500">{job?.state ?? 'No job yet'}</span>
+              <button
+                type="button"
+                onClick={() => void copyText(job ? JSON.stringify(job, null, 2) : '')}
+                className="rounded-full border border-slate-700 px-3 py-1 text-[11px] text-slate-300 transition hover:border-slate-500 hover:text-white"
+              >
+                Copy job
+              </button>
+            </div>
           </div>
-          <pre className="mt-4 max-h-64 overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-200">
-            {job ? JSON.stringify(job, null, 2) : 'Create a Bulk ingest job to inspect the response envelope.'}
-          </pre>
+          {job ? (
+            <div className="mt-4 space-y-3">
+              <div className="grid gap-3 md:grid-cols-4">
+                <Metric label="State" value={job.state} />
+                <Metric label="Processed" value={String(job.numberRecordsProcessed ?? 0)} />
+                <Metric label="Failed" value={String(job.numberRecordsFailed ?? 0)} />
+                <Metric label="Operation" value={job.operation} />
+              </div>
+              <pre className="max-h-64 overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-200">
+                {JSON.stringify(job, null, 2)}
+              </pre>
+            </div>
+          ) : (
+            <pre className="mt-4 max-h-64 overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-200">
+              Create a Bulk ingest job to inspect the response envelope.
+            </pre>
+          )}
         </section>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-3">
@@ -171,6 +225,15 @@ function CsvCard({ title, csv }: { title: string; csv: string }) {
       <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">{title}</h3>
       <pre className="mt-4 max-h-80 overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-200">{csv}</pre>
     </section>
+  )
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3">
+      <div className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{label}</div>
+      <div className="mt-2 text-sm font-medium text-white">{value}</div>
+    </div>
   )
 }
 

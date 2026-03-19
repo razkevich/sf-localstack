@@ -28,6 +28,11 @@ export function MetadataExplorer() {
   const [toolingError, setToolingError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
+  async function copyText(value: string) {
+    if (!value) return
+    await navigator.clipboard.writeText(value)
+  }
+
   async function handleSoapRun() {
     setLoading(true)
     setSoapError(null)
@@ -80,9 +85,14 @@ export function MetadataExplorer() {
           <textarea value={soapBody} onChange={(e) => setSoapBody(e.target.value)} className={`${editorClass} mt-4 h-48`} />
           <div className="mt-4 flex items-center gap-3">
             <button type="button" onClick={() => void handleSoapRun()} disabled={loading} className={primaryButton}>Run SOAP</button>
+            <button type="button" onClick={() => void copyText(soapBody)} className={secondaryButton}>Copy request</button>
             {soapError ? <span className="text-sm text-rose-300">{soapError}</span> : null}
           </div>
-          <pre className="mt-4 max-h-[28rem] overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-200">{soapResponse || 'Run a metadata SOAP operation to inspect the XML response.'}</pre>
+          <div className="mt-4 flex items-center justify-between">
+            <div className="text-xs text-slate-500">SOAP response</div>
+            <button type="button" onClick={() => void copyText(soapResponse)} className={secondaryButton}>Copy response</button>
+          </div>
+          <pre className="mt-3 max-h-[28rem] overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-200">{soapResponse || 'Run a metadata SOAP operation to inspect the XML response.'}</pre>
         </div>
       </div>
 
@@ -99,9 +109,23 @@ export function MetadataExplorer() {
           <textarea value={toolingQuery} onChange={(e) => setToolingQuery(e.target.value)} className={`${editorClass} mt-4 h-40`} />
           <div className="mt-4 flex items-center gap-3">
             <button type="button" onClick={() => void handleToolingRun()} disabled={loading} className={primaryButton}>Run tooling query</button>
+            <button type="button" onClick={() => void copyText(toolingQuery)} className={secondaryButton}>Copy query</button>
             {toolingError ? <span className="text-sm text-rose-300">{toolingError}</span> : null}
           </div>
-          <pre className="mt-4 max-h-[28rem] overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-200">{toolingResponse ? JSON.stringify(toolingResponse, null, 2) : 'Run a tooling query to inspect helper data.'}</pre>
+          {toolingResponse ? (
+            <div className="mt-4 space-y-3">
+              <div className="grid gap-3 md:grid-cols-2">
+                <Metric label="Records" value={String(toolingResponse.totalSize)} />
+                <Metric label="Done" value={String(toolingResponse.done)} />
+              </div>
+              <div className="flex justify-end">
+                <button type="button" onClick={() => void copyText(JSON.stringify(toolingResponse, null, 2))} className={secondaryButton}>Copy result</button>
+              </div>
+              <pre className="max-h-[28rem] overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-200">{JSON.stringify(toolingResponse, null, 2)}</pre>
+            </div>
+          ) : (
+            <pre className="mt-4 max-h-[28rem] overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-200">Run a tooling query to inspect helper data.</pre>
+          )}
         </div>
       </div>
     </div>
@@ -111,6 +135,7 @@ export function MetadataExplorer() {
 const editorClass = 'w-full rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 font-mono text-sm text-slate-100 outline-none focus:border-cyan-400'
 const primaryButton = 'rounded-xl bg-cyan-400 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60'
 const presetButton = 'rounded-full border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 transition hover:border-cyan-400 hover:text-white'
+const secondaryButton = 'rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60'
 
 function MetaCard({ label, value, tone }: { label: string; value: string; tone: 'cyan' | 'emerald' | 'fuchsia' }) {
   const styles = {
@@ -122,6 +147,15 @@ function MetaCard({ label, value, tone }: { label: string; value: string; tone: 
   return (
     <div className={`rounded-2xl border px-4 py-4 ${styles[tone]}`}>
       <div className="text-[10px] uppercase tracking-[0.18em] opacity-70">{label}</div>
+      <div className="mt-2 text-sm font-medium text-white">{value}</div>
+    </div>
+  )
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3">
+      <div className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{label}</div>
       <div className="mt-2 text-sm font-medium text-white">{value}</div>
     </div>
   )

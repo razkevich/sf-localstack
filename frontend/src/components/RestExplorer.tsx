@@ -15,6 +15,20 @@ interface Props {
 
 const DEFAULT_QUERY = "SELECT Id, FirstName, Account.Name FROM Contact WHERE LastName = 'Doe'"
 const DEFAULT_UPSERT_PAYLOAD = '{\n  "Name": "Upsert Test Account",\n  "Industry": "Testing"\n}'
+const QUERY_PRESETS = [
+  {
+    label: 'Contacts + Account',
+    value: "SELECT Id, FirstName, Account.Name FROM Contact WHERE LastName = 'Doe'",
+  },
+  {
+    label: 'Accounts',
+    value: "SELECT Id, Name, Industry FROM Account WHERE Name LIKE '%Corp%'",
+  },
+  {
+    label: 'Count',
+    value: 'SELECT COUNT() FROM Account',
+  },
+] as const
 
 export function RestExplorer({ overview }: Props) {
   const [query, setQuery] = useState(DEFAULT_QUERY)
@@ -89,6 +103,11 @@ export function RestExplorer({ overview }: Props) {
     }
   }
 
+  async function copyText(value: string) {
+    if (!value) return
+    await navigator.clipboard.writeText(value)
+  }
+
   async function handleUpsert() {
     setUpsertLoading(true)
     setUpsertError(null)
@@ -128,6 +147,19 @@ export function RestExplorer({ overview }: Props) {
         </div>
 
         <div className="p-6">
+          <div className="flex flex-wrap gap-2">
+            {QUERY_PRESETS.map((preset) => (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => setQuery(preset.value)}
+                className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 transition hover:border-slate-500 hover:text-white"
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+
           <label className="text-xs uppercase tracking-[0.18em] text-slate-500">SOQL query</label>
           <textarea
             value={query}
@@ -143,6 +175,13 @@ export function RestExplorer({ overview }: Props) {
             >
               {queryLoading ? 'Running...' : 'Run query'}
             </button>
+            <button
+              type="button"
+              onClick={() => void copyText(query)}
+              className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:text-white"
+            >
+              Copy query
+            </button>
             <span className="text-xs text-slate-500">Current baseline: {overview?.totalRecords ?? '--'} records</span>
           </div>
 
@@ -155,7 +194,16 @@ export function RestExplorer({ overview }: Props) {
           <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Query result</h3>
-              <span className="text-xs text-slate-500">{queryResult?.totalSize ?? 0} records</span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-slate-500">{queryResult?.totalSize ?? 0} records</span>
+                <button
+                  type="button"
+                  onClick={() => void copyText(queryResult ? JSON.stringify(queryResult, null, 2) : '')}
+                  className="rounded-full border border-slate-700 px-3 py-1 text-[11px] text-slate-300 transition hover:border-slate-500 hover:text-white"
+                >
+                  Copy result
+                </button>
+              </div>
             </div>
             <pre className="mt-4 max-h-[26rem] overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-200">
               {queryResult ? JSON.stringify(queryResult, null, 2) : 'Run a query to inspect the response envelope.'}
@@ -205,6 +253,13 @@ export function RestExplorer({ overview }: Props) {
               >
                 {upsertLoading ? 'Upserting...' : 'Run upsert'}
               </button>
+              <button
+                type="button"
+                onClick={() => setUpsertPayload(DEFAULT_UPSERT_PAYLOAD)}
+                className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:text-white"
+              >
+                Reset payload
+              </button>
               <span className="text-xs text-slate-500">Creates on first request, updates on the second.</span>
             </div>
 
@@ -214,11 +269,22 @@ export function RestExplorer({ overview }: Props) {
               </div>
             ) : null}
 
-            <pre className="mt-4 max-h-52 overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-200">
-              {upsertResult
-                ? JSON.stringify(upsertResult, null, 2)
-                : 'Run an upsert to inspect the create vs update response shape.'}
-            </pre>
+            {upsertResult ? (
+              <div className="mt-4 space-y-3">
+                <div className="grid gap-3 md:grid-cols-3">
+                  <SummaryPill label="Status" value={String(upsertResult.status)} />
+                  <SummaryPill label="Created" value={String(upsertResult.created ?? false)} />
+                  <SummaryPill label="Id" value={upsertResult.id ?? 'n/a'} />
+                </div>
+                <pre className="max-h-52 overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-200">
+                  {JSON.stringify(upsertResult, null, 2)}
+                </pre>
+              </div>
+            ) : (
+              <pre className="mt-4 max-h-52 overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-200">
+                Run an upsert to inspect the create vs update response shape.
+              </pre>
+            )}
           </div>
         </div>
       </div>

@@ -44,6 +44,10 @@ export function Sidebar({ selectedView, onSelect, overview, onReset }: Props) {
             <div className="mt-1 text-xl font-semibold text-white">{overview?.objectCounts.length ?? '--'}</div>
           </div>
         </div>
+        <div className="mt-3 rounded-xl border border-slate-800 bg-slate-900/70 px-3 py-3">
+          <div className="text-[10px] uppercase tracking-[0.18em] text-slate-500">API target</div>
+          <div className="mt-1 text-sm font-medium text-white">Salesforce {overview?.apiVersion ?? 'v60.0'}</div>
+        </div>
       </div>
 
       <nav className="flex-1 space-y-1 p-3">
