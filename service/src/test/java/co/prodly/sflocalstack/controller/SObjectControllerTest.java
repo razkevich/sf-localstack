@@ -29,15 +29,19 @@ class SObjectControllerTest {
         mockMvc.perform(get("/services/data/v60.0/sobjects/Account/describe"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Account"))
+                .andExpect(jsonPath("$.labelPlural").value("Accounts"))
+                .andExpect(jsonPath("$.urls.describe").value("/services/data/v60.0/sobjects/Account/describe"))
                 .andExpect(jsonPath("$.fields[?(@.name == 'Name')].type").value("string"))
                 .andExpect(jsonPath("$.fields[?(@.name == 'CreatedDate')].type").value("datetime"));
     }
 
     @Test
-    void listReturnsAttributesForRecords() throws Exception {
+    void listReturnsObjectDescribeAndRecentItems() throws Exception {
         mockMvc.perform(get("/services/data/v60.0/sobjects/Account"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.records[0].attributes.type").value("Account"))
-                .andExpect(jsonPath("$.records[0].attributes.url").exists());
+                .andExpect(jsonPath("$.objectDescribe.name").value("Account"))
+                .andExpect(jsonPath("$.objectDescribe.urls.sobject").value("/services/data/v60.0/sobjects/Account"))
+                .andExpect(jsonPath("$.recentItems[0].attributes.type").value("Account"))
+                .andExpect(jsonPath("$.recentItems[0].attributes.url").exists());
     }
 }

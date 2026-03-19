@@ -93,4 +93,6 @@ Content-Type: application/json
 
 ## Accepted Deltas
 
-- Feature 1 parity checks against `dev20` show that query envelopes now include Salesforce-style `attributes` objects, but `describe` remains intentionally narrow: the emulator currently returns only fields inferred from the seeded local org state instead of Salesforce's full Account field catalog. This delta is accepted for the current slice and should be revisited as describe fidelity expands.
+- Feature 1 parity checks against `dev20` show that query envelopes now include Salesforce-style `attributes` objects and the `sobjects/{Object}` summary endpoint now uses `objectDescribe` plus `recentItems`, but two intentional gaps remain:
+  - `describe` still returns only fields inferred from the seeded local org state instead of Salesforce's full object catalog.
+  - local `recentItems` currently include extra seeded fields like `Industry` and `Phone`, while Salesforce recent-item payloads are usually more compact.

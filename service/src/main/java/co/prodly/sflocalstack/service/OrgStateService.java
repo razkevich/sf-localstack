@@ -142,14 +142,21 @@ public class OrgStateService {
                 ))
                 .entrySet().stream()
                 .sorted(Map.Entry.comparingByKey(Comparator.naturalOrder()))
-                .map(entry -> Map.<String, Object>of(
-                        "name", entry.getKey(),
-                        "label", entry.getKey(),
-                        "type", entry.getValue(),
-                        "filterable", true,
-                        "sortable", true,
-                        "nillable", true
-                ))
+                .map(entry -> {
+                    Map<String, Object> field = new LinkedHashMap<>();
+                    field.put("name", entry.getKey());
+                    field.put("label", entry.getKey());
+                    field.put("type", entry.getValue());
+                    field.put("custom", false);
+                    field.put("createable", true);
+                    field.put("updateable", true);
+                    field.put("deprecatedAndHidden", false);
+                    field.put("filterable", true);
+                    field.put("sortable", true);
+                    field.put("soapType", soapTypeFor(entry.getValue()));
+                    field.put("nillable", true);
+                    return field;
+                })
                 .toList();
     }
 
@@ -249,5 +256,15 @@ public class OrgStateService {
             return relationshipName.substring(0, relationshipName.length() - 3) + "__c";
         }
         return relationshipName;
+    }
+
+    private String soapTypeFor(String fieldType) {
+        return switch (fieldType) {
+            case "boolean" -> "xsd:boolean";
+            case "int" -> "xsd:int";
+            case "double" -> "xsd:double";
+            case "datetime" -> "xsd:dateTime";
+            default -> "xsd:string";
+        };
     }
 }

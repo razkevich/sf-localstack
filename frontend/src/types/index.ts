@@ -39,6 +39,22 @@ export interface QueryResult {
   records: SalesforceRecord[]
 }
 
+export interface SObjectSummary {
+  name: string
+  label: string
+  labelPlural: string
+  keyPrefix: string
+  queryable: boolean
+  createable: boolean
+  updateable: boolean
+  urls: Record<string, string>
+}
+
+export interface SObjectListResult {
+  objectDescribe: SObjectSummary
+  recentItems: SalesforceRecord[]
+}
+
 export interface DescribeField {
   name: string
   label: string
@@ -49,11 +65,16 @@ export interface DescribeField {
 }
 
 export interface DescribeResult {
+  actionOverrides: unknown[]
+  childRelationships: unknown[]
   name: string
   label: string
+  labelPlural: string
+  keyPrefix: string
   queryable: boolean
   createable: boolean
   updateable: boolean
-  deleteable: boolean
+  deletable: boolean
+  urls: Record<string, string>
   fields: DescribeField[]
 }

@@ -1,4 +1,4 @@
-import type { DashboardOverview, DescribeResult, QueryResult, RequestLogEntry } from '../types'
+import type { DashboardOverview, DescribeResult, QueryResult, RequestLogEntry, SObjectListResult } from '../types'
 
 const DEFAULT_API_BASE = import.meta.env.VITE_API_BASE ?? ''
 
@@ -45,13 +45,13 @@ export async function runSoqlQuery(soql: string): Promise<QueryResult> {
   return response.json() as Promise<QueryResult>
 }
 
-export async function fetchObjectRecords(objectType: string): Promise<QueryResult> {
+export async function fetchObjectRecords(objectType: string): Promise<SObjectListResult> {
   const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}`))
   if (!response.ok) {
     throw new Error(`Failed to load ${objectType} records`)
   }
 
-  return response.json() as Promise<QueryResult>
+  return response.json() as Promise<SObjectListResult>
 }
 
 export async function fetchDescribe(objectType: string): Promise<DescribeResult> {

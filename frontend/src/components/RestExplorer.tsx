@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { fetchDescribe, fetchObjectRecords, runSoqlQuery } from '../services/api'
-import type { DashboardOverview, DescribeResult, QueryResult, SalesforceRecord } from '../types'
+import type { DashboardOverview, DescribeResult, QueryResult, SalesforceRecord, SObjectListResult } from '../types'
 
 interface Props {
   overview: DashboardOverview | null
@@ -19,7 +19,7 @@ export function RestExplorer({ overview }: Props) {
     [overview],
   )
   const [selectedObject, setSelectedObject] = useState('Account')
-  const [recordsResult, setRecordsResult] = useState<QueryResult | null>(null)
+  const [recordsResult, setRecordsResult] = useState<SObjectListResult | null>(null)
   const [describeResult, setDescribeResult] = useState<DescribeResult | null>(null)
   const [objectLoading, setObjectLoading] = useState(false)
   const [objectError, setObjectError] = useState<string | null>(null)
@@ -148,6 +148,21 @@ export function RestExplorer({ overview }: Props) {
           ) : null}
 
           <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">SObject summary</h3>
+              <span className="text-xs text-slate-500">{recordsResult?.objectDescribe.keyPrefix ?? '---'}</span>
+            </div>
+            {recordsResult?.objectDescribe ? (
+              <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <SummaryPill label="Label" value={recordsResult.objectDescribe.labelPlural} />
+                <SummaryPill label="Queryable" value={String(recordsResult.objectDescribe.queryable)} />
+                <SummaryPill label="Createable" value={String(recordsResult.objectDescribe.createable)} />
+                <SummaryPill label="Updateable" value={String(recordsResult.objectDescribe.updateable)} />
+              </div>
+            ) : null}
+          </section>
+
+          <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
             <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Describe fields</h3>
             <div className="mt-4 grid gap-3">
               {(describeResult?.fields ?? []).map((field) => (
@@ -167,11 +182,11 @@ export function RestExplorer({ overview }: Props) {
 
           <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Records</h3>
-              <span className="text-xs text-slate-500">{recordsResult?.totalSize ?? 0} rows</span>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Recent items</h3>
+              <span className="text-xs text-slate-500">{recordsResult?.recentItems.length ?? 0} rows</span>
             </div>
             <div className="mt-4 space-y-3">
-              {(recordsResult?.records ?? []).map((record, index) => (
+              {(recordsResult?.recentItems ?? []).map((record, index) => (
                 <RecordCard key={`${selectedObject}-${index}`} record={record} />
               ))}
               {objectLoading && !recordsResult ? <div className="text-sm text-slate-400">Loading records...</div> : null}
@@ -179,6 +194,15 @@ export function RestExplorer({ overview }: Props) {
           </section>
         </div>
       </div>
+    </div>
+  )
+}
+
+function SummaryPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3">
+      <div className="text-xs uppercase tracking-[0.16em] text-slate-500">{label}</div>
+      <div className="mt-1 text-sm font-medium text-white">{value}</div>
     </div>
   )
 }

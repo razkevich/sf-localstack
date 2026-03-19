@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,15 +26,7 @@ public class SObjectController {
     public ResponseEntity<Map<String, Object>> describe(
             @PathVariable String apiVersion,
             @PathVariable String objectType) {
-        return ResponseEntity.ok(Map.of(
-                "name", objectType,
-                "label", objectType,
-                "queryable", true,
-                "createable", true,
-                "updateable", true,
-                "deleteable", true,
-                "fields", orgStateService.describeFields(objectType)
-        ));
+        return ResponseEntity.ok(buildDescribeResponse(apiVersion, objectType));
     }
 
     @GetMapping
@@ -41,13 +34,12 @@ public class SObjectController {
             @PathVariable String apiVersion,
             @PathVariable String objectType) {
         List<SObjectRecord> records = orgStateService.findByType(objectType);
-        List<Map<String, Object>> fields = records.stream()
+        List<Map<String, Object>> recentItems = records.stream()
                 .map(r -> orgStateService.toSalesforceRecord(apiVersion, objectType, orgStateService.fromJson(r.getFieldsJson())))
                 .toList();
         return ResponseEntity.ok(Map.of(
-                "totalSize", fields.size(),
-                "done", true,
-                "records", fields
+                "objectDescribe", buildObjectDescribeSummary(apiVersion, objectType),
+                "recentItems", recentItems
         ));
     }
 
@@ -94,5 +86,106 @@ public class SObjectController {
                     .body(List.of(new SalesforceError("Record not found", "NOT_FOUND")));
         }
         return ResponseEntity.noContent().build();
+    }
+
+    private Map<String, Object> buildDescribeResponse(String apiVersion, String objectType) {
+        Map<String, Object> describe = new LinkedHashMap<>();
+        describe.put("actionOverrides", List.of());
+        describe.put("activateable", false);
+        describe.put("associateEntityType", null);
+        describe.put("associateParentEntity", null);
+        describe.put("childRelationships", List.of());
+        describe.put("compactLayoutable", true);
+        describe.put("createable", true);
+        describe.put("custom", objectType.endsWith("__c"));
+        describe.put("customSetting", false);
+        describe.put("deepCloneable", false);
+        describe.put("deletable", true);
+        describe.put("deprecatedAndHidden", false);
+        describe.put("feedEnabled", true);
+        describe.put("fields", orgStateService.describeFields(objectType));
+        describe.put("hasSubtypes", false);
+        describe.put("isInterface", false);
+        describe.put("isSubtype", false);
+        describe.put("keyPrefix", keyPrefixFor(objectType));
+        describe.put("label", objectType);
+        describe.put("labelPlural", pluralize(objectType));
+        describe.put("layoutable", true);
+        describe.put("listviewable", true);
+        describe.put("lookupLayoutable", true);
+        describe.put("mergeable", !"Contact".equalsIgnoreCase(objectType));
+        describe.put("mruEnabled", true);
+        describe.put("name", objectType);
+        describe.put("queryable", true);
+        describe.put("recordTypeInfos", List.of());
+        describe.put("replicateable", true);
+        describe.put("retrieveable", true);
+        describe.put("searchLayoutable", true);
+        describe.put("searchable", true);
+        describe.put("supportedScopes", List.of());
+        describe.put("triggerable", true);
+        describe.put("undeletable", false);
+        describe.put("updateable", true);
+        describe.put("urls", buildUrls(apiVersion, objectType));
+        return describe;
+    }
+
+    private Map<String, Object> buildObjectDescribeSummary(String apiVersion, String objectType) {
+        Map<String, Object> summary = new LinkedHashMap<>();
+        summary.put("activateable", false);
+        summary.put("associateEntityType", null);
+        summary.put("associateParentEntity", null);
+        summary.put("createable", true);
+        summary.put("custom", objectType.endsWith("__c"));
+        summary.put("customSetting", false);
+        summary.put("deepCloneable", false);
+        summary.put("deletable", true);
+        summary.put("deprecatedAndHidden", false);
+        summary.put("feedEnabled", true);
+        summary.put("hasSubtypes", false);
+        summary.put("isInterface", false);
+        summary.put("isSubtype", false);
+        summary.put("keyPrefix", keyPrefixFor(objectType));
+        summary.put("label", objectType);
+        summary.put("labelPlural", pluralize(objectType));
+        summary.put("layoutable", true);
+        summary.put("mergeable", !"Contact".equalsIgnoreCase(objectType));
+        summary.put("mruEnabled", true);
+        summary.put("name", objectType);
+        summary.put("queryable", true);
+        summary.put("replicateable", true);
+        summary.put("retrieveable", true);
+        summary.put("searchable", true);
+        summary.put("triggerable", true);
+        summary.put("undeletable", false);
+        summary.put("updateable", true);
+        summary.put("urls", buildUrls(apiVersion, objectType));
+        return summary;
+    }
+
+    private Map<String, Object> buildUrls(String apiVersion, String objectType) {
+        String base = "/services/data/" + apiVersion + "/sobjects/" + objectType;
+        return Map.of(
+                "approvalLayouts", base + "/describe/approvalLayouts",
+                "compactLayouts", base + "/describe/compactLayouts",
+                "describe", base + "/describe",
+                "layouts", base + "/describe/layouts",
+                "listviews", base + "/listviews",
+                "quickActions", base + "/quickActions",
+                "rowTemplate", base + "/{ID}",
+                "sobject", base
+        );
+    }
+
+    private String keyPrefixFor(String objectType) {
+        return switch (objectType) {
+            case "Account" -> "001";
+            case "Contact" -> "003";
+            default -> objectType.length() >= 3 ? objectType.substring(0, 3).toUpperCase() : objectType.toUpperCase();
+        };
+    }
+
+    private String pluralize(String objectType) {
+        return objectType.endsWith("s") ? objectType : objectType + "s";
     }
 }
