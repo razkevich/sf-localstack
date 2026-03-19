@@ -174,6 +174,20 @@ public class OrgStateService {
     }
 
     @Transactional
+    public Optional<SObjectRecord> replace(String id, Map<String, Object> fields) {
+        return repository.findById(id).map(record -> {
+            Map<String, Object> existing = fromJson(record.getFieldsJson());
+            Instant now = Instant.now();
+            fields.put("Id", existing.get("Id"));
+            fields.put("CreatedDate", existing.get("CreatedDate"));
+            fields.put("LastModifiedDate", now.toString());
+            record.setFieldsJson(toJson(fields));
+            record.setLastModifiedDate(now);
+            return repository.save(record);
+        });
+    }
+
+    @Transactional
     public synchronized UpsertResult upsert(
             String objectType,
             String externalIdField,

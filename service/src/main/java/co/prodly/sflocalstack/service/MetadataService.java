@@ -2,37 +2,36 @@ package co.prodly.sflocalstack.service;
 
 import co.prodly.sflocalstack.model.MetadataCatalogEntry;
 import co.prodly.sflocalstack.model.MetadataDeployJob;
+import co.prodly.sflocalstack.model.MetadataResource;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Service
 public class MetadataService {
 
     private final Map<String, MetadataDeployJob> deployJobs = new ConcurrentHashMap<>();
-    private final List<MetadataCatalogEntry> catalog = List.of(
-            new MetadataCatalogEntry("CustomField", "Account.Type", "objects/Account.object", "objects", false, true, Instant.parse("2026-03-19T20:00:00Z")),
-            new MetadataCatalogEntry("StandardValueSet", "AccountType", "standardValueSets/AccountType.standardValueSet", "standardValueSets", false, true, Instant.parse("2026-03-19T20:00:00Z")),
-            new MetadataCatalogEntry("GlobalValueSet", "CustomerPriority", "globalValueSets/CustomerPriority.globalValueSet", "globalValueSets", false, true, Instant.parse("2026-03-19T20:00:00Z")),
-            new MetadataCatalogEntry("CustomApplication", "SalesConsole", "applications/SalesConsole.app", "applications", false, true, Instant.parse("2026-03-19T20:00:00Z")),
-            new MetadataCatalogEntry("FlowDefinition", "LoginFlow", "flowDefinitions/LoginFlow.flowDefinition", "flowDefinitions", false, true, Instant.parse("2026-03-19T20:00:00Z")),
-            new MetadataCatalogEntry("DecisionTable", "RoutingDecision", "decisionTables/RoutingDecision.decisionTable", "decisionTables", false, true, Instant.parse("2026-03-19T20:00:00Z"))
-    );
+    private final Map<String, MetadataResource> resources = new ConcurrentHashMap<>();
+
+    public MetadataService() {
+        reset();
+    }
 
     public List<MetadataCatalogEntry> describeMetadata() {
-        return catalog;
+        return resources.values().stream()
+                .map(MetadataResource::toCatalogEntry)
+                .toList();
     }
 
     public List<MetadataCatalogEntry> listMetadata(String type, String folder) {
-        return catalog.stream()
+        return resources.values().stream()
+                .map(MetadataResource::toCatalogEntry)
                 .filter(entry -> entry.type().equals(type))
                 .filter(entry -> folder == null || folder.isBlank() || entry.fileName().startsWith(folder + "/") || entry.fullName().startsWith(folder + "/"))
                 .toList();
@@ -40,8 +39,40 @@ public class MetadataService {
 
     public List<ReadMetadataRecord> readMetadata(String type, List<String> fullNames) {
         return fullNames.stream()
-                .map(fullName -> new ReadMetadataRecord(type, fullName, fullName.contains(".") ? fullName.substring(fullName.indexOf('.') + 1) : fullName))
+                .map(fullName -> {
+                    MetadataResource resource = resources.get(key(type, fullName));
+                    String label = resource != null ? resource.label() : (fullName.contains(".") ? fullName.substring(fullName.indexOf('.') + 1) : fullName);
+                    Map<String, Object> attributes = resource != null ? resource.attributes() : Map.of();
+                    return new ReadMetadataRecord(type, fullName, label, attributes);
+                })
                 .toList();
+    }
+
+    public List<MetadataResource> listResources() {
+        return resources.values().stream().toList();
+    }
+
+    public MetadataResource createResource(MetadataResource resource) {
+        MetadataResource normalized = normalize(resource);
+        resources.put(key(normalized.type(), normalized.fullName()), normalized);
+        return normalized;
+    }
+
+    public MetadataResource updateResource(String type, String fullName, MetadataResource resource) {
+        String existingKey = key(type, fullName);
+        if (!resources.containsKey(existingKey)) {
+            throw new NoSuchElementException("Unknown metadata resource: " + type + " / " + fullName);
+        }
+        resources.remove(existingKey);
+        MetadataResource normalized = normalize(resource);
+        resources.put(key(normalized.type(), normalized.fullName()), normalized);
+        return normalized;
+    }
+
+    public void deleteResource(String type, String fullName) {
+        if (resources.remove(key(type, fullName)) == null) {
+            throw new NoSuchElementException("Unknown metadata resource: " + type + " / " + fullName);
+        }
     }
 
     public MetadataDeployJob deploy(String zipFile) {
@@ -67,8 +98,40 @@ public class MetadataService {
 
     public void reset() {
         deployJobs.clear();
+        resources.clear();
+        defaultResources().forEach(resource -> resources.put(key(resource.type(), resource.fullName()), resource));
     }
 
-    public record ReadMetadataRecord(String xmlType, String fullName, String label) {
+    public record ReadMetadataRecord(String xmlType, String fullName, String label, Map<String, Object> attributes) {
+    }
+
+    private String key(String type, String fullName) {
+        return type + "::" + fullName;
+    }
+
+    private MetadataResource normalize(MetadataResource resource) {
+        return new MetadataResource(
+                resource.type(),
+                resource.fullName(),
+                resource.fileName(),
+                resource.directoryName(),
+                resource.inFolder(),
+                resource.metaFile(),
+                resource.lastModifiedDate() == null ? Instant.now() : resource.lastModifiedDate(),
+                resource.label() == null || resource.label().isBlank() ? resource.fullName() : resource.label(),
+                resource.attributes() == null ? Map.of() : resource.attributes()
+        );
+    }
+
+    private List<MetadataResource> defaultResources() {
+        Instant seededAt = Instant.parse("2026-03-19T20:00:00Z");
+        return List.of(
+                new MetadataResource("CustomField", "Account.Type", "objects/Account.object", "objects", false, true, seededAt, "Type", Map.of("fieldType", "Text")),
+                new MetadataResource("StandardValueSet", "AccountType", "standardValueSets/AccountType.standardValueSet", "standardValueSets", false, true, seededAt, "Account Type", Map.of("values", List.of("Customer - Direct", "Customer - Channel"))),
+                new MetadataResource("GlobalValueSet", "CustomerPriority", "globalValueSets/CustomerPriority.globalValueSet", "globalValueSets", false, true, seededAt, "Customer Priority", Map.of("values", List.of("High", "Medium", "Low"))),
+                new MetadataResource("CustomApplication", "SalesConsole", "applications/SalesConsole.app", "applications", false, true, seededAt, "Sales Console", Map.of()),
+                new MetadataResource("FlowDefinition", "LoginFlow", "flowDefinitions/LoginFlow.flowDefinition", "flowDefinitions", false, true, seededAt, "Login Flow", Map.of()),
+                new MetadataResource("DecisionTable", "RoutingDecision", "decisionTables/RoutingDecision.decisionTable", "decisionTables", false, true, seededAt, "Routing Decision", Map.of())
+        );
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -88,5 +89,29 @@ class SObjectControllerTest {
                         .content("{\"Name\":\"Nope\"}"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$[0].errorCode").value("NOT_FOUND"));
+    }
+
+    @Test
+    void replaceRecordCanRemoveFields() throws Exception {
+        String createResponse = mockMvc.perform(post("/services/data/v60.0/sobjects/Account")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"Name\":\"Replace Test\",\"Industry\":\"Testing\"}"))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String recordId = createResponse.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+
+        mockMvc.perform(put("/services/data/v60.0/sobjects/Account/{id}", recordId)
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"Name\":\"Replace Test Updated\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(recordId));
+
+        mockMvc.perform(get("/services/data/v60.0/sobjects/Account/{id}", recordId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.Name").value("Replace Test Updated"))
+                .andExpect(jsonPath("$.Industry").doesNotExist());
     }
 }

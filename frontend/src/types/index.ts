@@ -115,3 +115,15 @@ export interface DescribeResult {
   urls: Record<string, string>
   fields: DescribeField[]
 }
+
+export interface MetadataResource {
+  type: string
+  fullName: string
+  fileName: string
+  directoryName: string
+  inFolder: boolean
+  metaFile: boolean
+  lastModifiedDate: string
+  label: string
+  attributes: Record<string, unknown>
+}

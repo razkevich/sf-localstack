@@ -1,8 +1,7 @@
 import { useState } from 'react'
+import { DataManager } from './components/DataManager'
+import { MetadataManager } from './components/MetadataManager'
 import { OverviewPanel } from './components/OverviewPanel'
-import { BulkExplorer } from './components/BulkExplorer'
-import { MetadataExplorer } from './components/MetadataExplorer'
-import { RestExplorer } from './components/RestExplorer'
 import { Sidebar } from './components/Sidebar'
 import { RequestLog } from './components/RequestLog'
 import { RequestDetail } from './components/RequestDetail'
@@ -11,7 +10,7 @@ import { useSse } from './hooks/useSse'
 import type { RequestLogEntry } from './types'
 
 export default function App() {
-  const [selectedView, setSelectedView] = useState<'overview' | 'requests' | 'rest' | 'bulk' | 'metadata'>('overview')
+  const [selectedView, setSelectedView] = useState<'overview' | 'requests' | 'data' | 'metadata'>('overview')
   const [refreshToken, setRefreshToken] = useState(0)
   const { entries, connected, clear } = useSse(refreshToken)
   const { overview, loading, error } = useDashboardOverview(refreshToken)
@@ -37,12 +36,10 @@ export default function App() {
         <div className="min-h-0 flex-1 overflow-hidden border-b border-slate-800 xl:border-b-0 xl:border-r">
           {selectedView === 'overview' ? (
             <OverviewPanel overview={overview} loading={loading} error={error} />
-          ) : selectedView === 'rest' ? (
-            <RestExplorer overview={overview} />
-          ) : selectedView === 'bulk' ? (
-            <BulkExplorer />
+          ) : selectedView === 'data' ? (
+            <DataManager overview={overview} />
           ) : selectedView === 'metadata' ? (
-            <MetadataExplorer />
+            <MetadataManager />
           ) : (
             <RequestLog
               entries={entries}

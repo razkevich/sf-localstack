@@ -79,6 +79,19 @@ public class SObjectController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> replace(
+            @PathVariable String objectType,
+            @PathVariable String id,
+            @RequestBody Map<String, Object> fields) {
+        Optional<SObjectRecord> updated = orgStateService.replace(id, fields);
+        if (updated.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(List.of(new SalesforceError("Record not found", "NOT_FOUND")));
+        }
+        return ResponseEntity.ok(Map.of("id", updated.get().getId(), "success", true, "errors", List.of()));
+    }
+
     @PatchMapping("/{externalIdField}/{externalIdValue}")
     public ResponseEntity<?> upsert(
             @PathVariable String apiVersion,

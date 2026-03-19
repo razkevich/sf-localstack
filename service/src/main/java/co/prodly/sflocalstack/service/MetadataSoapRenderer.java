@@ -88,16 +88,31 @@ public class MetadataSoapRenderer {
     }
 
     private String renderReadRecord(String type, MetadataService.ReadMetadataRecord record) {
+        String fieldType = String.valueOf(record.attributes().getOrDefault("fieldType", "Text"));
         String body = switch (type) {
             case "CustomField" -> "<fullName>%s</fullName><label>%s</label><type>Text</type><valueSet><restricted>false</restricted></valueSet>"
-                    .formatted(record.fullName(), record.label());
-            case "StandardValueSet" -> "<fullName>%s</fullName><standardValue><fullName>Customer - Direct</fullName><default>false</default><label>Customer - Direct</label></standardValue>"
-                    .formatted(record.fullName());
-            case "GlobalValueSet" -> "<fullName>%s</fullName><customValue><fullName>High</fullName><default>false</default><label>High</label></customValue>"
-                    .formatted(record.fullName());
+                    .formatted(record.fullName(), record.label()).replace("Text", fieldType);
+            case "StandardValueSet" -> "<fullName>%s</fullName>%s"
+                    .formatted(record.fullName(), valueEntries(record, "standardValue"));
+            case "GlobalValueSet" -> "<fullName>%s</fullName>%s"
+                    .formatted(record.fullName(), valueEntries(record, "customValue"));
             default -> "<fullName>%s</fullName><label>%s</label>".formatted(record.fullName(), record.label());
         };
         return "<records xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"met:%s\">%s</records>".formatted(type, body);
+    }
+
+    @SuppressWarnings("unchecked")
+    private String valueEntries(MetadataService.ReadMetadataRecord record, String tagName) {
+        Object values = record.attributes().get("values");
+        if (!(values instanceof List<?> list) || list.isEmpty()) {
+            return "<%s><fullName>%s</fullName><default>false</default><label>%s</label></%s>"
+                    .formatted(tagName, record.label(), record.label(), tagName);
+        }
+        return list.stream()
+                .map(String::valueOf)
+                .map(value -> "<%s><fullName>%s</fullName><default>false</default><label>%s</label></%s>"
+                        .formatted(tagName, value, value, tagName))
+                .reduce("", String::concat);
     }
 
     private String envelope(String operation, String body) {

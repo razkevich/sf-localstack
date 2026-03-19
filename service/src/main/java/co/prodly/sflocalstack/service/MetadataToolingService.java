@@ -1,5 +1,6 @@
 package co.prodly.sflocalstack.service;
 
+import co.prodly.sflocalstack.model.MetadataResource;
 import org.springframework.stereotype.Service;
 
 import java.util.AbstractMap;
@@ -10,6 +11,12 @@ import java.util.Map;
 @Service
 public class MetadataToolingService {
 
+    private final MetadataService metadataService;
+
+    public MetadataToolingService(MetadataService metadataService) {
+        this.metadataService = metadataService;
+    }
+
     public List<Map<String, Object>> executeToolingQuery(String soql) {
         if (soql.equalsIgnoreCase("SELECT Name FROM TabDefinition")) {
             return List.of(record("TabDefinition", fields(
@@ -18,19 +25,25 @@ public class MetadataToolingService {
             )));
         }
         if (soql.equalsIgnoreCase("SELECT DeveloperName, NamespacePrefix FROM CustomApplication")) {
-            return List.of(record("CustomApplication", fields(
-                    entry("DeveloperName", "SalesConsole"),
-                    entry("NamespacePrefix", null)
-            )));
+            return metadataService.listResources().stream()
+                    .filter(resource -> "CustomApplication".equals(resource.type()))
+                    .map(resource -> record("CustomApplication", fields(
+                            entry("DeveloperName", resource.fullName()),
+                            entry("NamespacePrefix", null)
+                    )))
+                    .toList();
         }
         if (soql.equalsIgnoreCase("SELECT QualifiedApiName FROM EntityDefinition WHERE IsCustomSetting = true")) {
             return List.of(record("EntityDefinition", fields(entry("QualifiedApiName", "FeatureFlags__c"))));
         }
         if (soql.equalsIgnoreCase("SELECT DeveloperName, NamespacePrefix FROM FlowDefinition")) {
-            return List.of(record("FlowDefinition", fields(
-                    entry("DeveloperName", "LoginFlow"),
-                    entry("NamespacePrefix", null)
-            )));
+            return metadataService.listResources().stream()
+                    .filter(resource -> "FlowDefinition".equals(resource.type()))
+                    .map(resource -> record("FlowDefinition", fields(
+                            entry("DeveloperName", resource.fullName()),
+                            entry("NamespacePrefix", null)
+                    )))
+                    .toList();
         }
         if (soql.equalsIgnoreCase("SELECT VersionNumber FROM Flow WHERE DefinitionId = 'FlowDefinition/LoginFlow'")) {
             return List.of(

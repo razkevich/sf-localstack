@@ -2,6 +2,7 @@ import type {
   BulkJob,
   DashboardOverview,
   DescribeResult,
+  MetadataResource,
   MutationResult,
   QueryResult,
   RequestLogEntry,
@@ -61,6 +62,50 @@ export async function fetchObjectRecords(objectType: string): Promise<SObjectLis
   }
 
   return response.json() as Promise<SObjectListResult>
+}
+
+export async function createRecord(objectType: string, fields: Record<string, unknown>): Promise<MutationResult> {
+  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}`), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fields),
+  })
+  const body = await response.json().catch(() => null)
+  if (!response.ok) {
+    throw new Error(Array.isArray(body) && body[0]?.message ? String(body[0].message) : `Failed to create ${objectType}`)
+  }
+  return {
+    id: body?.id,
+    success: Boolean(body?.success),
+    errors: Array.isArray(body?.errors) ? body.errors : [],
+    status: response.status,
+  }
+}
+
+export async function replaceRecord(objectType: string, id: string, fields: Record<string, unknown>): Promise<MutationResult> {
+  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}/${id}`), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fields),
+  })
+  const body = await response.json().catch(() => null)
+  if (!response.ok) {
+    throw new Error(Array.isArray(body) && body[0]?.message ? String(body[0].message) : `Failed to update ${objectType}`)
+  }
+  return {
+    id: body?.id,
+    success: Boolean(body?.success),
+    errors: Array.isArray(body?.errors) ? body.errors : [],
+    status: response.status,
+  }
+}
+
+export async function deleteRecord(objectType: string, id: string): Promise<void> {
+  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}/${id}`), { method: 'DELETE' })
+  if (!response.ok) {
+    const body = await response.json().catch(() => null)
+    throw new Error(Array.isArray(body) && body[0]?.message ? String(body[0].message) : `Failed to delete ${objectType}`)
+  }
 }
 
 export async function fetchDescribe(objectType: string): Promise<DescribeResult> {
@@ -194,4 +239,45 @@ export async function callMetadataSoap(operationBody: string): Promise<string> {
     throw new Error('Failed to call metadata SOAP endpoint')
   }
   return response.text()
+}
+
+export async function fetchMetadataResources(): Promise<MetadataResource[]> {
+  const response = await fetch(url('/api/admin/metadata/resources'))
+  if (!response.ok) {
+    throw new Error('Failed to load metadata resources')
+  }
+  return response.json() as Promise<MetadataResource[]>
+}
+
+export async function createMetadataResource(resource: MetadataResource): Promise<MetadataResource> {
+  const response = await fetch(url('/api/admin/metadata/resources'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(resource),
+  })
+  if (!response.ok) {
+    throw new Error('Failed to create metadata resource')
+  }
+  return response.json() as Promise<MetadataResource>
+}
+
+export async function updateMetadataResource(originalType: string, originalFullName: string, resource: MetadataResource): Promise<MetadataResource> {
+  const response = await fetch(url(`/api/admin/metadata/resources/${encodeURIComponent(originalType)}/${encodeURIComponent(originalFullName)}`), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(resource),
+  })
+  if (!response.ok) {
+    throw new Error('Failed to update metadata resource')
+  }
+  return response.json() as Promise<MetadataResource>
+}
+
+export async function deleteMetadataResource(type: string, fullName: string): Promise<void> {
+  const response = await fetch(url(`/api/admin/metadata/resources/${encodeURIComponent(type)}/${encodeURIComponent(fullName)}`), {
+    method: 'DELETE',
+  })
+  if (!response.ok) {
+    throw new Error('Failed to delete metadata resource')
+  }
 }
