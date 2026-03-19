@@ -169,39 +169,40 @@
 
 ## Feature 4: Metadata APIs (Priority: P5)
 
-**Goal**: Support basic Metadata SOAP and selected Metadata REST workflows and expose them through a dashboard metadata explorer.
+**Goal**: Support the actual metadata surfaces used by `metadata-service`: Metadata SOAP discovery/read/deploy-status/cancel flows plus Tooling-backed metadata helper queries, and expose them through a dashboard metadata explorer.
 
-**Independent Test**: Submit local deploy/status/cancel/list/describe SOAP requests plus supported Metadata REST requests, inspect response payloads, and verify the same workflows through the dashboard.
+**Independent Test**: Submit local Metadata SOAP `describeMetadata`, `listMetadata`, `readMetadata`, `checkDeployStatus`, and `cancelDeploy` requests plus supported Tooling-backed metadata helper queries, inspect response payloads, and verify the same workflows through the dashboard.
 
 ### Backend Tests First ⚠️
 
-- [ ] T046 [P] [F4] Add SOAP controller contract coverage in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataControllerTest.java`
-- [ ] T047 [P] [F4] Add SOAP parsing and response rendering coverage in `service/src/test/java/co/prodly/sflocalstack/service/MetadataServiceTest.java`
-- [ ] T048 [P] [F4] Add local Metadata integration coverage in `service/src/test/java/co/prodly/sflocalstack/integration/MetadataIntegrationTest.java`
-- [ ] T049 [P] [F4] Add Metadata REST controller coverage for supported resource flows in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataRestControllerTest.java`
+- [ ] T046 [P] [F4] Add SOAP controller contract coverage for `describeMetadata`, `listMetadata`, `readMetadata`, `checkDeployStatus`, and `cancelDeploy` in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataControllerTest.java`
+- [ ] T047 [P] [F4] Add SOAP parsing and response rendering coverage for `CustomField`, `StandardValueSet`, `GlobalValueSet`, and generic metadata reads in `service/src/test/java/co/prodly/sflocalstack/service/MetadataServiceTest.java`
+- [ ] T048 [P] [F4] Add local Metadata integration coverage for folder mappings and deploy status flows in `service/src/test/java/co/prodly/sflocalstack/integration/MetadataIntegrationTest.java`
+- [ ] T049 [P] [F4] Add Tooling-backed metadata helper coverage for Tabs, Applications, Custom Settings, and Login Flows in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataRestControllerTest.java`
 
 ### Backend Implementation
 
 - [ ] T050 [P] [F4] Add metadata deploy and catalog models in `service/src/main/java/co/prodly/sflocalstack/model/MetadataDeployJob.java` and `service/src/main/java/co/prodly/sflocalstack/model/MetadataCatalogEntry.java`
 - [ ] T051 [P] [F4] Implement namespace-tolerant SOAP parsing and response rendering helpers in `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapParser.java` and `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapRenderer.java`
-- [ ] T052 [P] [F4] Implement shared metadata service behavior for SOAP and REST surfaces in `service/src/main/java/co/prodly/sflocalstack/service/MetadataService.java`
-- [ ] T053 [F4] Add Metadata SOAP and supported Metadata REST routing in `service/src/main/java/co/prodly/sflocalstack/controller/MetadataController.java` and `service/src/main/java/co/prodly/sflocalstack/controller/MetadataRestController.java`
+- [ ] T052 [P] [F4] Implement shared metadata service behavior for `describeMetadata`, `listMetadata`, `readMetadata`, `checkDeployStatus`, `cancelDeploy`, folder mappings, and metadata type discovery in `service/src/main/java/co/prodly/sflocalstack/service/MetadataService.java`
+- [ ] T053 [P] [F4] Implement Tooling-backed metadata helper service for Tabs, Applications, Custom Settings, and Login Flows in `service/src/main/java/co/prodly/sflocalstack/service/MetadataToolingService.java`
+- [ ] T054 [F4] Add Metadata SOAP and supported metadata-helper REST routing in `service/src/main/java/co/prodly/sflocalstack/controller/MetadataController.java` and `service/src/main/java/co/prodly/sflocalstack/controller/MetadataRestController.java`
 
 ### Frontend Tests
 
-- [ ] T054 [P] [F4] Add Metadata workflow rendering coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new Metadata-focused components under `frontend/src/components/`
+- [ ] T055 [P] [F4] Add Metadata workflow rendering coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new Metadata-focused components under `frontend/src/components/`
 
 ### Frontend Implementation
 
-- [ ] T055 [F4] Build dashboard Metadata workflow explorer, deploy/status panels, supported REST resource views, and type browser in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new Metadata-focused components under `frontend/src/components/`
+- [ ] T056 [F4] Build dashboard Metadata workflow explorer, deploy/status panels, metadata type browser, metadata-read inspector, and tooling-helper views in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new Metadata-focused components under `frontend/src/components/`
 
 ### Verification
 
-- [ ] T056 [F4] Validate local Metadata SOAP and REST workflows through API calls and dashboard interaction
-- [ ] T057 [F4] Run Metadata parity verification against `dev20`
-- [ ] T058 [F4] Clean up temporary `dev20` records created during Metadata parity verification
+- [ ] T057 [F4] Validate local Metadata SOAP and tooling-helper REST workflows through API calls and dashboard interaction
+- [ ] T058 [F4] Run Metadata parity verification against `dev20` for `describeMetadata`, `listMetadata`, `readMetadata`, `checkDeployStatus`, `cancelDeploy`, Tabs, Applications, Custom Settings, and Login Flows
+- [ ] T059 [F4] Clean up temporary `dev20` records created during Metadata parity verification
 
-**Checkpoint**: Feature 4 is complete across backend, frontend, local verification, and real-Salesforce parity for both supported SOAP and REST metadata slices.
+**Checkpoint**: Feature 4 is complete across backend, frontend, local verification, and real-Salesforce parity for the metadata operations actually used by `metadata-service`.
 
 ---
 
@@ -213,19 +214,19 @@
 
 ### Tests First ⚠️
 
-- [ ] T059 [P] [F5] Add cross-surface integration coverage in `service/src/test/java/co/prodly/sflocalstack/integration/`
-- [ ] T060 [P] [F5] Add dashboard navigation and inspection coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and shared UI components
+- [ ] T060 [P] [F5] Add cross-surface integration coverage in `service/src/test/java/co/prodly/sflocalstack/integration/`
+- [ ] T061 [P] [F5] Add dashboard navigation and inspection coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and shared UI components
 
 ### Implementation
 
-- [ ] T061 [F5] Tighten shared backend observability and cross-surface consistency in `service/src/main/java/co/prodly/sflocalstack/service/`
-- [ ] T062 [F5] Polish shared dashboard navigation, empty states, and inspection UX in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and shared UI components
+- [ ] T062 [F5] Tighten shared backend observability and cross-surface consistency in `service/src/main/java/co/prodly/sflocalstack/service/`
+- [ ] T063 [F5] Polish shared dashboard navigation, empty states, and inspection UX in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and shared UI components
 
 ### Verification
 
-- [ ] T063 [F5] Validate the complete local app walkthrough across REST, Bulk, and Metadata SOAP/REST slices
-- [ ] T064 [F5] Re-run the approved parity suite against `dev20` and record accepted deltas
-- [ ] T065 [F5] Confirm temporary `dev20` parity data has been cleaned up
+- [ ] T064 [F5] Validate the complete local app walkthrough across REST, Bulk, and Metadata SOAP/tooling-helper slices
+- [ ] T065 [F5] Re-run the approved parity suite against `dev20` and record accepted deltas
+- [ ] T066 [F5] Confirm temporary `dev20` parity data has been cleaned up
 
 **Checkpoint**: Feature 5 is complete across backend, frontend, local verification, and real-Salesforce parity.
 

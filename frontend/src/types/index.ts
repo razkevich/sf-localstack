@@ -78,6 +78,19 @@ export interface MutationResult {
   location?: string | null
 }
 
+export interface BulkJob {
+  id: string
+  operation: string
+  object: string
+  state: string
+  externalIdFieldName?: string | null
+  contentType: string
+  numberRecordsProcessed: number
+  numberRecordsFailed: number
+  apiVersion: number
+  lineEnding: string
+}
+
 export interface DescribeResult {
   actionOverrides: unknown[]
   childRelationships: unknown[]

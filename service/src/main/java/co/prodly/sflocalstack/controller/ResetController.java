@@ -1,6 +1,7 @@
 package co.prodly.sflocalstack.controller;
 
 import co.prodly.sflocalstack.service.OrgStateService;
+import co.prodly.sflocalstack.service.BulkJobService;
 import co.prodly.sflocalstack.service.SeedDataLoader;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,15 +14,18 @@ public class ResetController {
 
     private final OrgStateService orgStateService;
     private final SeedDataLoader seedDataLoader;
+    private final BulkJobService bulkJobService;
 
-    public ResetController(OrgStateService orgStateService, SeedDataLoader seedDataLoader) {
+    public ResetController(OrgStateService orgStateService, SeedDataLoader seedDataLoader, BulkJobService bulkJobService) {
         this.orgStateService = orgStateService;
         this.seedDataLoader = seedDataLoader;
+        this.bulkJobService = bulkJobService;
     }
 
     @PostMapping("/reset")
     public ResponseEntity<Map<String, String>> reset() {
         orgStateService.reset();
+        bulkJobService.reset();
         seedDataLoader.load();
         return ResponseEntity.ok(Map.of("status", "ok", "message", "Org state reset"));
     }

@@ -21,7 +21,7 @@
 }
 ```
 
-- Response includes deterministic job id, `state: "Open"`, object, operation, and created date fields expected by common clients.
+- Response matches Salesforce's `200 OK` create-job envelope for the supported slice, including deterministic job id, `state: "Open"`, object, operation, `contentUrl`, and created-date metadata.
 
 ## Upload Batch
 
@@ -43,8 +43,8 @@ Bulk Corp,Technology
 }
 ```
 
-- Emulator processes all accumulated CSV synchronously before replying.
-- Success response includes `state: "JobComplete"`, `numberRecordsProcessed`, and `numberRecordsFailed`.
+- Emulator processes all accumulated CSV synchronously before replying, but the immediate close response mirrors Salesforce and still reports `state: "UploadComplete"`.
+- A subsequent `GET /jobs/ingest/{jobId}` returns the finalized local `JobComplete` state with `numberRecordsProcessed` and `numberRecordsFailed`.
 
 ## Result Endpoints
 
@@ -71,3 +71,7 @@ sf__Id,sf__Error
 - `upsert` requires `externalIdFieldName` on the job and must delegate to synchronized org-state upsert.
 - Successful row mutations are visible to REST query immediately after close returns.
 - Reset clears all jobs and result files.
+
+## Accepted Deltas
+
+- Salesforce keeps ingest jobs asynchronous, so a real org often returns `InProgress` after close and `204` from result endpoints until processing finishes. sf-localstack intentionally finalizes the job immediately after the close request while still returning Salesforce-shaped `UploadComplete` from the close response.

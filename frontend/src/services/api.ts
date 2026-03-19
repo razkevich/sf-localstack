@@ -1,4 +1,5 @@
 import type {
+  BulkJob,
   DashboardOverview,
   DescribeResult,
   MutationResult,
@@ -101,6 +102,64 @@ export async function upsertByExternalId(
     created: typeof body?.created === 'boolean' ? body.created : undefined,
     location: response.headers.get('Location'),
   }
+}
+
+export async function createBulkJob(payload: {
+  object: string
+  operation: string
+  externalIdFieldName?: string
+}): Promise<BulkJob> {
+  const response = await fetch(url('/services/data/v60.0/jobs/ingest'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...payload, contentType: 'CSV' }),
+  })
+  if (!response.ok) {
+    throw new Error('Failed to create bulk job')
+  }
+  return response.json() as Promise<BulkJob>
+}
+
+export async function uploadBulkCsv(jobId: string, csv: string): Promise<void> {
+  const response = await fetch(url(`/services/data/v60.0/jobs/ingest/${jobId}/batches`), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'text/csv' },
+    body: csv,
+  })
+  if (!response.ok) {
+    throw new Error('Failed to upload CSV batch')
+  }
+}
+
+export async function closeBulkJob(jobId: string): Promise<BulkJob> {
+  const response = await fetch(url(`/services/data/v60.0/jobs/ingest/${jobId}`), {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ state: 'UploadComplete' }),
+  })
+  if (!response.ok) {
+    throw new Error('Failed to close bulk job')
+  }
+  return response.json() as Promise<BulkJob>
+}
+
+export async function fetchBulkJob(jobId: string): Promise<BulkJob> {
+  const response = await fetch(url(`/services/data/v60.0/jobs/ingest/${jobId}`))
+  if (!response.ok) {
+    throw new Error('Failed to load bulk job')
+  }
+  return response.json() as Promise<BulkJob>
+}
+
+export async function fetchBulkCsvResult(
+  jobId: string,
+  kind: 'successfulResults' | 'failedResults' | 'unprocessedrecords',
+): Promise<string> {
+  const response = await fetch(url(`/services/data/v60.0/jobs/ingest/${jobId}/${kind}`))
+  if (!response.ok) {
+    throw new Error(`Failed to load ${kind}`)
+  }
+  return response.text()
 }
 
 export function eventStreamUrl(path: string): string {
