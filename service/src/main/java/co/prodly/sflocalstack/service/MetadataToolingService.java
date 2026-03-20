@@ -66,7 +66,8 @@ public class MetadataToolingService {
 
         Matcher matcher = EQUALITY_PATTERN.matcher(rawWhereClause.trim());
         if (!matcher.matches()) {
-            throw new IllegalArgumentException("Unsupported tooling query WHERE clause: " + rawWhereClause);
+            // Unsupported operator (e.g. >) — return null so caller gets all records (SourceMember returns empty anyway)
+            return null;
         }
 
         String field = matcher.group(1).trim();
