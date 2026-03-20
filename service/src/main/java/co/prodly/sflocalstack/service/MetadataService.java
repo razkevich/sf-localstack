@@ -92,7 +92,7 @@ public class MetadataService {
                         (req.members().contains("*") || req.members().contains(resource.fullName()))))
                 .toList();
         String zipFileBase64 = zipService.buildZip(typeRequests, resources.values().stream().toList());
-        MetadataRetrieveJob job = new MetadataRetrieveJob(id, true, true, "Succeeded", zipFileBase64, matched.size());
+        MetadataRetrieveJob job = new MetadataRetrieveJob(id, true, true, "Succeeded", zipFileBase64, matched.size(), matched);
         retrieveJobs.put(id, job);
         return job;
     }
@@ -157,6 +157,8 @@ public class MetadataService {
     private List<MetadataResource> defaultResources() {
         Instant seededAt = Instant.parse("2026-03-19T20:00:00Z");
         return List.of(
+                new MetadataResource("CustomObject", "Account", "objects/Account.object", "objects", false, true, seededAt, "Account",
+                        Map.of("fields", List.of(Map.of("fullName", "Type", "label", "Type", "type", "Text")))),
                 new MetadataResource("CustomField", "Account.Type", "objects/Account.object", "objects", false, true, seededAt, "Type", Map.of("fieldType", "Text")),
                 new MetadataResource("StandardValueSet", "AccountType", "standardValueSets/AccountType.standardValueSet", "standardValueSets", false, true, seededAt, "Account Type", Map.of("values", List.of("Customer - Direct", "Customer - Channel"))),
                 new MetadataResource("GlobalValueSet", "CustomerPriority", "globalValueSets/CustomerPriority.globalValueSet", "globalValueSets", false, true, seededAt, "Customer Priority", Map.of("values", List.of("High", "Medium", "Low"))),

@@ -22,7 +22,12 @@ public class MetadataManifestParser {
     public List<TypeRequest> extractTypeRequests(Map<String, Object> values) {
         List<TypeRequest> requests = new ArrayList<>();
 
-        List<Map<String, Object>> retrieveRequests = asList(values.get("retrieveRequest"));
+        // SF CLI uses <request> while Metadata API tests use <retrieveRequest>
+        Object rawRequest = values.get("retrieveRequest");
+        if (rawRequest == null) {
+            rawRequest = values.get("request");
+        }
+        List<Map<String, Object>> retrieveRequests = asList(rawRequest);
         if (retrieveRequests.isEmpty()) {
             return requests;
         }

@@ -93,6 +93,21 @@ public class MetadataSoapRenderer {
     }
 
     public String renderCheckRetrieveStatus(MetadataRetrieveJob job) {
+        String fileProps = job.matchedResources().stream()
+                .map(r -> """
+                        <fileProperties>
+                          <createdByName>sf-localstack</createdByName>
+                          <createdDate>2026-03-19T20:00:00.000Z</createdDate>
+                          <fileName>unpackaged/%s</fileName>
+                          <fullName>%s</fullName>
+                          <lastModifiedByName>sf-localstack</lastModifiedByName>
+                          <lastModifiedDate>2026-03-19T20:00:00.000Z</lastModifiedDate>
+                          <manageableState>unmanaged</manageableState>
+                          <type>%s</type>
+                        </fileProperties>
+                        """.formatted(r.fileName(), r.fullName(), r.type()))
+                .distinct()
+                .reduce("", String::concat);
         return envelope("checkRetrieveStatusResponse", """
                 <result>
                   <id>%s</id>
@@ -100,11 +115,12 @@ public class MetadataSoapRenderer {
                   <success>%s</success>
                   <status>%s</status>
                   <numberComponentsTotal>%d</numberComponentsTotal>
+                  %s
                   <zipFile>%s</zipFile>
                   <messages/>
                 </result>
                 """.formatted(job.id(), job.done(), job.success(), job.status(),
-                job.numberComponentsTotal(), job.zipFileBase64()));
+                job.numberComponentsTotal(), fileProps, job.zipFileBase64()));
     }
 
     public String renderFault(String code, String message) {
