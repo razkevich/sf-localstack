@@ -232,6 +232,42 @@
 
 ---
 
+## Feature 6: Metadata Retrieve via `package.xml` (Priority: P7, Deferred Next)
+
+**Goal**: Support `package.xml`-driven metadata retrieve flows so Salesforce CLI and similar clients can pull local metadata from the emulator without a real org.
+
+**Independent Test**: Submit a supported manifest, poll retrieve status, inspect the ZIP/result payload, and confirm the retrieved files match the local metadata catalog.
+
+### Backend Tests First ⚠️
+
+- [ ] T067 [P] [F6] Add SOAP controller coverage for `retrieve` and `checkRetrieveStatus` in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataControllerTest.java`
+- [ ] T068 [P] [F6] Add manifest parsing and ZIP assembly coverage in `service/src/test/java/co/prodly/sflocalstack/service/MetadataServiceTest.java`
+- [ ] T069 [P] [F6] Add integration coverage for `sf project retrieve start --manifest package.xml` compatible flows in `service/src/test/java/co/prodly/sflocalstack/integration/MetadataIntegrationTest.java`
+
+### Backend Implementation
+
+- [ ] T070 [P] [F6] Add retrieve job model and result state in `service/src/main/java/co/prodly/sflocalstack/model/MetadataRetrieveJob.java`
+- [ ] T071 [P] [F6] Implement manifest parsing and deterministic ZIP generation in `service/src/main/java/co/prodly/sflocalstack/service/MetadataManifestParser.java` and `service/src/main/java/co/prodly/sflocalstack/service/MetadataZipService.java`
+- [ ] T072 [F6] Implement `retrieve` and `checkRetrieveStatus` behavior in `service/src/main/java/co/prodly/sflocalstack/service/MetadataService.java`, `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapRenderer.java`, and `service/src/main/java/co/prodly/sflocalstack/controller/MetadataController.java`
+
+### Frontend Tests
+
+- [ ] T073 [P] [F6] Add Metadata manager retrieve-inspector coverage in `frontend/src/App.tsx` and `frontend/src/components/MetadataManager.tsx`
+
+### Frontend Implementation
+
+- [ ] T074 [F6] Add a lightweight retrieve preview/status/result inspector to `frontend/src/components/MetadataManager.tsx` and supporting API helpers in `frontend/src/services/api.ts`
+
+### Verification
+
+- [ ] T075 [F6] Validate local `package.xml` retrieve workflows through SOAP calls and CLI-compatible flows
+- [ ] T076 [F6] Run retrieve parity verification against `dev20`
+- [ ] T077 [F6] Clean up any temporary `dev20` metadata artifacts created during retrieve parity verification
+
+**Checkpoint**: Feature 6 is ready when supported `package.xml` retrieve flows work end-to-end against localhost and have documented parity against `dev20`.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -243,6 +279,7 @@
 - **Feature 3**: Depends on Feature 2's REST mutation semantics
 - **Feature 4**: Depends on the shared app shell and observability primitives
 - **Feature 5**: Depends on all supported feature slices being complete
+- **Feature 6**: Depends on Feature 4 metadata state/catalog support and should follow the current shipped baseline
 
 ### Within Each Feature
 

@@ -10,7 +10,7 @@
 - **Salesforce Surface**: `REST`, `Bulk API v2`, and `Metadata API`
 - **Compatibility Target**: Common Salesforce client flows used against API version `v60.0`, with behavior close enough that backend engineers can swap a real org URL for `localhost` without client code changes.
 - **In-Scope Operations**: App scaffold and dashboard shell; REST version discovery, query, describe, CRUD, and external-ID upsert flows; Bulk API v2 ingest create/upload/close/status/delete/result flows; Metadata API deploy, deploy-status, cancel-deploy, list-metadata, describe-metadata, and supported Metadata REST resource flows; resettable seeded org usage; request/response inspection in the dashboard.
-- **Out-of-Scope Operations**: Docker, deployment packaging, CI automation, Bulk query jobs, advanced SOQL beyond the approved filter set, Metadata retrieve/retrieveResult flows, packaging semantics, auth model changes, and production-scale performance simulation.
+- **Out-of-Scope Operations**: Docker, deployment packaging, CI automation, Bulk query jobs, advanced SOQL beyond the approved filter set, packaging semantics, auth model changes, and production-scale performance simulation. Metadata retrieve/retrieveResult flows are explicitly deferred to the next planned feature slice.
 - **API Shape Commitments**: In-scope operations must keep Salesforce-compatible paths, versioned routing, request field names, success envelopes, SOAP response shapes, status codes, and operation state values expected by common Prodly-style clients. Any unsupported input inside the in-scope surface must fail with a deterministic, Salesforce-like error response instead of silent fallback behavior.
 - **Frontend Scope**: The dashboard must evolve with each backend slice and expose the active emulator features through navigable views for request logs, query exploration, org-state inspection, Bulk job monitoring, Metadata workflow inspection, and reset guidance.
 - **Test Isolation Plan**: Every test run starts from a known seeded org, can explicitly reset the org after mutations, and verifies that REST, Bulk, and Metadata side effects do not leak into later tests. Reset must restore records, job state, and deploy state to the documented baseline.
@@ -160,6 +160,31 @@ An engineer uses the app as a coherent local Salesforce emulator, with consisten
 
 - Re-run the approved parity checks across all supported slices and record any accepted deltas still present after polish.
 
+---
+
+### Feature 6 - Metadata Retrieve via `package.xml` (Priority: P7, Deferred)
+
+An engineer points Salesforce CLI or other metadata clients at the emulator, submits a `package.xml` manifest, and retrieves a deterministic metadata ZIP that matches the local metadata catalog closely enough for local project sync flows.
+
+**Why this priority**: Retrieve is the most important missing metadata capability after the current shipped set because it unlocks `sf project retrieve start --manifest package.xml` and package.xml-driven local project flows.
+
+**Independent Test**: Use a manifest containing supported types against localhost, start a retrieve request, poll retrieve status, download or inspect the resulting ZIP payload, and confirm the files match the local metadata catalog for the selected members.
+
+**Acceptance Scenarios**:
+
+1. **Given** a valid `package.xml` with supported metadata types and members, **When** a client starts a retrieve, **Then** the emulator returns a deterministic async retrieve id and later exposes a completed retrieve result with a base64 ZIP payload.
+2. **Given** a manifest containing unsupported or missing members, **When** the retrieve runs, **Then** the emulator returns a deterministic, parseable failure or partial-result shape instead of silently omitting errors.
+3. **Given** metadata has been created or updated through the local Metadata manager, **When** the engineer retrieves the corresponding members via `package.xml`, **Then** the resulting ZIP reflects the current local metadata state.
+4. **Given** an engineer uses `sf project retrieve start --manifest package.xml` against the emulator, **When** the manifest only contains supported types, **Then** the CLI flow succeeds without requiring a real org.
+
+**Frontend Deliverables**:
+
+- Metadata manager support for previewing which local resources are retrievable and a lightweight retrieve-status/result inspector for debugging package.xml flows.
+
+**Parity Check**:
+
+- Compare representative `retrieve` and `checkRetrieveStatus` SOAP flows against `dev20`, focusing on request shape, async identifiers, status/result envelope fields, ZIP/result semantics, and supported failure behavior.
+
 ### Edge Cases
 
 - Unsupported SOQL operators or clauses within the covered query surface return a deterministic, Salesforce-compatible error instead of a partial or silently broadened result set.
@@ -169,6 +194,7 @@ An engineer uses the app as a coherent local Salesforce emulator, with consisten
 - Reset invoked after partial REST, Bulk, or Metadata mutations must clear transient job and deploy state as well as seeded record mutations.
 - Metadata deploy status checks for unknown, canceled, or malformed deploy identifiers must return a compatible failure shape instead of an internal error.
 - Parity verification mismatches must be documented immediately so the app does not silently drift from the real Salesforce reference org.
+- Manifest retrieve requests with unsupported types, unsupported wildcards, or mixed supported/unsupported members must return deterministic failure semantics that clients can interpret.
 
 ## Requirements *(mandatory)*
 
@@ -183,6 +209,7 @@ An engineer uses the app as a coherent local Salesforce emulator, with consisten
 - **FR-007**: System MUST support external-ID upsert behavior that distinguishes between update and create outcomes using Salesforce-compatible request paths, status codes, and success bodies.
 - **FR-008**: System MUST support synchronous Bulk API v2 ingest job workflows for the supported operation set.
 - **FR-009**: System MUST support basic Metadata API deploy, deploy-status, cancel-deploy, list-metadata, describe-metadata, and approved Metadata REST resource workflows with compatible SOAP or REST result shapes.
+- **FR-009a**: System SHOULD add Metadata API `retrieve` and `checkRetrieveStatus` support in the next planned feature slice so package.xml-driven local project sync flows can target localhost.
 - **FR-010**: System MUST define and execute parity verification for each supported slice against `dev20` before the slice is considered complete.
 - **FR-011**: System MUST clean up temporary `dev20` records created during parity verification unless an explicit exception is documented.
 - **FR-012**: System MUST keep Docker, CI automation, and deployment packaging out of the current implementation scope.

@@ -14,7 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/services/data/{apiVersion}/tooling")
+@RequestMapping({"/services/data/{apiVersion}/tooling", "/data/{apiVersion}/tooling"})
 public class MetadataRestController {
 
     private final MetadataToolingService metadataToolingService;

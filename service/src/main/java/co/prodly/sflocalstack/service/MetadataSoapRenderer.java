@@ -13,16 +13,23 @@ public class MetadataSoapRenderer {
     public String renderDescribeMetadata(List<MetadataCatalogEntry> entries) {
         String metadataObjects = entries.stream()
                 .map(entry -> """
-                        <result>
+                        <metadataObjects>
                           <xmlName>%s</xmlName>
                           <directoryName>%s</directoryName>
                           <inFolder>%s</inFolder>
                           <metaFile>%s</metaFile>
-                        </result>
+                        </metadataObjects>
                         """.formatted(entry.type(), entry.directoryName(), entry.inFolder(), entry.metaFile()))
                 .distinct()
                 .reduce("", String::concat);
-        return envelope("describeMetadataResponse", metadataObjects);
+        return envelope("describeMetadataResponse", """
+                <result>
+                  %s
+                  <organizationNamespace></organizationNamespace>
+                  <partialSaveAllowed>false</partialSaveAllowed>
+                  <testRequired>false</testRequired>
+                </result>
+                """.formatted(metadataObjects));
     }
 
     public String renderListMetadata(List<MetadataCatalogEntry> entries) {
@@ -98,7 +105,7 @@ public class MetadataSoapRenderer {
                     .formatted(record.fullName(), valueEntries(record, "customValue"));
             default -> "<fullName>%s</fullName><label>%s</label>".formatted(record.fullName(), record.label());
         };
-        return "<records xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"met:%s\">%s</records>".formatted(type, body);
+        return "<records xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"%s\">%s</records>".formatted(type, body);
     }
 
     @SuppressWarnings("unchecked")
@@ -119,11 +126,11 @@ public class MetadataSoapRenderer {
         return """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                                  xmlns:met="http://soap.sforce.com/2006/04/metadata">
+                                  xmlns="http://soap.sforce.com/2006/04/metadata">
                   <soapenv:Body>
-                    <met:%s>
+                    <%s>
                       %s
-                    </met:%s>
+                    </%s>
                   </soapenv:Body>
                 </soapenv:Envelope>
                 """.formatted(operation, body, operation);

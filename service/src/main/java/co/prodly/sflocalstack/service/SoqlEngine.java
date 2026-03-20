@@ -157,9 +157,10 @@ public class SoqlEngine {
     private Map<String, Object> projectFields(String objectType, Map<String, Object> fields, List<String> selectedFields) {
         Map<String, Object> projected = new LinkedHashMap<>();
         for (String field : selectedFields) {
+            String canonicalField = orgStateService.canonicalFieldPath(fields, field);
             Object resolved = orgStateService.resolveFieldValue(objectType, fields, field);
             if (resolved != null || !field.contains(".")) {
-                projected.put(field, resolved);
+                projected.put(canonicalField, resolved);
             }
         }
         return orgStateService.toSalesforceRecord("v60.0", objectType, projected);

@@ -30,8 +30,11 @@ class MetadataControllerTest {
                         .contentType(MediaType.TEXT_XML)
                         .content(envelope("<met:describeMetadata/>")))
                 .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<metadataObjects>")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("<xmlName>CustomField</xmlName>")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("<xmlName>GlobalValueSet</xmlName>")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<xmlName>GlobalValueSet</xmlName>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<partialSaveAllowed>false</partialSaveAllowed>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<testRequired>false</testRequired>")));
     }
 
     @Test
@@ -62,7 +65,7 @@ class MetadataControllerTest {
                                 </met:readMetadata>
                                 """)))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("xsi:type=\"met:GlobalValueSet\"")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("xsi:type=\"GlobalValueSet\"")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("<fullName>CustomerPriority</fullName>")));
     }
 

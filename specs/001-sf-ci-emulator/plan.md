@@ -5,7 +5,7 @@
 
 ## Summary
 
-Turn the current scaffold into a working Spring Boot plus React app that emulates the most important Salesforce v60.0 flows in feature slices: stabilize the dashboard and shared app shell, deliver REST CRUD/query/describe support with realistic SOQL, add external-ID upsert and REST error fidelity, then add synchronous Bulk API v2 ingest and basic Metadata SOAP workflows, validating each slice locally and against `dev20` before moving on.
+Turn the current scaffold into a working Spring Boot plus React app that emulates the most important Salesforce v60.0 flows in feature slices: stabilize the dashboard and shared app shell, deliver REST CRUD/query/describe support with realistic SOQL, add external-ID upsert and REST error fidelity, then add synchronous Bulk API v2 ingest and basic Metadata SOAP workflows, validating each slice locally and against `dev20` before moving on. The next deferred slice after the shipped set is Metadata retrieve via `package.xml`.
 
 ## Technical Context
 
@@ -28,7 +28,7 @@ Turn the current scaffold into a working Spring Boot plus React app that emulate
 - **Runtime Reproducibility**: Keep resettable seeded data stable, avoid hidden services beyond `dev20` parity checks, make Bulk and Metadata completion synchronous for the supported slice, and ensure repeated local runs after reset produce the same supported outputs.
 - **Dependency Surface**: No new Maven dependencies are required. SOQL parsing, CSV parsing, SOAP routing, and XML rendering use Java/Spring/Jackson facilities already present in the repo.
 - **Observability**: Extend request logging and service logs so every new flow records surface (`REST`/`BULK`/`METADATA`), operation, correlation/request id, target object/type, and reset lifecycle events. Dashboard inspection reuses these observability primitives.
-- **Scope Control**: This slice builds the app feature-by-feature and explicitly defers Docker, CI automation, deployment packaging, Bulk query jobs, advanced SOQL constructs, async simulation, and Metadata retrieve/package semantics.
+- **Scope Control**: This slice builds the app feature-by-feature and explicitly defers Docker, CI automation, deployment packaging, Bulk query jobs, advanced SOQL constructs, async simulation, and then treats Metadata retrieve/package semantics as the next planned slice rather than part of the current shipped baseline.
 - **Parity Verification**: Every feature slice is compared with `dev20` using representative requests. Mutation checks must create clearly prefixed temporary records and clean them up immediately after verification.
 
 ## Project Structure
@@ -137,6 +137,14 @@ AGENTS.md
 - **Tests First**: Add failing cross-surface integration checks and frontend coverage for polished navigation/inspection flows.
 - **Integration Verification**: Walk through the complete local REST, Bulk, and Metadata app flows after reset.
 - **Parity Verification**: Re-run the approved parity suite across all supported slices and confirm cleanup is complete.
+
+### Feature 6: Metadata Retrieve via `package.xml` (Deferred Next)
+
+- **Backend Scope**: Add Metadata SOAP `retrieve` and `checkRetrieveStatus`, manifest parsing, deterministic ZIP assembly, retrieve job tracking, and error handling for unsupported manifest members.
+- **Frontend Scope**: Add a lightweight retrieve inspector to the Metadata manager so engineers can preview retrievable resources and inspect retrieve status/results.
+- **Tests First**: Add failing controller/service/integration tests for manifest parsing, retrieve job lifecycle, ZIP content generation, and current-local-metadata round-tripping.
+- **Integration Verification**: Run `sf project retrieve start --manifest package.xml` against localhost with supported metadata members and confirm the local project files materialize from the emulator's retrieve result.
+- **Parity Verification**: Compare `retrieve` and `checkRetrieveStatus` SOAP flows against `dev20`, then record accepted deltas for unsupported wildcard or packaging behaviors.
 
 ## Salesforce Parity Verification
 

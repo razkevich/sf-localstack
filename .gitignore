@@ -28,9 +28,8 @@ Thumbs.db
 # Maven build output
 target/
 
-# OMC state
-.omc/state/
-.omc/notepad.md
+# Local agent/session state
+.omc/
 
 # Serena
 .serena/

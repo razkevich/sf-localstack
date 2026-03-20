@@ -4,6 +4,7 @@
 
 - `POST /services/Soap/m/60.0`
 - Supported operations: `listMetadata`, `describeMetadata`, `readMetadata`, `deploy`, `checkDeployStatus`, `cancelDeploy`
+- Deferred next operation set: `retrieve`, `checkRetrieveStatus`
 - Supporting query surfaces used by `metadata-service`:
   - `GET /services/data/v60.0/tooling/query` for `TabDefinition`, `CustomApplication`, `EntityDefinition`, `FlowDefinition`, and `Flow`
   - `GET /services/data/v60.0/query` for `FlowDefinitionView`
@@ -43,6 +44,13 @@
 - `listMetadata` returns deterministic `FileProperties` results for the supported metadata catalog.
 - `describeMetadata` returns deterministic `DescribeMetadataObject` entries for the same supported catalog.
 - `readMetadata` returns typed records for the supported metadata catalog (`CustomField`, `StandardValueSet`, `GlobalValueSet`, and generic typed reads).
+
+## Deferred Next: Retrieve via `package.xml`
+
+- The next planned metadata feature adds `retrieve` and `checkRetrieveStatus` with manifest-driven ZIP results.
+- The intended target flow is `sf project retrieve start --manifest package.xml` against localhost.
+- Retrieve scope should be limited to metadata types already present in the local metadata catalog unless explicitly expanded by a later spec update.
+- Unsupported manifest members, unsupported wildcards, and unsupported packaging semantics must return deterministic, parseable failures.
 
 ## Behavioral Guarantees
 

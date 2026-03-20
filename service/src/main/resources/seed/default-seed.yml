@@ -17,3 +17,17 @@ objects:
         LastName: "Smith"
         Email: "jane.smith@globex.com"
         Account.Name: "Globex Corp"
+  - type: User
+    records:
+      - Id: "005000000000001AAA"
+        Username: "admin@sf-localstack.dev"
+        LastName: "Admin"
+        FirstName: "SF LocalStack"
+        Name: "SF LocalStack Admin"
+        Email: "admin@sf-localstack.dev"
+        Alias: "sfls"
+        TimeZoneSidKey: "America/Los_Angeles"
+        LocaleSidKey: "en_US"
+        EmailEncodingKey: "UTF-8"
+        LanguageLocaleKey: "en_US"
+        IsActive: true

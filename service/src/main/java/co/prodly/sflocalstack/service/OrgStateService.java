@@ -23,19 +23,33 @@ public class OrgStateService {
     private static final Map<String, List<FieldSpec>> STANDARD_FIELD_CATALOG = Map.of(
             "Account", List.of(
                     new FieldSpec("Id", "Id", "id", false),
+                    new FieldSpec("IsDeleted", "Deleted", "boolean", false),
+                    new FieldSpec("MasterRecordId", "Master Record ID", "reference", false),
                     new FieldSpec("Name", "Account Name", "string", false),
+                    new FieldSpec("LastName", "Last Name", "string", true),
+                    new FieldSpec("FirstName", "First Name", "string", true),
+                    new FieldSpec("Salutation", "Salutation", "picklist", true),
                     new FieldSpec("Type", "Type", "string", true),
+                    new FieldSpec("RecordTypeId", "Record Type ID", "reference", true),
                     new FieldSpec("ParentId", "Parent Account ID", "reference", true),
                     new FieldSpec("BillingStreet", "Billing Street", "textarea", true),
                     new FieldSpec("BillingCity", "Billing City", "string", true),
                     new FieldSpec("BillingState", "Billing State/Province", "string", true),
                     new FieldSpec("BillingPostalCode", "Billing Zip/Postal Code", "string", true),
                     new FieldSpec("BillingCountry", "Billing Country", "string", true),
+                    new FieldSpec("BillingLatitude", "Billing Latitude", "double", true),
+                    new FieldSpec("BillingLongitude", "Billing Longitude", "double", true),
+                    new FieldSpec("BillingGeocodeAccuracy", "Billing Geocode Accuracy", "string", true),
+                    new FieldSpec("BillingAddress", "Billing Address", "address", true),
                     new FieldSpec("ShippingStreet", "Shipping Street", "textarea", true),
                     new FieldSpec("ShippingCity", "Shipping City", "string", true),
                     new FieldSpec("ShippingState", "Shipping State/Province", "string", true),
                     new FieldSpec("ShippingPostalCode", "Shipping Zip/Postal Code", "string", true),
                     new FieldSpec("ShippingCountry", "Shipping Country", "string", true),
+                    new FieldSpec("ShippingLatitude", "Shipping Latitude", "double", true),
+                    new FieldSpec("ShippingLongitude", "Shipping Longitude", "double", true),
+                    new FieldSpec("ShippingGeocodeAccuracy", "Shipping Geocode Accuracy", "string", true),
+                    new FieldSpec("ShippingAddress", "Shipping Address", "address", true),
                     new FieldSpec("Phone", "Account Phone", "phone", true),
                     new FieldSpec("Fax", "Account Fax", "phone", true),
                     new FieldSpec("AccountNumber", "Account Number", "string", true),
@@ -59,7 +73,10 @@ public class OrgStateService {
             ),
             "Contact", List.of(
                     new FieldSpec("Id", "Contact ID", "id", false),
+                    new FieldSpec("IsDeleted", "Deleted", "boolean", false),
+                    new FieldSpec("MasterRecordId", "Master Record ID", "reference", false),
                     new FieldSpec("AccountId", "Account ID", "reference", true),
+                    new FieldSpec("IsPersonAccount", "Is Person Account", "boolean", false),
                     new FieldSpec("LastName", "Last Name", "string", false),
                     new FieldSpec("FirstName", "First Name", "string", true),
                     new FieldSpec("Salutation", "Salutation", "picklist", true),
@@ -69,11 +86,19 @@ public class OrgStateService {
                     new FieldSpec("OtherState", "Other State/Province", "string", true),
                     new FieldSpec("OtherPostalCode", "Other Zip/Postal Code", "string", true),
                     new FieldSpec("OtherCountry", "Other Country", "string", true),
+                    new FieldSpec("OtherLatitude", "Other Latitude", "double", true),
+                    new FieldSpec("OtherLongitude", "Other Longitude", "double", true),
+                    new FieldSpec("OtherGeocodeAccuracy", "Other Geocode Accuracy", "string", true),
+                    new FieldSpec("OtherAddress", "Other Address", "address", true),
                     new FieldSpec("MailingStreet", "Mailing Street", "textarea", true),
                     new FieldSpec("MailingCity", "Mailing City", "string", true),
                     new FieldSpec("MailingState", "Mailing State/Province", "string", true),
                     new FieldSpec("MailingPostalCode", "Mailing Zip/Postal Code", "string", true),
                     new FieldSpec("MailingCountry", "Mailing Country", "string", true),
+                    new FieldSpec("MailingLatitude", "Mailing Latitude", "double", true),
+                    new FieldSpec("MailingLongitude", "Mailing Longitude", "double", true),
+                    new FieldSpec("MailingGeocodeAccuracy", "Mailing Geocode Accuracy", "string", true),
+                    new FieldSpec("MailingAddress", "Mailing Address", "address", true),
                     new FieldSpec("Phone", "Business Phone", "phone", true),
                     new FieldSpec("MobilePhone", "Mobile", "phone", true),
                     new FieldSpec("HomePhone", "Home Phone", "phone", true),
@@ -92,6 +117,41 @@ public class OrgStateService {
                     new FieldSpec("LastActivityDate", "Last Activity", "date", true),
                     new FieldSpec("LastViewedDate", "Last Viewed Date", "datetime", true),
                     new FieldSpec("LastReferencedDate", "Last Referenced Date", "datetime", true)
+            ),
+            "User", List.of(
+                    new FieldSpec("Id", "User ID", "id", false),
+                    new FieldSpec("Username", "Username", "string", false),
+                    new FieldSpec("LastName", "Last Name", "string", false),
+                    new FieldSpec("FirstName", "First Name", "string", true),
+                    new FieldSpec("Name", "Full Name", "string", false),
+                    new FieldSpec("CompanyName", "Company Name", "string", true),
+                    new FieldSpec("Division", "Division", "string", true),
+                    new FieldSpec("Department", "Department", "string", true),
+                    new FieldSpec("Title", "Title", "string", true),
+                    new FieldSpec("Street", "Street", "textarea", true),
+                    new FieldSpec("City", "City", "string", true),
+                    new FieldSpec("State", "State/Province", "string", true),
+                    new FieldSpec("PostalCode", "Zip/Postal Code", "string", true),
+                    new FieldSpec("Country", "Country", "string", true),
+                    new FieldSpec("Email", "Email", "email", true),
+                    new FieldSpec("Phone", "Phone", "phone", true),
+                    new FieldSpec("MobilePhone", "Mobile Phone", "phone", true),
+                    new FieldSpec("Alias", "Alias", "string", true),
+                    new FieldSpec("TimeZoneSidKey", "Time Zone", "picklist", true),
+                    new FieldSpec("LocaleSidKey", "Locale", "picklist", true),
+                    new FieldSpec("EmailEncodingKey", "Email Encoding", "picklist", true),
+                    new FieldSpec("ProfileId", "Profile ID", "reference", false),
+                    new FieldSpec("LanguageLocaleKey", "Language", "picklist", true),
+                    new FieldSpec("EmployeeNumber", "Employee Number", "string", true),
+                    new FieldSpec("IsActive", "Active", "boolean", false),
+                    new FieldSpec("UserRoleId", "User Role ID", "reference", true),
+                    new FieldSpec("CreatedDate", "Created Date", "datetime", false),
+                    new FieldSpec("CreatedById", "Created By ID", "reference", false),
+                    new FieldSpec("LastModifiedDate", "Last Modified Date", "datetime", false),
+                    new FieldSpec("LastModifiedById", "Last Modified By ID", "reference", false),
+                    new FieldSpec("SystemModstamp", "System Modstamp", "datetime", false),
+                    new FieldSpec("LastViewedDate", "Last Viewed Date", "datetime", true),
+                    new FieldSpec("LastReferencedDate", "Last Referenced Date", "datetime", true)
             )
     );
 
@@ -107,11 +167,13 @@ public class OrgStateService {
 
     @Transactional
     public SObjectRecord create(String objectType, Map<String, Object> fields) {
-        String id = generateId(objectType);
+        String id = fields.get("Id") instanceof String existingId && !existingId.isBlank()
+                ? existingId
+                : generateId(objectType);
         Instant now = Instant.now();
-        fields.put("Id", id);
-        fields.put("CreatedDate", now.toString());
-        fields.put("LastModifiedDate", now.toString());
+        fields.putIfAbsent("Id", id);
+        fields.putIfAbsent("CreatedDate", now.toString());
+        fields.putIfAbsent("LastModifiedDate", now.toString());
         String json = toJson(fields);
         SObjectRecord record = new SObjectRecord(id, objectType, json, now, now);
         return repository.save(record);
@@ -153,15 +215,20 @@ public class OrgStateService {
             return fields.get(fieldPath);
         }
 
-        if (!fieldPath.contains(".")) {
-            return fields.get(fieldPath);
+        String canonicalFieldPath = canonicalFieldPath(fields, fieldPath);
+        if (!canonicalFieldPath.equals(fieldPath) && fields.containsKey(canonicalFieldPath)) {
+            return fields.get(canonicalFieldPath);
         }
 
-        String[] parts = fieldPath.split("\\.", 2);
+        if (!fieldPath.contains(".")) {
+            return fields.get(canonicalFieldPath);
+        }
+
+        String[] parts = canonicalFieldPath.split("\\.", 2);
         String relationshipName = parts[0];
         String relatedField = parts[1];
 
-        Object literalValue = fields.get(fieldPath);
+        Object literalValue = fields.get(canonicalFieldPath);
         if (literalValue != null) {
             return literalValue;
         }
@@ -200,6 +267,44 @@ public class OrgStateService {
         });
 
         return result;
+    }
+
+    @Transactional(readOnly = true)
+    public String canonicalFieldPath(Map<String, Object> fields, String requestedFieldPath) {
+        if (fields.containsKey(requestedFieldPath)) {
+            return requestedFieldPath;
+        }
+
+        if (!requestedFieldPath.contains(".")) {
+            return fields.keySet().stream()
+                    .filter(key -> key.equalsIgnoreCase(requestedFieldPath))
+                    .findFirst()
+                    .orElse(requestedFieldPath);
+        }
+
+        String[] parts = requestedFieldPath.split("\\.");
+        StringBuilder canonical = new StringBuilder();
+        StringBuilder probe = new StringBuilder();
+        for (int index = 0; index < parts.length; index++) {
+            if (index > 0) {
+                canonical.append('.');
+                probe.append('.');
+            }
+            probe.append(parts[index]);
+            String matched = fields.keySet().stream()
+                    .filter(key -> key.equalsIgnoreCase(probe.toString()))
+                    .findFirst()
+                    .orElse(parts[index]);
+            if (matched.contains(".")) {
+                canonical.setLength(0);
+                canonical.append(matched);
+                probe.setLength(0);
+                probe.append(matched);
+            } else {
+                canonical.append(matched);
+            }
+        }
+        return canonical.toString();
     }
 
     @Transactional(readOnly = true)
@@ -321,9 +426,14 @@ public class OrgStateService {
     }
 
     private String generateId(String objectType) {
-        String prefix = objectType.length() >= 3
-                ? objectType.substring(0, 3).toUpperCase()
-                : objectType.toUpperCase();
+        String prefix = switch (objectType) {
+            case "Account" -> "001";
+            case "Contact" -> "003";
+            case "User" -> "005";
+            default -> objectType.length() >= 3
+                    ? objectType.substring(0, 3).toUpperCase()
+                    : objectType.toUpperCase();
+        };
         String uid = UUID.randomUUID().toString().replace("-", "").substring(0, 15);
         return prefix + uid;
     }

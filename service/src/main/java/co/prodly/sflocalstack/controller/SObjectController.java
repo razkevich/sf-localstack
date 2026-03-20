@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/services/data/{apiVersion}/sobjects/{objectType}")
+@RequestMapping({"/services/data/{apiVersion}/sobjects/{objectType}", "/data/{apiVersion}/sobjects/{objectType}"})
 public class SObjectController {
 
     private final OrgStateService orgStateService;
