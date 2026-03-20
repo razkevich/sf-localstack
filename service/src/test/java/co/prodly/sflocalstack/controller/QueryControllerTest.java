@@ -41,4 +41,24 @@ class QueryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalSize").value(1));
     }
+
+    @Test
+    void soqlWhereAndRelationshipProjectionReturnSalesforceShape() throws Exception {
+        mockMvc.perform(get("/services/data/v60.0/query")
+                        .param("q", "SELECT Id, FirstName, Account.Name FROM Contact WHERE LastName = 'Doe'"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSize").value(1))
+                .andExpect(jsonPath("$.records[0].attributes.type").value("Contact"))
+                .andExpect(jsonPath("$.records[0].FirstName").value("John"))
+                .andExpect(jsonPath("$.records[0].Account.Name").value("Acme Corp"));
+    }
+
+    @Test
+    void malformedSoqlReturnsSalesforceStyleError() throws Exception {
+        mockMvc.perform(get("/services/data/v60.0/query")
+                        .param("q", "NOT VALID SOQL"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].errorCode").value("MALFORMED_QUERY"))
+                .andExpect(jsonPath("$[0].message").exists());
+    }
 }
