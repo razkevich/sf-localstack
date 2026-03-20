@@ -17,10 +17,10 @@
 
 **Purpose**: Establish the reusable application shell needed by all feature slices.
 
-- [ ] T001 Align frontend build wiring and shared API base configuration in `frontend/package.json`, `frontend/vite.config.ts`, and `frontend/src/main.tsx`
-- [ ] T002 [P] Create shared frontend API types, request models, and fetch helpers in `frontend/src/types/index.ts`, `frontend/src/services/api.ts`, and `frontend/src/hooks/`
-- [ ] T003 [P] Add backend reset/request-log baseline coverage in `service/src/test/java/co/prodly/sflocalstack/controller/ResetControllerTest.java` and `service/src/test/java/co/prodly/sflocalstack/controller/DashboardControllerTest.java`
-- [ ] T004 [P] Add shared request-log and Salesforce-style error primitives in `service/src/main/java/co/prodly/sflocalstack/service/RequestLogService.java`, `service/src/main/java/co/prodly/sflocalstack/interceptor/RequestLoggingInterceptor.java`, and `service/src/main/java/co/prodly/sflocalstack/model/SalesforceError.java`
+- [X] T001 Align frontend build wiring and shared API base configuration in `frontend/package.json`, `frontend/vite.config.ts`, and `frontend/src/main.tsx`
+- [X] T002 [P] Create shared frontend API types, request models, and fetch helpers in `frontend/src/types/index.ts`, `frontend/src/services/api.ts`, and `frontend/src/hooks/`
+- [X] T003 [P] Add backend reset/request-log baseline coverage in `service/src/test/java/co/prodly/sflocalstack/controller/ResetControllerTest.java` and `service/src/test/java/co/prodly/sflocalstack/controller/DashboardControllerTest.java`
+- [X] T004 [P] Add shared request-log and Salesforce-style error primitives in `service/src/main/java/co/prodly/sflocalstack/service/RequestLogService.java`, `service/src/main/java/co/prodly/sflocalstack/interceptor/RequestLoggingInterceptor.java`, and `service/src/main/java/co/prodly/sflocalstack/model/SalesforceError.java`
 
 **Checkpoint**: The app shell is ready for feature-by-feature delivery.
 
@@ -34,26 +34,26 @@
 
 ### Backend Tests First ⚠️
 
-- [ ] T005 [P] [F0] Add backend shell and reset contract coverage in `service/src/test/java/co/prodly/sflocalstack/controller/ResetControllerTest.java` and `service/src/test/java/co/prodly/sflocalstack/controller/DashboardControllerTest.java`
-- [ ] T006 [P] [F0] Add local app-shell integration coverage in `service/src/test/java/co/prodly/sflocalstack/integration/ApplicationShellIntegrationTest.java`
+- [X] T005 [P] [F0] Add backend shell and reset contract coverage in `service/src/test/java/co/prodly/sflocalstack/controller/ResetControllerTest.java` and `service/src/test/java/co/prodly/sflocalstack/controller/DashboardControllerTest.java`
+- [X] T006 [P] [F0] Add local app-shell integration coverage in `service/src/test/java/co/prodly/sflocalstack/integration/ApplicationShellIntegrationTest.java`
 
 ### Backend Implementation
 
-- [ ] T007 [F0] Tighten dashboard/reset backend responses in `service/src/main/java/co/prodly/sflocalstack/controller/ResetController.java` and `service/src/main/java/co/prodly/sflocalstack/controller/DashboardController.java`
+- [X] T007 [F0] Tighten dashboard/reset backend responses in `service/src/main/java/co/prodly/sflocalstack/controller/ResetController.java` and `service/src/main/java/co/prodly/sflocalstack/controller/DashboardController.java`
 
 ### Frontend Tests
 
-- [ ] T008 [P] [F0] Add dashboard shell rendering coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, `frontend/src/components/RequestLog.tsx`, and `frontend/src/components/RequestDetail.tsx`
+- [X] T008 [P] [F0] Add dashboard shell rendering coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, `frontend/src/components/RequestLog.tsx`, and `frontend/src/components/RequestDetail.tsx`
 
 ### Frontend Implementation
 
-- [ ] T009 [F0] Build the shared dashboard shell, navigation, and reset UX in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, `frontend/src/components/RequestLog.tsx`, `frontend/src/components/RequestDetail.tsx`, and `frontend/src/components/ResetButton.tsx`
+- [X] T009 [F0] Build the shared dashboard shell, navigation, and reset UX in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, `frontend/src/components/RequestLog.tsx`, `frontend/src/components/RequestDetail.tsx`, and `frontend/src/components/ResetButton.tsx`
 
 ### Verification
 
-- [ ] T010 [F0] Validate the local dashboard shell and reset workflow using the documented app flow
-- [ ] T011 [F0] Run baseline REST parity verification against `dev20` for version discovery and simple list/query flows
-- [ ] T012 [F0] Clean up any temporary `dev20` records created during baseline parity verification
+- [X] T010 [F0] Validate the local dashboard shell and reset workflow using the documented app flow
+- [X] T011 [F0] Run baseline REST parity verification against `dev20` for version discovery and simple list/query flows
+- [X] T012 [F0] Clean up any temporary `dev20` records created during baseline parity verification
 
 **Checkpoint**: Feature 0 is complete across backend, frontend, local verification, and real-Salesforce parity.
 
@@ -67,30 +67,30 @@
 
 ### Backend Tests First ⚠️
 
-- [ ] T013 [P] [F1] Add SOQL predicate and relationship coverage in `service/src/test/java/co/prodly/sflocalstack/service/SoqlEngineTest.java`
-- [ ] T014 [P] [F1] Add REST query and describe contract coverage in `service/src/test/java/co/prodly/sflocalstack/controller/QueryControllerTest.java` and `service/src/test/java/co/prodly/sflocalstack/controller/SObjectControllerTest.java`
-- [ ] T015 [P] [F1] Add local REST/SOQL integration coverage in `service/src/test/java/co/prodly/sflocalstack/integration/RestQueryIntegrationTest.java`
+- [X] T013 [P] [F1] Add SOQL predicate and relationship coverage in `service/src/test/java/co/prodly/sflocalstack/service/SoqlEngineTest.java`
+- [X] T014 [P] [F1] Add REST query and describe contract coverage in `service/src/test/java/co/prodly/sflocalstack/controller/QueryControllerTest.java` and `service/src/test/java/co/prodly/sflocalstack/controller/SObjectControllerTest.java`
+- [X] T015 [P] [F1] Add local REST/SOQL integration coverage in `service/src/test/java/co/prodly/sflocalstack/integration/RestQueryIntegrationTest.java`
 
 ### Backend Implementation
 
-- [ ] T016 [P] [F1] Introduce parsed SOQL query and condition models in `service/src/main/java/co/prodly/sflocalstack/service/SoqlQueryModel.java` and `service/src/main/java/co/prodly/sflocalstack/service/SoqlCondition.java`
-- [ ] T017 [F1] Replace stub query execution with supported parser/executor logic in `service/src/main/java/co/prodly/sflocalstack/service/SoqlEngine.java`
-- [ ] T018 [P] [F1] Add relationship resolution helpers and describe support in `service/src/main/java/co/prodly/sflocalstack/service/OrgStateService.java` and `service/src/main/java/co/prodly/sflocalstack/controller/SObjectController.java`
-- [ ] T019 [F1] Expose supported REST query, CRUD, describe, and error responses in `service/src/main/java/co/prodly/sflocalstack/controller/QueryController.java` and `service/src/main/java/co/prodly/sflocalstack/controller/SObjectController.java`
+- [X] T016 [P] [F1] Introduce parsed SOQL query and condition models in `service/src/main/java/co/prodly/sflocalstack/service/SoqlQueryModel.java` and `service/src/main/java/co/prodly/sflocalstack/service/SoqlCondition.java`
+- [X] T017 [F1] Replace stub query execution with supported parser/executor logic in `service/src/main/java/co/prodly/sflocalstack/service/SoqlEngine.java`
+- [X] T018 [P] [F1] Add relationship resolution helpers and describe support in `service/src/main/java/co/prodly/sflocalstack/service/OrgStateService.java` and `service/src/main/java/co/prodly/sflocalstack/controller/SObjectController.java`
+- [X] T019 [F1] Expose supported REST query, CRUD, describe, and error responses in `service/src/main/java/co/prodly/sflocalstack/controller/QueryController.java` and `service/src/main/java/co/prodly/sflocalstack/controller/SObjectController.java`
 
 ### Frontend Tests
 
-- [ ] T020 [P] [F1] Add query runner and org-state rendering coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new REST-focused components under `frontend/src/components/`
+- [X] T020 [P] [F1] Add query runner and org-state rendering coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new REST-focused components under `frontend/src/components/`
 
 ### Frontend Implementation
 
-- [ ] T021 [F1] Build dashboard query runner, object browser, and record detail workflows in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new REST-focused components under `frontend/src/components/`
+- [X] T021 [F1] Build dashboard query runner, object browser, and record detail workflows in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new REST-focused components under `frontend/src/components/`
 
 ### Verification
 
-- [ ] T022 [F1] Validate local CRUD/query/describe workflows through API calls and dashboard interaction
-- [ ] T023 [F1] Run REST Core + SOQL parity verification against `dev20`
-- [ ] T024 [F1] Clean up temporary `dev20` records created during REST parity verification
+- [X] T022 [F1] Validate local CRUD/query/describe workflows through API calls and dashboard interaction
+- [X] T023 [F1] Run REST Core + SOQL parity verification against `dev20`
+- [X] T024 [F1] Clean up temporary `dev20` records created during REST parity verification
 
 **Checkpoint**: Feature 1 is complete across backend, frontend, local verification, and real-Salesforce parity.
 
@@ -104,28 +104,28 @@
 
 ### Backend Tests First ⚠️
 
-- [ ] T025 [P] [F2] Add external-ID upsert controller coverage in `service/src/test/java/co/prodly/sflocalstack/controller/SObjectControllerTest.java`
-- [ ] T026 [P] [F2] Add concurrent upsert determinism coverage in `service/src/test/java/co/prodly/sflocalstack/integration/ExternalIdUpsertIntegrationTest.java`
-- [ ] T027 [P] [F2] Add supported REST error-envelope coverage in `service/src/test/java/co/prodly/sflocalstack/controller/QueryControllerTest.java` and `service/src/test/java/co/prodly/sflocalstack/controller/SObjectControllerTest.java`
+- [X] T025 [P] [F2] Add external-ID upsert controller coverage in `service/src/test/java/co/prodly/sflocalstack/controller/SObjectControllerTest.java`
+- [X] T026 [P] [F2] Add concurrent upsert determinism coverage in `service/src/test/java/co/prodly/sflocalstack/integration/ExternalIdUpsertIntegrationTest.java`
+- [X] T027 [P] [F2] Add supported REST error-envelope coverage in `service/src/test/java/co/prodly/sflocalstack/controller/QueryControllerTest.java` and `service/src/test/java/co/prodly/sflocalstack/controller/SObjectControllerTest.java`
 
 ### Backend Implementation
 
-- [ ] T028 [F2] Implement synchronized external-ID upsert semantics in `service/src/main/java/co/prodly/sflocalstack/service/OrgStateService.java`
-- [ ] T029 [F2] Tighten Salesforce-compatible success and error payload handling in `service/src/main/java/co/prodly/sflocalstack/controller/SObjectController.java`, `service/src/main/java/co/prodly/sflocalstack/controller/QueryController.java`, and `service/src/main/java/co/prodly/sflocalstack/controller/`
+- [X] T028 [F2] Implement synchronized external-ID upsert semantics in `service/src/main/java/co/prodly/sflocalstack/service/OrgStateService.java`
+- [X] T029 [F2] Tighten Salesforce-compatible success and error payload handling in `service/src/main/java/co/prodly/sflocalstack/controller/SObjectController.java`, `service/src/main/java/co/prodly/sflocalstack/controller/QueryController.java`, and `service/src/main/java/co/prodly/sflocalstack/controller/`
 
 ### Frontend Tests
 
-- [ ] T030 [P] [F2] Add upsert and error-inspection rendering coverage in `frontend/src/App.tsx` and new REST-mutation components under `frontend/src/components/`
+- [X] T030 [P] [F2] Add upsert and error-inspection rendering coverage in `frontend/src/App.tsx` and new REST-mutation components under `frontend/src/components/`
 
 ### Frontend Implementation
 
-- [ ] T031 [F2] Build dashboard upsert playground and REST error inspection flows in `frontend/src/App.tsx` and new REST-mutation components under `frontend/src/components/`
+- [X] T031 [F2] Build dashboard upsert playground and REST error inspection flows in `frontend/src/App.tsx` and new REST-mutation components under `frontend/src/components/`
 
 ### Verification
 
-- [ ] T032 [F2] Validate local upsert and REST error workflows through API calls and dashboard interaction
-- [ ] T033 [F2] Run upsert/error parity verification against `dev20`
-- [ ] T034 [F2] Clean up temporary `dev20` records created during upsert/error parity verification
+- [X] T032 [F2] Validate local upsert and REST error workflows through API calls and dashboard interaction
+- [X] T033 [F2] Run upsert/error parity verification against `dev20`
+- [X] T034 [F2] Clean up temporary `dev20` records created during upsert/error parity verification
 
 **Checkpoint**: Feature 2 is complete across backend, frontend, local verification, and real-Salesforce parity.
 
@@ -139,29 +139,29 @@
 
 ### Backend Tests First ⚠️
 
-- [ ] T035 [P] [F3] Add Bulk ingest controller contract coverage in `service/src/test/java/co/prodly/sflocalstack/controller/BulkControllerTest.java`
-- [ ] T036 [P] [F3] Add Bulk CSV parsing and row-result coverage in `service/src/test/java/co/prodly/sflocalstack/service/BulkJobServiceTest.java`
-- [ ] T037 [P] [F3] Add local Bulk ingest integration coverage in `service/src/test/java/co/prodly/sflocalstack/integration/BulkIngestIntegrationTest.java`
+- [X] T035 [P] [F3] Add Bulk ingest controller contract coverage in `service/src/test/java/co/prodly/sflocalstack/controller/BulkControllerTest.java`
+- [X] T036 [P] [F3] Add Bulk CSV parsing and row-result coverage in `service/src/test/java/co/prodly/sflocalstack/service/BulkJobServiceTest.java`
+- [X] T037 [P] [F3] Add local Bulk ingest integration coverage in `service/src/test/java/co/prodly/sflocalstack/integration/BulkIngestIntegrationTest.java`
 
 ### Backend Implementation
 
-- [ ] T038 [P] [F3] Add Bulk job and row-result models in `service/src/main/java/co/prodly/sflocalstack/model/BulkIngestJob.java` and `service/src/main/java/co/prodly/sflocalstack/model/BulkRowResult.java`
-- [ ] T039 [P] [F3] Implement CSV parsing, synchronous processing, and result generation in `service/src/main/java/co/prodly/sflocalstack/service/BulkJobService.java`
-- [ ] T040 [F3] Add Bulk API v2 endpoints and reset wiring in `service/src/main/java/co/prodly/sflocalstack/controller/BulkController.java`, `service/src/main/java/co/prodly/sflocalstack/service/OrgStateService.java`, and `service/src/main/java/co/prodly/sflocalstack/controller/ResetController.java`
+- [X] T038 [P] [F3] Add Bulk job and row-result models in `service/src/main/java/co/prodly/sflocalstack/model/BulkIngestJob.java` and `service/src/main/java/co/prodly/sflocalstack/model/BulkRowResult.java`
+- [X] T039 [P] [F3] Implement CSV parsing, synchronous processing, and result generation in `service/src/main/java/co/prodly/sflocalstack/service/BulkJobService.java`
+- [X] T040 [F3] Add Bulk API v2 endpoints and reset wiring in `service/src/main/java/co/prodly/sflocalstack/controller/BulkController.java`, `service/src/main/java/co/prodly/sflocalstack/service/OrgStateService.java`, and `service/src/main/java/co/prodly/sflocalstack/controller/ResetController.java`
 
 ### Frontend Tests
 
-- [ ] T041 [P] [F3] Add Bulk job monitoring rendering coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new Bulk-focused components under `frontend/src/components/`
+- [X] T041 [P] [F3] Add Bulk job monitoring rendering coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new Bulk-focused components under `frontend/src/components/`
 
 ### Frontend Implementation
 
-- [ ] T042 [F3] Build dashboard Bulk job console, status summaries, and result panes in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new Bulk-focused components under `frontend/src/components/`
+- [X] T042 [F3] Build dashboard Bulk job console, status summaries, and result panes in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new Bulk-focused components under `frontend/src/components/`
 
 ### Verification
 
-- [ ] T043 [F3] Validate local Bulk ingest workflows through API calls and dashboard interaction
-- [ ] T044 [F3] Run Bulk API v2 parity verification against `dev20`
-- [ ] T045 [F3] Clean up temporary `dev20` records created during Bulk parity verification
+- [X] T043 [F3] Validate local Bulk ingest workflows through API calls and dashboard interaction
+- [X] T044 [F3] Run Bulk API v2 parity verification against `dev20`
+- [X] T045 [F3] Clean up temporary `dev20` records created during Bulk parity verification
 
 **Checkpoint**: Feature 3 is complete across backend, frontend, local verification, and real-Salesforce parity.
 
@@ -175,32 +175,32 @@
 
 ### Backend Tests First ⚠️
 
-- [ ] T046 [P] [F4] Add SOAP controller contract coverage for `describeMetadata`, `listMetadata`, `readMetadata`, `checkDeployStatus`, and `cancelDeploy` in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataControllerTest.java`
-- [ ] T047 [P] [F4] Add SOAP parsing and response rendering coverage for `CustomField`, `StandardValueSet`, `GlobalValueSet`, and generic metadata reads in `service/src/test/java/co/prodly/sflocalstack/service/MetadataServiceTest.java`
-- [ ] T048 [P] [F4] Add local Metadata integration coverage for folder mappings and deploy status flows in `service/src/test/java/co/prodly/sflocalstack/integration/MetadataIntegrationTest.java`
-- [ ] T049 [P] [F4] Add Tooling-backed metadata helper coverage for Tabs, Applications, Custom Settings, and Login Flows in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataRestControllerTest.java`
+- [X] T046 [P] [F4] Add SOAP controller contract coverage for `describeMetadata`, `listMetadata`, `readMetadata`, `checkDeployStatus`, and `cancelDeploy` in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataControllerTest.java`
+- [X] T047 [P] [F4] Add SOAP parsing and response rendering coverage for `CustomField`, `StandardValueSet`, `GlobalValueSet`, and generic metadata reads in `service/src/test/java/co/prodly/sflocalstack/service/MetadataServiceTest.java`
+- [X] T048 [P] [F4] Add local Metadata integration coverage for folder mappings and deploy status flows in `service/src/test/java/co/prodly/sflocalstack/integration/MetadataIntegrationTest.java`
+- [X] T049 [P] [F4] Add Tooling-backed metadata helper coverage for Tabs, Applications, Custom Settings, and Login Flows in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataRestControllerTest.java`
 
 ### Backend Implementation
 
-- [ ] T050 [P] [F4] Add metadata deploy and catalog models in `service/src/main/java/co/prodly/sflocalstack/model/MetadataDeployJob.java` and `service/src/main/java/co/prodly/sflocalstack/model/MetadataCatalogEntry.java`
-- [ ] T051 [P] [F4] Implement namespace-tolerant SOAP parsing and response rendering helpers in `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapParser.java` and `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapRenderer.java`
-- [ ] T052 [P] [F4] Implement shared metadata service behavior for `describeMetadata`, `listMetadata`, `readMetadata`, `checkDeployStatus`, `cancelDeploy`, folder mappings, and metadata type discovery in `service/src/main/java/co/prodly/sflocalstack/service/MetadataService.java`
-- [ ] T053 [P] [F4] Implement Tooling-backed metadata helper service for Tabs, Applications, Custom Settings, and Login Flows in `service/src/main/java/co/prodly/sflocalstack/service/MetadataToolingService.java`
-- [ ] T054 [F4] Add Metadata SOAP and supported metadata-helper REST routing in `service/src/main/java/co/prodly/sflocalstack/controller/MetadataController.java` and `service/src/main/java/co/prodly/sflocalstack/controller/MetadataRestController.java`
+- [X] T050 [P] [F4] Add metadata deploy and catalog models in `service/src/main/java/co/prodly/sflocalstack/model/MetadataDeployJob.java` and `service/src/main/java/co/prodly/sflocalstack/model/MetadataCatalogEntry.java`
+- [X] T051 [P] [F4] Implement namespace-tolerant SOAP parsing and response rendering helpers in `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapParser.java` and `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapRenderer.java`
+- [X] T052 [P] [F4] Implement shared metadata service behavior for `describeMetadata`, `listMetadata`, `readMetadata`, `checkDeployStatus`, `cancelDeploy`, folder mappings, and metadata type discovery in `service/src/main/java/co/prodly/sflocalstack/service/MetadataService.java`
+- [X] T053 [P] [F4] Implement Tooling-backed metadata helper service for Tabs, Applications, Custom Settings, and Login Flows in `service/src/main/java/co/prodly/sflocalstack/service/MetadataToolingService.java`
+- [X] T054 [F4] Add Metadata SOAP and supported metadata-helper REST routing in `service/src/main/java/co/prodly/sflocalstack/controller/MetadataController.java` and `service/src/main/java/co/prodly/sflocalstack/controller/MetadataRestController.java`
 
 ### Frontend Tests
 
-- [ ] T055 [P] [F4] Add Metadata workflow rendering coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new Metadata-focused components under `frontend/src/components/`
+- [X] T055 [P] [F4] Add Metadata workflow rendering coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new Metadata-focused components under `frontend/src/components/`
 
 ### Frontend Implementation
 
-- [ ] T056 [F4] Build dashboard Metadata workflow explorer, deploy/status panels, metadata type browser, metadata-read inspector, and tooling-helper views in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new Metadata-focused components under `frontend/src/components/`
+- [X] T056 [F4] Build dashboard Metadata workflow explorer, deploy/status panels, metadata type browser, metadata-read inspector, and tooling-helper views in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and new Metadata-focused components under `frontend/src/components/`
 
 ### Verification
 
-- [ ] T057 [F4] Validate local Metadata SOAP and tooling-helper REST workflows through API calls and dashboard interaction
-- [ ] T058 [F4] Run Metadata parity verification against `dev20` for `describeMetadata`, `listMetadata`, `readMetadata`, `checkDeployStatus`, `cancelDeploy`, Tabs, Applications, Custom Settings, and Login Flows
-- [ ] T059 [F4] Clean up temporary `dev20` records created during Metadata parity verification
+- [X] T057 [F4] Validate local Metadata SOAP and tooling-helper REST workflows through API calls and dashboard interaction
+- [X] T058 [F4] Run Metadata parity verification against `dev20` for `describeMetadata`, `listMetadata`, `readMetadata`, `checkDeployStatus`, `cancelDeploy`, Tabs, Applications, Custom Settings, and Login Flows
+- [X] T059 [F4] Clean up temporary `dev20` records created during Metadata parity verification
 
 **Checkpoint**: Feature 4 is complete across backend, frontend, local verification, and real-Salesforce parity for the metadata operations actually used by `metadata-service`.
 
@@ -214,19 +214,19 @@
 
 ### Tests First ⚠️
 
-- [ ] T060 [P] [F5] Add cross-surface integration coverage in `service/src/test/java/co/prodly/sflocalstack/integration/`
-- [ ] T061 [P] [F5] Add dashboard navigation and inspection coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and shared UI components
+- [X] T060 [P] [F5] Add cross-surface integration coverage in `service/src/test/java/co/prodly/sflocalstack/integration/CrossSurfaceIntegrationTest.java`
+- [X] T061 [P] [F5] Add dashboard navigation and inspection coverage in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and shared UI components
 
 ### Implementation
 
-- [ ] T062 [F5] Tighten shared backend observability and cross-surface consistency in `service/src/main/java/co/prodly/sflocalstack/service/`
-- [ ] T063 [F5] Polish shared dashboard navigation, empty states, and inspection UX in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and shared UI components
+- [X] T062 [F5] Tighten shared backend observability and cross-surface consistency in `service/src/main/java/co/prodly/sflocalstack/service/`
+- [X] T063 [F5] Polish shared dashboard navigation, empty states, and inspection UX in `frontend/src/App.tsx`, `frontend/src/components/Sidebar.tsx`, and shared UI components
 
 ### Verification
 
-- [ ] T064 [F5] Validate the complete local app walkthrough across REST, Bulk, and Metadata SOAP/tooling-helper slices
-- [ ] T065 [F5] Re-run the approved parity suite against `dev20` and record accepted deltas
-- [ ] T066 [F5] Confirm temporary `dev20` parity data has been cleaned up
+- [X] T064 [F5] Validate the complete local app walkthrough across REST, Bulk, and Metadata SOAP/tooling-helper slices
+- [X] T065 [F5] Re-run the approved parity suite against `dev20` and record accepted deltas
+- [X] T066 [F5] Confirm temporary `dev20` parity data has been cleaned up
 
 **Checkpoint**: Feature 5 is complete across backend, frontend, local verification, and real-Salesforce parity.
 
@@ -240,29 +240,29 @@
 
 ### Backend Tests First ⚠️
 
-- [ ] T067 [P] [F6] Add SOAP controller coverage for `retrieve` and `checkRetrieveStatus` in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataControllerTest.java`
-- [ ] T068 [P] [F6] Add manifest parsing and ZIP assembly coverage in `service/src/test/java/co/prodly/sflocalstack/service/MetadataServiceTest.java`
-- [ ] T069 [P] [F6] Add integration coverage for `sf project retrieve start --manifest package.xml` compatible flows in `service/src/test/java/co/prodly/sflocalstack/integration/MetadataIntegrationTest.java`
+- [X] T067 [P] [F6] Add SOAP controller coverage for `retrieve` and `checkRetrieveStatus` in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataControllerTest.java`
+- [X] T068 [P] [F6] Add manifest parsing and ZIP assembly coverage in `service/src/test/java/co/prodly/sflocalstack/service/MetadataServiceTest.java`
+- [X] T069 [P] [F6] Add integration coverage for `sf project retrieve start --manifest package.xml` compatible flows in `service/src/test/java/co/prodly/sflocalstack/integration/MetadataIntegrationTest.java`
 
 ### Backend Implementation
 
-- [ ] T070 [P] [F6] Add retrieve job model and result state in `service/src/main/java/co/prodly/sflocalstack/model/MetadataRetrieveJob.java`
-- [ ] T071 [P] [F6] Implement manifest parsing and deterministic ZIP generation in `service/src/main/java/co/prodly/sflocalstack/service/MetadataManifestParser.java` and `service/src/main/java/co/prodly/sflocalstack/service/MetadataZipService.java`
-- [ ] T072 [F6] Implement `retrieve` and `checkRetrieveStatus` behavior in `service/src/main/java/co/prodly/sflocalstack/service/MetadataService.java`, `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapRenderer.java`, and `service/src/main/java/co/prodly/sflocalstack/controller/MetadataController.java`
+- [X] T070 [P] [F6] Add retrieve job model and result state in `service/src/main/java/co/prodly/sflocalstack/model/MetadataRetrieveJob.java`
+- [X] T071 [P] [F6] Implement manifest parsing and deterministic ZIP generation in `service/src/main/java/co/prodly/sflocalstack/service/MetadataManifestParser.java` and `service/src/main/java/co/prodly/sflocalstack/service/MetadataZipService.java`
+- [X] T072 [F6] Implement `retrieve` and `checkRetrieveStatus` behavior in `service/src/main/java/co/prodly/sflocalstack/service/MetadataService.java`, `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapRenderer.java`, and `service/src/main/java/co/prodly/sflocalstack/controller/MetadataController.java`
 
 ### Frontend Tests
 
-- [ ] T073 [P] [F6] Add Metadata manager retrieve-inspector coverage in `frontend/src/App.tsx` and `frontend/src/components/MetadataManager.tsx`
+- [X] T073 [P] [F6] Add Metadata manager retrieve-inspector coverage in `frontend/src/App.tsx` and `frontend/src/components/MetadataManager.tsx`
 
 ### Frontend Implementation
 
-- [ ] T074 [F6] Add a lightweight retrieve preview/status/result inspector to `frontend/src/components/MetadataManager.tsx` and supporting API helpers in `frontend/src/services/api.ts`
+- [X] T074 [F6] Add a lightweight retrieve preview/status/result inspector to `frontend/src/components/MetadataManager.tsx` and supporting API helpers in `frontend/src/services/api.ts`
 
 ### Verification
 
-- [ ] T075 [F6] Validate local `package.xml` retrieve workflows through SOAP calls and CLI-compatible flows
-- [ ] T076 [F6] Run retrieve parity verification against `dev20`
-- [ ] T077 [F6] Clean up any temporary `dev20` metadata artifacts created during retrieve parity verification
+- [X] T075 [F6] Validate local `package.xml` retrieve workflows through SOAP calls and CLI-compatible flows
+- [X] T076 [F6] Run retrieve parity verification against `dev20`
+- [X] T077 [F6] Clean up any temporary `dev20` metadata artifacts created during retrieve parity verification
 
 **Checkpoint**: Feature 6 is ready when supported `package.xml` retrieve flows work end-to-end against localhost and have documented parity against `dev20`.
 
@@ -323,3 +323,38 @@
 - Feature completion requires FE + BE + local verification + parity verification
 - Docker, CI automation, deployment, and packaging are intentionally deferred
 - Reset behavior remains in scope because it is part of the working app, not just test infrastructure
+
+---
+
+## Feature 7: metadata-service + Athena Compatibility Coverage (Priority: P8)
+
+Ensure the emulator covers every SF API operation actively used by `metadata-service` and athena services so engineers can point those services at localhost in CI without modification.
+
+**Key gaps identified from source analysis:**
+- `FieldDefinition` tooling queries (used for IsHistoryTracked field discovery)
+- `listMetadata` with multiple type queries in a single SOAP call
+- `CustomTab` metadata resource missing from seed
+- Multi-type retrieve (multiple `<types>` in one package.xml)
+- Explicit member retrieve (non-wildcard)
+
+### Setup
+
+- [X] T085 [P] [F7] Add `CustomTab` and `RecordType` seed resources to `MetadataService.defaultResources()` in `service/src/main/java/co/prodly/sflocalstack/service/MetadataService.java`
+
+### Tests
+
+- [X] T086 [P] [F7] Add `FieldDefinition` tooling query coverage in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataRestControllerTest.java`
+- [X] T087 [P] [F7] Add multi-type `listMetadata` and explicit-member retrieve coverage in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataControllerTest.java`
+- [X] T088 [P] [F7] Add multi-type retrieve integration coverage in `service/src/test/java/co/prodly/sflocalstack/integration/MetadataIntegrationTest.java`
+
+### Core
+
+- [X] T089 [F7] Add `FieldDefinition` to `datasetFor` switch in `service/src/main/java/co/prodly/sflocalstack/service/MetadataToolingService.java`
+- [X] T090 [F7] Fix `listMetadata` to support multiple simultaneous type queries in `service/src/main/java/co/prodly/sflocalstack/controller/MetadataController.java` and `service/src/main/java/co/prodly/sflocalstack/service/MetadataService.java`
+
+### Validation
+
+- [X] T091 [F7] Run dev20 parity for FieldDefinition tooling query, multi-type listMetadata, and retrieve flows
+- [X] T092 [F7] Clean up any dev20 artifacts from F7 parity verification
+
+**Checkpoint**: Feature 7 is complete when metadata-service and athena can connect to the emulator without encountering unsupported operation errors for the workflows covered in this feature.

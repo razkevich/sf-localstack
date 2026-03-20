@@ -110,6 +110,164 @@ class MetadataControllerTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("<id>%s</id>".formatted(deployId))));
     }
 
+    @Test
+    void listMetadataWithMultipleTypesReturnsAllMatchingEntries() throws Exception {
+        mockMvc.perform(post("/services/Soap/m/60.0")
+                        .contentType(MediaType.TEXT_XML)
+                        .content(envelope("""
+                                <met:listMetadata>
+                                  <met:queries>
+                                    <met:type>CustomField</met:type>
+                                  </met:queries>
+                                  <met:queries>
+                                    <met:type>CustomTab</met:type>
+                                  </met:queries>
+                                  <met:asOfVersion>60.0</met:asOfVersion>
+                                </met:listMetadata>
+                                """)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<fullName>Account.Type</fullName>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<type>CustomField</type>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<fullName>standard-Account</fullName>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<type>CustomTab</type>")));
+    }
+
+    @Test
+    void retrieveReturnsIdWithPendingStatus() throws Exception {
+        mockMvc.perform(post("/services/Soap/m/60.0")
+                        .contentType(MediaType.TEXT_XML)
+                        .content(envelope("""
+                                <met:retrieve>
+                                  <met:retrieveRequest>
+                                    <met:apiVersion>60.0</met:apiVersion>
+                                    <met:unpackaged>
+                                      <met:types>
+                                        <met:members>*</met:members>
+                                        <met:name>CustomField</met:name>
+                                      </met:types>
+                                    </met:unpackaged>
+                                  </met:retrieveRequest>
+                                </met:retrieve>
+                                """)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<retrieveResponse>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<id>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<done>false</done>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<status>Pending</status>")));
+    }
+
+    @Test
+    void checkRetrieveStatusReturnsZipWhenComplete() throws Exception {
+        String retrieveResponse = mockMvc.perform(post("/services/Soap/m/60.0")
+                        .contentType(MediaType.TEXT_XML)
+                        .content(envelope("""
+                                <met:retrieve>
+                                  <met:retrieveRequest>
+                                    <met:apiVersion>60.0</met:apiVersion>
+                                    <met:unpackaged>
+                                      <met:types>
+                                        <met:members>*</met:members>
+                                        <met:name>CustomField</met:name>
+                                      </met:types>
+                                    </met:unpackaged>
+                                  </met:retrieveRequest>
+                                </met:retrieve>
+                                """)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String retrieveId = retrieveResponse.replaceAll("(?s).*<id>([^<]+)</id>.*", "$1");
+
+        mockMvc.perform(post("/services/Soap/m/60.0")
+                        .contentType(MediaType.TEXT_XML)
+                        .content(envelope("""
+                                <met:checkRetrieveStatus>
+                                  <met:asyncProcessId>%s</met:asyncProcessId>
+                                  <met:includeZip>true</met:includeZip>
+                                </met:checkRetrieveStatus>
+                                """.formatted(retrieveId))))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<done>true</done>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<success>true</success>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<status>Succeeded</status>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<zipFile>")));
+    }
+
+    @Test
+    void retrieveWithExplicitMemberReturnsOnlyMatchedComponent() throws Exception {
+        String retrieveResponse = mockMvc.perform(post("/services/Soap/m/60.0")
+                        .contentType(MediaType.TEXT_XML)
+                        .content(envelope("""
+                                <met:retrieve>
+                                  <met:retrieveRequest>
+                                    <met:apiVersion>60.0</met:apiVersion>
+                                    <met:unpackaged>
+                                      <met:types>
+                                        <met:members>Account.Type</met:members>
+                                        <met:name>CustomField</met:name>
+                                      </met:types>
+                                    </met:unpackaged>
+                                  </met:retrieveRequest>
+                                </met:retrieve>
+                                """)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String retrieveId = retrieveResponse.replaceAll("(?s).*<id>([^<]+)</id>.*", "$1");
+
+        mockMvc.perform(post("/services/Soap/m/60.0")
+                        .contentType(MediaType.TEXT_XML)
+                        .content(envelope("""
+                                <met:checkRetrieveStatus>
+                                  <met:asyncProcessId>%s</met:asyncProcessId>
+                                  <met:includeZip>true</met:includeZip>
+                                </met:checkRetrieveStatus>
+                                """.formatted(retrieveId))))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<done>true</done>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<success>true</success>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<numberComponentsTotal>1</numberComponentsTotal>")));
+    }
+
+    @Test
+    void retrieveWithMultipleTypesReturnsComponentsFromAllTypes() throws Exception {
+        String retrieveResponse = mockMvc.perform(post("/services/Soap/m/60.0")
+                        .contentType(MediaType.TEXT_XML)
+                        .content(envelope("""
+                                <met:retrieve>
+                                  <met:retrieveRequest>
+                                    <met:apiVersion>60.0</met:apiVersion>
+                                    <met:unpackaged>
+                                      <met:types>
+                                        <met:members>*</met:members>
+                                        <met:name>CustomField</met:name>
+                                      </met:types>
+                                      <met:types>
+                                        <met:members>*</met:members>
+                                        <met:name>StandardValueSet</met:name>
+                                      </met:types>
+                                    </met:unpackaged>
+                                  </met:retrieveRequest>
+                                </met:retrieve>
+                                """)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String retrieveId = retrieveResponse.replaceAll("(?s).*<id>([^<]+)</id>.*", "$1");
+
+        mockMvc.perform(post("/services/Soap/m/60.0")
+                        .contentType(MediaType.TEXT_XML)
+                        .content(envelope("""
+                                <met:checkRetrieveStatus>
+                                  <met:asyncProcessId>%s</met:asyncProcessId>
+                                  <met:includeZip>true</met:includeZip>
+                                </met:checkRetrieveStatus>
+                                """.formatted(retrieveId))))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<done>true</done>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<numberComponentsTotal>2</numberComponentsTotal>")));
+    }
+
     private String envelope(String body) {
         return """
                 <?xml version="1.0" encoding="UTF-8"?>

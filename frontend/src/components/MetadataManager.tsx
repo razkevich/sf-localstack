@@ -3,8 +3,11 @@ import {
   createMetadataResource,
   deleteMetadataResource,
   fetchMetadataResources,
+  pollRetrieveStatus,
+  triggerRetrieve,
   updateMetadataResource,
 } from '../services/api'
+import type { RetrieveJobStatus, RetrieveTypeRequest } from '../services/api'
 import type { MetadataResource } from '../types'
 
 const EMPTY_RESOURCE: MetadataResource = {
@@ -30,6 +33,11 @@ export function MetadataManager() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState<string | null>(null)
+
+  const [retrieveTypes, setRetrieveTypes] = useState<RetrieveTypeRequest[]>([{ type: 'CustomField', members: ['*'] }])
+  const [retrieveLoading, setRetrieveLoading] = useState(false)
+  const [retrieveResult, setRetrieveResult] = useState<RetrieveJobStatus | null>(null)
+  const [retrieveError, setRetrieveError] = useState<string | null>(null)
 
   const resourceTypes = useMemo(() => ['all', ...new Set(resources.map((resource) => resource.type))], [resources])
 
@@ -103,6 +111,21 @@ export function MetadataManager() {
       setError(err instanceof Error ? err.message : 'Failed to save metadata resource')
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function doRetrieve() {
+    setRetrieveLoading(true)
+    setRetrieveError(null)
+    setRetrieveResult(null)
+    try {
+      const { id } = await triggerRetrieve(retrieveTypes)
+      const result = await pollRetrieveStatus(id)
+      setRetrieveResult(result)
+    } catch (err) {
+      setRetrieveError(err instanceof Error ? err.message : 'Retrieve failed')
+    } finally {
+      setRetrieveLoading(false)
     }
   }
 
@@ -210,6 +233,74 @@ export function MetadataManager() {
               <textarea value={attributeEditor} onChange={(e) => setAttributeEditor(e.target.value)} className="h-64 w-full rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 font-mono text-sm text-slate-100 outline-none focus:border-fuchsia-400" />
             </Field>
           </div>
+        </div>
+        <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-xs uppercase tracking-[0.18em] text-slate-500">Retrieve Inspector</div>
+              <div className="mt-1 text-lg font-semibold text-white">Package Retrieve</div>
+            </div>
+            <button type="button" onClick={() => void doRetrieve()} disabled={retrieveLoading} className={primaryButton}>
+              {retrieveLoading ? 'Retrieving...' : 'Retrieve'}
+            </button>
+          </div>
+
+          <div className="mt-4 space-y-2">
+            {retrieveTypes.map((req, i) => (
+              <div key={i} className="flex gap-2">
+                <input
+                  value={req.type}
+                  onChange={(e) => {
+                    const next = [...retrieveTypes]
+                    next[i] = { ...next[i], type: e.target.value }
+                    setRetrieveTypes(next)
+                  }}
+                  placeholder="Type (e.g. CustomField)"
+                  className={`${inputClass} flex-1`}
+                />
+                <input
+                  value={req.members.join(', ')}
+                  onChange={(e) => {
+                    const next = [...retrieveTypes]
+                    next[i] = { ...next[i], members: e.target.value.split(',').map((m) => m.trim()).filter(Boolean) }
+                    setRetrieveTypes(next)
+                  }}
+                  placeholder="Members (e.g. * or Account.Type)"
+                  className={`${inputClass} flex-1`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setRetrieveTypes(retrieveTypes.filter((_, j) => j !== i))}
+                  className={dangerButton}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setRetrieveTypes([...retrieveTypes, { type: '', members: ['*'] }])}
+              className={secondaryButton}
+            >
+              + Add type
+            </button>
+          </div>
+
+          {retrieveError ? (
+            <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">{retrieveError}</div>
+          ) : null}
+
+          {retrieveResult ? (
+            <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200 space-y-1">
+              <div><span className="text-slate-400">Status:</span> {retrieveResult.status}</div>
+              <div><span className="text-slate-400">Components:</span> {retrieveResult.numberComponentsTotal}</div>
+              <div><span className="text-slate-400">Done:</span> {String(retrieveResult.done)}</div>
+              <div><span className="text-slate-400">Success:</span> {String(retrieveResult.success)}</div>
+              {retrieveResult.zipFileBase64 ? (
+                <div className="text-xs text-slate-400">ZIP: {retrieveResult.zipFileBase64.length} base64 chars</div>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

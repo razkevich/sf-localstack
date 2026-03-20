@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { BulkExplorer } from './components/BulkExplorer'
 import { DataManager } from './components/DataManager'
 import { MetadataManager } from './components/MetadataManager'
 import { OverviewPanel } from './components/OverviewPanel'
+import { RestExplorer } from './components/RestExplorer'
 import { Sidebar } from './components/Sidebar'
 import { RequestLog } from './components/RequestLog'
 import { RequestDetail } from './components/RequestDetail'
@@ -10,14 +12,14 @@ import { useSse } from './hooks/useSse'
 import type { RequestLogEntry } from './types'
 
 export default function App() {
-  const [selectedView, setSelectedView] = useState<'overview' | 'requests' | 'data' | 'metadata'>('overview')
+  const [selectedView, setSelectedView] = useState<'overview' | 'requests' | 'data' | 'metadata' | 'bulk' | 'rest'>('overview')
   const [refreshToken, setRefreshToken] = useState(0)
   const { entries, connected, clear } = useSse(refreshToken)
   const { overview, loading, error } = useDashboardOverview(refreshToken)
   const [selectedEntry, setSelectedEntry] = useState<RequestLogEntry | null>(null)
 
   const detailTitle = selectedEntry ? `${selectedEntry.method} ${selectedEntry.statusCode}` : 'Request detail'
-  const showDetailPane = selectedView === 'requests'
+  const showDetailPane = selectedView === 'requests' || selectedView === 'rest' || selectedView === 'bulk'
 
   function handleResetComplete() {
     setRefreshToken((value) => value + 1)
@@ -40,6 +42,10 @@ export default function App() {
             <DataManager overview={overview} />
           ) : selectedView === 'metadata' ? (
             <MetadataManager />
+          ) : selectedView === 'bulk' ? (
+            <BulkExplorer />
+          ) : selectedView === 'rest' ? (
+            <RestExplorer overview={overview} />
           ) : (
             <RequestLog
               entries={entries}

@@ -281,3 +281,47 @@ export async function deleteMetadataResource(type: string, fullName: string): Pr
     throw new Error('Failed to delete metadata resource')
   }
 }
+
+export interface RetrieveTypeRequest {
+  type: string
+  members: string[]
+}
+
+export interface RetrieveJobStatus {
+  id: string
+  done: boolean
+  success: boolean
+  status: string
+  numberComponentsTotal: number
+  zipFileBase64?: string
+}
+
+export async function triggerRetrieve(typeRequests: RetrieveTypeRequest[]): Promise<{ id: string }> {
+  const typesXml = typeRequests
+    .map(
+      (req) =>
+        `<met:types>${req.members.map((m) => `<met:members>${m}</met:members>`).join('')}<met:name>${req.type}</met:name></met:types>`,
+    )
+    .join('')
+  const operationBody = `<met:retrieve><met:retrieveRequest><met:apiVersion>60.0</met:apiVersion><met:unpackaged>${typesXml}</met:unpackaged></met:retrieveRequest></met:retrieve>`
+  const xml = await callMetadataSoap(operationBody)
+  const doc = new DOMParser().parseFromString(xml, 'text/xml')
+  const id = doc.querySelector('id')?.textContent ?? ''
+  if (!id) throw new Error('No retrieve ID in response')
+  return { id }
+}
+
+export async function pollRetrieveStatus(jobId: string): Promise<RetrieveJobStatus> {
+  const operationBody = `<met:checkRetrieveStatus><met:asyncProcessId>${jobId}</met:asyncProcessId><met:includeZip>true</met:includeZip></met:checkRetrieveStatus>`
+  const xml = await callMetadataSoap(operationBody)
+  const doc = new DOMParser().parseFromString(xml, 'text/xml')
+  const get = (tag: string) => doc.querySelector(tag)?.textContent ?? ''
+  return {
+    id: get('id'),
+    done: get('done') === 'true',
+    success: get('success') === 'true',
+    status: get('status'),
+    numberComponentsTotal: parseInt(get('numberComponentsTotal') || '0', 10),
+    zipFileBase64: get('zipFile') || undefined,
+  }
+}

@@ -46,5 +46,11 @@ class MetadataRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalSize").value(2))
                 .andExpect(jsonPath("$.records[0].VersionNumber").exists());
+
+        mockMvc.perform(get("/services/data/v60.0/tooling/query")
+                        .param("q", "SELECT EntityDefinition.QualifiedApiName, QualifiedApiName FROM FieldDefinition WHERE IsHistoryTracked = false"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.entityTypeName").value("FieldDefinition"))
+                .andExpect(jsonPath("$.records[0].QualifiedApiName").exists());
     }
 }

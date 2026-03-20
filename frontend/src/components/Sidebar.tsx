@@ -2,8 +2,8 @@ import { ResetButton } from './ResetButton'
 import type { DashboardOverview } from '../types'
 
 interface Props {
-  selectedView: 'overview' | 'requests' | 'data' | 'metadata'
-  onSelect: (view: 'overview' | 'requests' | 'data' | 'metadata') => void
+  selectedView: 'overview' | 'requests' | 'data' | 'metadata' | 'bulk' | 'rest'
+  onSelect: (view: 'overview' | 'requests' | 'data' | 'metadata' | 'bulk' | 'rest') => void
   overview: DashboardOverview | null
   onReset: () => void
 }
@@ -11,8 +11,10 @@ interface Props {
 export function Sidebar({ selectedView, onSelect, overview, onReset }: Props) {
   const navItems = [
     { id: 'overview', label: 'Overview', hint: 'State + quick summary' },
-    { id: 'data', label: 'Data', hint: 'Manage records directly' },
-    { id: 'metadata', label: 'Metadata', hint: 'Manage metadata directly' },
+    { id: 'rest', label: 'REST Explorer', hint: 'Query, describe, CRUD, upsert' },
+    { id: 'bulk', label: 'Bulk Jobs', hint: 'Ingest jobs and result CSVs' },
+    { id: 'data', label: 'Data Manager', hint: 'Browse and edit records directly' },
+    { id: 'metadata', label: 'Metadata', hint: 'SOAP + tooling helper views' },
     { id: 'requests', label: 'Request Log', hint: 'Live traffic inspector' },
   ]
 
@@ -49,7 +51,7 @@ export function Sidebar({ selectedView, onSelect, overview, onReset }: Props) {
           <button
             key={item.id}
             type="button"
-            onClick={() => onSelect(item.id as 'overview' | 'requests' | 'data' | 'metadata')}
+            onClick={() => onSelect(item.id as 'overview' | 'requests' | 'data' | 'metadata' | 'bulk' | 'rest')}
             className={`w-full rounded-xl px-3 py-3 text-left transition-colors ${
               selectedView === item.id
                 ? 'bg-cyan-500/15 text-white ring-1 ring-cyan-400/40'

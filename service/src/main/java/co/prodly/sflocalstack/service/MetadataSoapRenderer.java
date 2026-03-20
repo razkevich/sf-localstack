@@ -2,6 +2,7 @@ package co.prodly.sflocalstack.service;
 
 import co.prodly.sflocalstack.model.MetadataCatalogEntry;
 import co.prodly.sflocalstack.model.MetadataDeployJob;
+import co.prodly.sflocalstack.model.MetadataRetrieveJob;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -78,6 +79,32 @@ public class MetadataSoapRenderer {
 
     public String renderCancelDeploy(MetadataDeployJob job) {
         return envelope("cancelDeployResponse", "<result><id>%s</id><done>true</done><success>true</success></result>".formatted(job.id()));
+    }
+
+    public String renderRetrieve(MetadataRetrieveJob job) {
+        return envelope("retrieveResponse", """
+                <result>
+                  <id>%s</id>
+                  <done>false</done>
+                  <status>Pending</status>
+                  <success>false</success>
+                </result>
+                """.formatted(job.id()));
+    }
+
+    public String renderCheckRetrieveStatus(MetadataRetrieveJob job) {
+        return envelope("checkRetrieveStatusResponse", """
+                <result>
+                  <id>%s</id>
+                  <done>%s</done>
+                  <success>%s</success>
+                  <status>%s</status>
+                  <numberComponentsTotal>%d</numberComponentsTotal>
+                  <zipFile>%s</zipFile>
+                  <messages/>
+                </result>
+                """.formatted(job.id(), job.done(), job.success(), job.status(),
+                job.numberComponentsTotal(), job.zipFileBase64()));
     }
 
     public String renderFault(String code, String message) {
