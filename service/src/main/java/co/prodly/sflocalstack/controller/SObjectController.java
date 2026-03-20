@@ -131,11 +131,16 @@ public class SObjectController {
         describe.put("custom", objectType.endsWith("__c"));
         describe.put("customSetting", false);
         describe.put("deepCloneable", false);
+        describe.put("defaultImplementation", null);
         describe.put("deletable", true);
         describe.put("deprecatedAndHidden", false);
+        describe.put("extendedBy", List.of());
+        describe.put("extendsInterfaces", List.of());
         describe.put("feedEnabled", true);
         describe.put("fields", orgStateService.describeFields(objectType));
         describe.put("hasSubtypes", false);
+        describe.put("implementedBy", List.of());
+        describe.put("implementsInterfaces", List.of());
         describe.put("isInterface", false);
         describe.put("isSubtype", false);
         describe.put("keyPrefix", keyPrefixFor(objectType));

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
@@ -26,7 +27,14 @@ public class MetadataRestController {
     public ResponseEntity<?> query(@RequestParam("q") String soql) {
         try {
             List<Map<String, Object>> records = metadataToolingService.executeToolingQuery(soql);
-            return ResponseEntity.ok(Map.of("totalSize", records.size(), "done", true, "records", records));
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("size", records.size());
+            response.put("totalSize", records.size());
+            response.put("done", true);
+            response.put("queryLocator", null);
+            response.put("entityTypeName", metadataToolingService.inferEntityTypeName(soql));
+            response.put("records", records);
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(List.of(new SalesforceError(ex.getMessage(), "MALFORMED_QUERY")));

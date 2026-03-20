@@ -28,7 +28,7 @@ public class BulkController {
                 String.valueOf(body.get("object")),
                 body.get("externalIdFieldName") == null ? null : String.valueOf(body.get("externalIdFieldName"))
         );
-        return ResponseEntity.ok(toResponse(job));
+        return ResponseEntity.ok(toResponse(job, ResponseShape.CREATE));
     }
 
     @PutMapping(value = "/{jobId}/batches", consumes = "text/csv")
@@ -43,12 +43,12 @@ public class BulkController {
             return ResponseEntity.badRequest().build();
         }
         BulkIngestJob uploadCompleteView = bulkJobService.close(jobId);
-        return ResponseEntity.ok(toResponse(uploadCompleteView, true));
+        return ResponseEntity.ok(toResponse(uploadCompleteView, ResponseShape.CLOSE));
     }
 
     @GetMapping("/{jobId}")
     public ResponseEntity<Map<String, Object>> get(@PathVariable String jobId) {
-        return ResponseEntity.ok(toResponse(bulkJobService.getJob(jobId)));
+        return ResponseEntity.ok(toResponse(bulkJobService.getJob(jobId), ResponseShape.GET));
     }
 
     @DeleteMapping("/{jobId}")
@@ -82,32 +82,47 @@ public class BulkController {
                 .body(content);
     }
 
-    private Map<String, Object> toResponse(BulkIngestJob job) {
-        return toResponse(job, false);
-    }
-
-    private Map<String, Object> toResponse(BulkIngestJob job, boolean uploadCompleteView) {
+    private Map<String, Object> toResponse(BulkIngestJob job, ResponseShape shape) {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("id", job.id());
         response.put("operation", job.operation());
         response.put("object", job.object());
-        response.put("state", uploadCompleteView ? "UploadComplete" : job.state());
+        response.put("state", shape == ResponseShape.CLOSE ? "UploadComplete" : job.state());
         if (job.externalIdFieldName() != null) {
             response.put("externalIdFieldName", job.externalIdFieldName());
         }
         response.put("contentType", "CSV");
-        response.put("columnDelimiter", "COMMA");
         response.put("concurrencyMode", "Parallel");
-        response.put("contentUrl", "/services/data/v60.0/jobs/ingest/" + job.id() + "/batches");
         response.put("createdById", "005000000000001");
         response.put("createdDate", job.createdDate().toString());
         response.put("systemModstamp", job.systemModstamp().toString());
-        if (!uploadCompleteView && "JobComplete".equals(job.state())) {
+        if (shape == ResponseShape.CREATE || shape == ResponseShape.GET) {
+            response.put("columnDelimiter", "COMMA");
+        }
+        if (shape == ResponseShape.CREATE) {
+            response.put("contentUrl", "/services/data/v60.0/jobs/ingest/" + job.id() + "/batches");
+            response.put("lineEnding", "LF");
+        }
+        if (shape == ResponseShape.GET) {
+            response.put("lineEnding", "LF");
+            response.put("jobType", "V2Ingest");
+            response.put("retries", 0);
+            response.put("totalProcessingTime", 0);
+            response.put("apiActiveProcessingTime", 0);
+            response.put("apexProcessingTime", 0);
+            response.put("isPkChunkingSupported", false);
+        }
+        if (shape == ResponseShape.GET && "JobComplete".equals(job.state())) {
             response.put("numberRecordsProcessed", job.numberRecordsProcessed());
             response.put("numberRecordsFailed", job.numberRecordsFailed());
         }
         response.put("apiVersion", 1);
-        response.put("lineEnding", "LF");
         return response;
+    }
+
+    private enum ResponseShape {
+        CREATE,
+        CLOSE,
+        GET
     }
 }

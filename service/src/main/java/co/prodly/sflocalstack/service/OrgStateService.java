@@ -20,6 +20,81 @@ import java.util.stream.Collectors;
 @Service
 public class OrgStateService {
 
+    private static final Map<String, List<FieldSpec>> STANDARD_FIELD_CATALOG = Map.of(
+            "Account", List.of(
+                    new FieldSpec("Id", "Id", "id", false),
+                    new FieldSpec("Name", "Account Name", "string", false),
+                    new FieldSpec("Type", "Type", "string", true),
+                    new FieldSpec("ParentId", "Parent Account ID", "reference", true),
+                    new FieldSpec("BillingStreet", "Billing Street", "textarea", true),
+                    new FieldSpec("BillingCity", "Billing City", "string", true),
+                    new FieldSpec("BillingState", "Billing State/Province", "string", true),
+                    new FieldSpec("BillingPostalCode", "Billing Zip/Postal Code", "string", true),
+                    new FieldSpec("BillingCountry", "Billing Country", "string", true),
+                    new FieldSpec("ShippingStreet", "Shipping Street", "textarea", true),
+                    new FieldSpec("ShippingCity", "Shipping City", "string", true),
+                    new FieldSpec("ShippingState", "Shipping State/Province", "string", true),
+                    new FieldSpec("ShippingPostalCode", "Shipping Zip/Postal Code", "string", true),
+                    new FieldSpec("ShippingCountry", "Shipping Country", "string", true),
+                    new FieldSpec("Phone", "Account Phone", "phone", true),
+                    new FieldSpec("Fax", "Account Fax", "phone", true),
+                    new FieldSpec("AccountNumber", "Account Number", "string", true),
+                    new FieldSpec("Website", "Website", "url", true),
+                    new FieldSpec("Industry", "Industry", "string", true),
+                    new FieldSpec("AnnualRevenue", "Annual Revenue", "currency", true),
+                    new FieldSpec("NumberOfEmployees", "Employees", "int", true),
+                    new FieldSpec("Ownership", "Ownership", "picklist", true),
+                    new FieldSpec("Description", "Description", "textarea", true),
+                    new FieldSpec("Rating", "Account Rating", "picklist", true),
+                    new FieldSpec("Site", "Account Site", "string", true),
+                    new FieldSpec("OwnerId", "Owner ID", "reference", false),
+                    new FieldSpec("CreatedDate", "Created Date", "datetime", false),
+                    new FieldSpec("CreatedById", "Created By ID", "reference", false),
+                    new FieldSpec("LastModifiedDate", "Last Modified Date", "datetime", false),
+                    new FieldSpec("LastModifiedById", "Last Modified By ID", "reference", false),
+                    new FieldSpec("SystemModstamp", "System Modstamp", "datetime", false),
+                    new FieldSpec("LastActivityDate", "Last Activity", "date", true),
+                    new FieldSpec("LastViewedDate", "Last Viewed Date", "datetime", true),
+                    new FieldSpec("LastReferencedDate", "Last Referenced Date", "datetime", true)
+            ),
+            "Contact", List.of(
+                    new FieldSpec("Id", "Contact ID", "id", false),
+                    new FieldSpec("AccountId", "Account ID", "reference", true),
+                    new FieldSpec("LastName", "Last Name", "string", false),
+                    new FieldSpec("FirstName", "First Name", "string", true),
+                    new FieldSpec("Salutation", "Salutation", "picklist", true),
+                    new FieldSpec("Name", "Full Name", "string", false),
+                    new FieldSpec("OtherStreet", "Other Street", "textarea", true),
+                    new FieldSpec("OtherCity", "Other City", "string", true),
+                    new FieldSpec("OtherState", "Other State/Province", "string", true),
+                    new FieldSpec("OtherPostalCode", "Other Zip/Postal Code", "string", true),
+                    new FieldSpec("OtherCountry", "Other Country", "string", true),
+                    new FieldSpec("MailingStreet", "Mailing Street", "textarea", true),
+                    new FieldSpec("MailingCity", "Mailing City", "string", true),
+                    new FieldSpec("MailingState", "Mailing State/Province", "string", true),
+                    new FieldSpec("MailingPostalCode", "Mailing Zip/Postal Code", "string", true),
+                    new FieldSpec("MailingCountry", "Mailing Country", "string", true),
+                    new FieldSpec("Phone", "Business Phone", "phone", true),
+                    new FieldSpec("MobilePhone", "Mobile", "phone", true),
+                    new FieldSpec("HomePhone", "Home Phone", "phone", true),
+                    new FieldSpec("OtherPhone", "Other Phone", "phone", true),
+                    new FieldSpec("Email", "Email", "email", true),
+                    new FieldSpec("Title", "Title", "string", true),
+                    new FieldSpec("Department", "Department", "string", true),
+                    new FieldSpec("Birthdate", "Birthdate", "date", true),
+                    new FieldSpec("Description", "Description", "textarea", true),
+                    new FieldSpec("OwnerId", "Owner ID", "reference", false),
+                    new FieldSpec("CreatedDate", "Created Date", "datetime", false),
+                    new FieldSpec("CreatedById", "Created By ID", "reference", false),
+                    new FieldSpec("LastModifiedDate", "Last Modified Date", "datetime", false),
+                    new FieldSpec("LastModifiedById", "Last Modified By ID", "reference", false),
+                    new FieldSpec("SystemModstamp", "System Modstamp", "datetime", false),
+                    new FieldSpec("LastActivityDate", "Last Activity", "date", true),
+                    new FieldSpec("LastViewedDate", "Last Viewed Date", "datetime", true),
+                    new FieldSpec("LastReferencedDate", "Last Referenced Date", "datetime", true)
+            )
+    );
+
     private static final Logger log = LoggerFactory.getLogger(OrgStateService.class);
 
     private final SObjectRecordRepository repository;
@@ -129,31 +204,35 @@ public class OrgStateService {
 
     @Transactional(readOnly = true)
     public List<Map<String, Object>> describeFields(String objectType) {
-        return findByType(objectType).stream()
+        Map<String, FieldSpec> fieldSpecs = new LinkedHashMap<>();
+
+        STANDARD_FIELD_CATALOG.getOrDefault(objectType, List.of())
+                .forEach(spec -> fieldSpecs.put(spec.name(), spec));
+
+        findByType(objectType).stream()
                 .map(SObjectRecord::getFieldsJson)
                 .map(this::fromJson)
                 .flatMap(fields -> fields.entrySet().stream())
                 .filter(entry -> !"attributes".equals(entry.getKey()))
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> guessFieldType(entry.getValue()),
-                        (left, right) -> left,
-                        LinkedHashMap::new
-                ))
-                .entrySet().stream()
-                .sorted(Map.Entry.comparingByKey(Comparator.naturalOrder()))
-                .map(entry -> {
+                .forEach(entry -> fieldSpecs.putIfAbsent(
+                        entry.getKey(),
+                        new FieldSpec(entry.getKey(), entry.getKey(), guessFieldType(entry.getValue()), true)
+                ));
+
+        return fieldSpecs.values().stream()
+                .sorted(Comparator.comparing(FieldSpec::name, Comparator.naturalOrder()))
+                .map(spec -> {
                     Map<String, Object> field = new LinkedHashMap<>();
-                    field.put("name", entry.getKey());
-                    field.put("label", entry.getKey());
-                    field.put("type", entry.getValue());
-                    field.put("custom", false);
-                    field.put("createable", true);
-                    field.put("updateable", true);
+                    field.put("name", spec.name());
+                    field.put("label", spec.label());
+                    field.put("type", spec.type());
+                    field.put("custom", spec.name().endsWith("__c"));
+                    field.put("createable", spec.createable());
+                    field.put("updateable", spec.createable());
                     field.put("deprecatedAndHidden", false);
                     field.put("filterable", true);
                     field.put("sortable", true);
-                    field.put("soapType", soapTypeFor(entry.getValue()));
+                    field.put("soapType", soapTypeFor(spec.type()));
                     field.put("nillable", true);
                     return field;
                 })
@@ -306,5 +385,8 @@ public class OrgStateService {
         Map<String, Object> merged = new LinkedHashMap<>(fields);
         merged.put(externalIdField, externalIdValue);
         return merged;
+    }
+
+    private record FieldSpec(String name, String label, String type, boolean createable) {
     }
 }

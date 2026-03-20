@@ -22,6 +22,8 @@ class MetadataRestControllerTest {
         mockMvc.perform(get("/services/data/v60.0/tooling/query")
                         .param("q", "SELECT Name FROM TabDefinition"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.entityTypeName").value("TabDefinition"))
+                .andExpect(jsonPath("$.size").value(1))
                 .andExpect(jsonPath("$.records[0].Name").exists());
 
         mockMvc.perform(get("/services/data/v60.0/tooling/query")
@@ -38,5 +40,11 @@ class MetadataRestControllerTest {
                         .param("q", "SELECT DeveloperName, NamespacePrefix FROM FlowDefinition"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.records[0].DeveloperName").exists());
+
+        mockMvc.perform(get("/services/data/v60.0/tooling/query")
+                        .param("q", "SELECT VersionNumber FROM Flow WHERE DefinitionId = 'FlowDefinition/LoginFlow'"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSize").value(2))
+                .andExpect(jsonPath("$.records[0].VersionNumber").exists());
     }
 }
