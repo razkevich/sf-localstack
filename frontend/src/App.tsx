@@ -18,7 +18,7 @@ export default function App() {
   const { overview, loading, error } = useDashboardOverview(refreshToken)
   const [selectedEntry, setSelectedEntry] = useState<RequestLogEntry | null>(null)
 
-  const detailTitle = selectedEntry ? `${selectedEntry.method} ${selectedEntry.statusCode}` : 'Request detail'
+  const detailTitle = selectedEntry ? `${selectedEntry.method} ${selectedEntry.statusCode} — ${selectedEntry.path}` : 'Request detail'
   const showDetailPane = selectedView === 'requests' || selectedView === 'rest' || selectedView === 'bulk'
 
   function handleResetComplete() {

@@ -46,7 +46,7 @@ export function RequestDetail({ entry }: Props) {
   if (!entry) {
     return (
       <div className="flex h-full items-center justify-center px-8 text-center text-sm text-slate-500">
-        Pick a request from the log to inspect method, path, status, and formatted payloads.
+        Select a request to inspect its method, path, status, and formatted payloads.
       </div>
     )
   }

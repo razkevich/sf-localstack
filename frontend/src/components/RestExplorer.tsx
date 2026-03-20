@@ -51,6 +51,7 @@ export function RestExplorer({ overview }: Props) {
   const [upsertLoading, setUpsertLoading] = useState(false)
   const [upsertError, setUpsertError] = useState<string | null>(null)
   const [upsertResult, setUpsertResult] = useState<MutationResult | null>(null)
+  const [upsertStatus, setUpsertStatus] = useState<string | null>(null)
 
   useEffect(() => {
     if (objectOptions.length > 0 && !objectOptions.includes(selectedObject)) {
@@ -111,10 +112,12 @@ export function RestExplorer({ overview }: Props) {
   async function handleUpsert() {
     setUpsertLoading(true)
     setUpsertError(null)
+    setUpsertStatus(null)
     try {
       const parsedPayload = JSON.parse(upsertPayload) as Record<string, unknown>
       const result = await upsertByExternalId(selectedObject, externalIdField, externalIdValue, parsedPayload)
       setUpsertResult(result)
+      setUpsertStatus(result.created ? 'Record created' : 'Record updated')
       const [records, describe] = await Promise.all([
         fetchObjectRecords(selectedObject),
         fetchDescribe(selectedObject),
@@ -134,8 +137,7 @@ export function RestExplorer({ overview }: Props) {
     <div className="grid h-full grid-cols-1 overflow-hidden xl:grid-cols-[1.1fr,0.9fr]">
       <div className="overflow-auto border-r border-slate-800 bg-slate-950">
         <div className="border-b border-slate-800 px-6 py-5">
-          <div className="text-xs uppercase tracking-[0.2em] text-cyan-300">Features 1-2</div>
-          <h2 className="mt-2 text-2xl font-semibold text-white">REST Explorer + Upsert</h2>
+          <h2 className="text-2xl font-semibold text-white">REST Explorer</h2>
           <p className="mt-1 text-sm text-slate-400">
             Run supported SOQL, inspect object metadata, and exercise external-ID upsert flows from the same dashboard surface.
           </p>
@@ -147,7 +149,8 @@ export function RestExplorer({ overview }: Props) {
         </div>
 
         <div className="p-6">
-          <div className="flex flex-wrap gap-2">
+          <label className="text-xs uppercase tracking-[0.18em] text-slate-500">SOQL query</label>
+          <div className="mt-2 flex flex-wrap gap-2">
             {QUERY_PRESETS.map((preset) => (
               <button
                 key={preset.label}
@@ -159,8 +162,6 @@ export function RestExplorer({ overview }: Props) {
               </button>
             ))}
           </div>
-
-          <label className="text-xs uppercase tracking-[0.18em] text-slate-500">SOQL query</label>
           <textarea
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -213,7 +214,6 @@ export function RestExplorer({ overview }: Props) {
           <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">External-ID upsert</h3>
-              <span className="text-xs text-slate-500">Feature 2</span>
             </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -263,6 +263,11 @@ export function RestExplorer({ overview }: Props) {
               <span className="text-xs text-slate-500">Creates on first request, updates on the second.</span>
             </div>
 
+            {upsertStatus ? (
+              <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+                {upsertStatus}
+              </div>
+            ) : null}
             {upsertError ? (
               <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
                 {upsertError}
