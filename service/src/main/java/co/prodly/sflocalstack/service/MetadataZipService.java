@@ -101,13 +101,63 @@ public class MetadataZipService {
                 """.formatted(types);
     }
 
+    @SuppressWarnings("unchecked")
     private String buildResourceXml(MetadataResource resource) {
-        return """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <%s xmlns="http://soap.sforce.com/2006/04/metadata">
-                  <fullName>%s</fullName>
-                  <label>%s</label>
-                </%s>
-                """.formatted(resource.type(), resource.fullName(), resource.label(), resource.type());
+        return switch (resource.type()) {
+            case "CustomField" -> {
+                // SF CLI expects <CustomObject> wrapping <fields> children
+                String fieldName = resource.fullName().contains(".")
+                        ? resource.fullName().substring(resource.fullName().indexOf('.') + 1)
+                        : resource.fullName();
+                String fieldType = (String) resource.attributes().getOrDefault("fieldType", "Text");
+                yield """
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+                          <fields>
+                            <fullName>%s</fullName>
+                            <label>%s</label>
+                            <type>%s</type>
+                          </fields>
+                        </CustomObject>
+                        """.formatted(fieldName, resource.label(), fieldType);
+            }
+            case "StandardValueSet" -> {
+                List<String> values = (List<String>) resource.attributes().getOrDefault("values", List.of());
+                StringBuilder sb = new StringBuilder();
+                sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                sb.append("<StandardValueSet xmlns=\"http://soap.sforce.com/2006/04/metadata\">\n");
+                for (String value : values) {
+                    sb.append("  <standardValue>\n");
+                    sb.append("    <fullName>").append(value).append("</fullName>\n");
+                    sb.append("    <default>false</default>\n");
+                    sb.append("    <label>").append(value).append("</label>\n");
+                    sb.append("  </standardValue>\n");
+                }
+                sb.append("</StandardValueSet>\n");
+                yield sb.toString();
+            }
+            case "GlobalValueSet" -> {
+                List<String> values = (List<String>) resource.attributes().getOrDefault("values", List.of());
+                StringBuilder sb = new StringBuilder();
+                sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                sb.append("<GlobalValueSet xmlns=\"http://soap.sforce.com/2006/04/metadata\">\n");
+                for (String value : values) {
+                    sb.append("  <customValue>\n");
+                    sb.append("    <fullName>").append(value).append("</fullName>\n");
+                    sb.append("    <default>false</default>\n");
+                    sb.append("    <label>").append(value).append("</label>\n");
+                    sb.append("  </customValue>\n");
+                }
+                sb.append("</GlobalValueSet>\n");
+                yield sb.toString();
+            }
+            default -> """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <%s xmlns="http://soap.sforce.com/2006/04/metadata">
+                      <fullName>%s</fullName>
+                      <label>%s</label>
+                    </%s>
+                    """.formatted(resource.type(), resource.fullName(), resource.label(), resource.type());
+        };
     }
 }

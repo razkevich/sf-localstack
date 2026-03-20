@@ -118,6 +118,82 @@ class MetadataIntegrationTest {
     }
 
     @Test
+    void retrieveZipContainsSalesforceCompatibleXmlFormat() throws Exception {
+        mockMvc.perform(post("/reset")).andExpect(status().isOk());
+
+        String retrieveResponse = mockMvc.perform(post("/services/Soap/m/60.0")
+                        .contentType(MediaType.TEXT_XML)
+                        .content("""
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                                                  xmlns:met="http://soap.sforce.com/2006/04/metadata">
+                                  <soapenv:Body>
+                                    <met:retrieve>
+                                      <met:retrieveRequest>
+                                        <met:apiVersion>60.0</met:apiVersion>
+                                        <met:unpackaged>
+                                          <met:types>
+                                            <met:members>*</met:members>
+                                            <met:name>CustomField</met:name>
+                                          </met:types>
+                                          <met:types>
+                                            <met:members>*</met:members>
+                                            <met:name>GlobalValueSet</met:name>
+                                          </met:types>
+                                        </met:unpackaged>
+                                      </met:retrieveRequest>
+                                    </met:retrieve>
+                                  </soapenv:Body>
+                                </soapenv:Envelope>
+                                """))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String retrieveId = retrieveResponse.replaceAll("(?s).*<id>([^<]+)</id>.*", "$1");
+
+        String statusResponse = mockMvc.perform(post("/services/Soap/m/60.0")
+                        .contentType(MediaType.TEXT_XML)
+                        .content("""
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                                                  xmlns:met="http://soap.sforce.com/2006/04/metadata">
+                                  <soapenv:Body>
+                                    <met:checkRetrieveStatus>
+                                      <met:asyncProcessId>%s</met:asyncProcessId>
+                                      <met:includeZip>true</met:includeZip>
+                                    </met:checkRetrieveStatus>
+                                  </soapenv:Body>
+                                </soapenv:Envelope>
+                                """.formatted(retrieveId)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String zipBase64 = statusResponse.replaceAll("(?s).*<zipFile>([^<]+)</zipFile>.*", "$1");
+        byte[] zipBytes = java.util.Base64.getDecoder().decode(zipBase64);
+
+        java.util.Map<String, String> entryContents = new java.util.HashMap<>();
+        try (java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(new java.io.ByteArrayInputStream(zipBytes))) {
+            java.util.zip.ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                entryContents.put(entry.getName(), new String(zis.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8));
+            }
+        }
+
+        // CustomField must produce <CustomObject> root with <fields> children
+        String customObjectXml = entryContents.get("unpackaged/objects/Account.object");
+        assertThat(customObjectXml).contains("<CustomObject");
+        assertThat(customObjectXml).contains("<fields>");
+        assertThat(customObjectXml).contains("<fullName>Type</fullName>");
+        assertThat(customObjectXml).doesNotContain("<CustomField");
+
+        // GlobalValueSet must produce <GlobalValueSet> root with <customValue> children
+        String gvsXml = entryContents.get("unpackaged/globalValueSets/CustomerPriority.globalValueSet");
+        assertThat(gvsXml).contains("<GlobalValueSet");
+        assertThat(gvsXml).contains("<customValue>");
+        assertThat(gvsXml).contains("<fullName>High</fullName>");
+    }
+
+    @Test
     void retrieveFlowProducesZipAndCheckRetrieveStatusReturnsContent() throws Exception {
         mockMvc.perform(post("/reset")).andExpect(status().isOk());
 
