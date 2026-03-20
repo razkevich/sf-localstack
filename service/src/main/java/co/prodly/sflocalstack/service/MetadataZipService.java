@@ -56,10 +56,11 @@ public class MetadataZipService {
             zip.write(buildPackageXml(typeRequests, resources).getBytes(StandardCharsets.UTF_8));
             zip.closeEntry();
 
-            // Deduplicate by fileName to avoid duplicate entries
+            // Deduplicate by fileName; CustomObject takes precedence over CustomField for same file
             Map<String, MetadataResource> byFileName = new LinkedHashMap<>();
             for (MetadataResource resource : resources) {
-                byFileName.putIfAbsent(resource.fileName(), resource);
+                byFileName.merge(resource.fileName(), resource, (existing, incoming) ->
+                        "CustomObject".equals(incoming.type()) ? incoming : existing);
             }
 
             for (Map.Entry<String, MetadataResource> entry : byFileName.entrySet()) {
@@ -104,6 +105,21 @@ public class MetadataZipService {
     @SuppressWarnings("unchecked")
     private String buildResourceXml(MetadataResource resource) {
         return switch (resource.type()) {
+            case "CustomObject" -> {
+                List<Map<String, Object>> fields = (List<Map<String, Object>>) resource.attributes().getOrDefault("fields", List.of());
+                StringBuilder sb = new StringBuilder();
+                sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                sb.append("<CustomObject xmlns=\"http://soap.sforce.com/2006/04/metadata\">\n");
+                for (Map<String, Object> field : fields) {
+                    sb.append("  <fields>\n");
+                    sb.append("    <fullName>").append(field.get("fullName")).append("</fullName>\n");
+                    sb.append("    <label>").append(field.get("label")).append("</label>\n");
+                    sb.append("    <type>").append(field.get("type")).append("</type>\n");
+                    sb.append("  </fields>\n");
+                }
+                sb.append("</CustomObject>\n");
+                yield sb.toString();
+            }
             case "CustomField" -> {
                 // SF CLI expects <CustomObject> wrapping <fields> children
                 String fieldName = resource.fullName().contains(".")

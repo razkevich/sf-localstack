@@ -17,6 +17,14 @@ objects:
         LastName: "Smith"
         Email: "jane.smith@globex.com"
         Account.Name: "Globex Corp"
+  - type: Organization
+    records:
+      - Id: "00D000000000001AAA"
+        Name: "SF LocalStack Org"
+        InstanceName: "localhost"
+        IsSandbox: false
+        TrialExpirationDate: null
+        NamespacePrefix: null
   - type: User
     records:
       - Id: "005000000000001AAA"

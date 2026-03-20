@@ -130,6 +130,7 @@ public class MetadataToolingService {
                     row(entry("EntityDefinition.QualifiedApiName", "Account"), entry("QualifiedApiName", "Account.IsHistoryTracked__c"), entry("IsHistoryTracked", false)),
                     row(entry("EntityDefinition.QualifiedApiName", "Contact"), entry("QualifiedApiName", "Contact.IsHistoryTracked__c"), entry("IsHistoryTracked", false))
             );
+            case "SourceMember" -> List.of();
             case "FlowDefinition" -> metadataService.listResources().stream()
                     .filter(resource -> "FlowDefinition".equals(resource.type()))
                     .map(resource -> row(
