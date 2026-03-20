@@ -28,6 +28,10 @@ public class MetadataToolingService {
         if ("FlowDefinitionView".equals(query.objectName())) {
             throw new IllegalArgumentException("Unsupported tooling query: " + soql);
         }
+        // SourceMember always returns empty — skip WHERE parsing for unsupported operators
+        if ("SourceMember".equals(query.objectName())) {
+            return List.of();
+        }
         return project(query, datasetFor(query.objectName()), true);
     }
 
