@@ -22,8 +22,9 @@ objects:
       - Id: "00D000000000001AAA"
         Name: "SF LocalStack Org"
         InstanceName: "localhost"
-        IsSandbox: false
-        TrialExpirationDate: null
+        IsSandbox: true
+        OrganizationType: "abcd"
+        TrialExpirationDate: "some-date"
         NamespacePrefix: null
   - type: User
     records:
@@ -39,3 +40,62 @@ objects:
         EmailEncodingKey: "UTF-8"
         LanguageLocaleKey: "en_US"
         IsActive: true
+  - type: PDRI__Connection__c
+    records:
+      - Id: "a0D5e00000Q9h43EAB"
+        PDRI__Instance_URL__c: "http://localhost:8080"
+        PDRI__OrganizationId__c: "some-id"
+        PDRI__Org_Type__c: "Production"
+        PDRI__Local_Connection__c: true
+        PDRI__Active__c: true
+        PDRI__Target__c: "VCS"
+        OwnerId: "005000000000001AAA"
+        CreatedDate: "2024-01-01T00:00:00.000Z"
+  - type: PDRI__ComparisonView__c
+    records:
+      - Id: "a1QDn000002BPrXMAW"
+        Name: "Default View"
+        PDRI__Default__c: true
+  - type: PDRI__ComparisonViewRule__c
+    records:
+      - Id: "a1PDn000001K2qAMAB"
+        Name: "CRN-0000000"
+        PDRI__Action__c: "Include"
+        PDRI__FilterType__c: "Component_Type"
+        PDRI__FilterValue__c: "Workflow"
+        PDRI__ComparisonView__c: "a1QDn000002BPrXMAW"
+        PDRI__ParentRule__c: null
+      - Id: "a1PDn000001K2qAMAS"
+        Name: "CRN-0000000"
+        PDRI__Action__c: "Include"
+        PDRI__FilterType__c: "Component_Type"
+        PDRI__FilterValue__c: "WorkflowRule"
+        PDRI__ComparisonView__c: "a1QDn000002BPrXMAW"
+        PDRI__ParentRule__c: null
+      - Id: "a1PDn000001K2qBMAS"
+        Name: "CRN-0000001"
+        PDRI__Action__c: "Include"
+        PDRI__FilterType__c: "Component_Type"
+        PDRI__FilterValue__c: "CustomObject"
+        PDRI__ComparisonView__c: "a1QDn000002BPrXMAW"
+        PDRI__ParentRule__c: null
+      - Id: "a1PDn000001K2qCMAS"
+        Name: "CRN-0000002"
+        PDRI__Action__c: "Include"
+        PDRI__FilterType__c: "Component_Type"
+        PDRI__FilterValue__c: "Flow"
+        PDRI__ComparisonView__c: "a1QDn000002BPrXMAW"
+        PDRI__ParentRule__c: null
+      - Id: "a1PDn000001K2qCMAX"
+        Name: "CRN-000000X"
+        PDRI__Action__c: "Include"
+        PDRI__FilterType__c: "Component_Type"
+        PDRI__FilterValue__c: "ApexClass"
+        PDRI__ComparisonView__c: "a1QDn000002BPrXMAW"
+        PDRI__ParentRule__c: null
+  - type: StaticResource
+    records:
+      - Name: "SmallResource"
+        BodyLength: 1
+      - Name: "BigResource"
+        BodyLength: 200000000

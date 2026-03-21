@@ -265,7 +265,7 @@ class MetadataControllerTest {
                                 """.formatted(retrieveId))))
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("<done>true</done>")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("<numberComponentsTotal>2</numberComponentsTotal>")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<numberComponentsTotal>4</numberComponentsTotal>")));
     }
 
     private String envelope(String body) {

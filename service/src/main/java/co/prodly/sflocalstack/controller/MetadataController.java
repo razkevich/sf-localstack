@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/services/Soap/m/60.0")
+@RequestMapping("/services/Soap/m/{version}")
 public class MetadataController {
 
     private final MetadataSoapParser parser;

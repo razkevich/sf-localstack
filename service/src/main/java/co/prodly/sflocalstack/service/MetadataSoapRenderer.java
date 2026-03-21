@@ -19,8 +19,10 @@ public class MetadataSoapRenderer {
                           <directoryName>%s</directoryName>
                           <inFolder>%s</inFolder>
                           <metaFile>%s</metaFile>
+                          %s
                         </metadataObjects>
-                        """.formatted(entry.type(), entry.directoryName(), entry.inFolder(), entry.metaFile()))
+                        """.formatted(entry.type(), entry.directoryName(), entry.inFolder(), entry.metaFile(),
+                        entry.suffix() != null ? "<suffix>" + entry.suffix() + "</suffix>" : ""))
                 .distinct()
                 .reduce("", String::concat);
         return envelope("describeMetadataResponse", """
@@ -142,7 +144,7 @@ public class MetadataSoapRenderer {
         String body = switch (type) {
             case "CustomField" -> "<fullName>%s</fullName><label>%s</label><type>Text</type><valueSet><restricted>false</restricted></valueSet>"
                     .formatted(record.fullName(), record.label()).replace("Text", fieldType);
-            case "StandardValueSet" -> "<fullName>%s</fullName>%s"
+            case "StandardValueSet" -> "<fullName>%s</fullName><sorted>false</sorted>%s"
                     .formatted(record.fullName(), valueEntries(record, "standardValue"));
             case "GlobalValueSet" -> "<fullName>%s</fullName>%s"
                     .formatted(record.fullName(), valueEntries(record, "customValue"));

@@ -9,6 +9,7 @@ public record MetadataCatalogEntry(
         String directoryName,
         boolean inFolder,
         boolean metaFile,
-        Instant lastModifiedDate
+        Instant lastModifiedDate,
+        String suffix
 ) {
 }
