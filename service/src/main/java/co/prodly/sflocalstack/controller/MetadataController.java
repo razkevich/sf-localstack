@@ -4,6 +4,8 @@ import co.prodly.sflocalstack.service.MetadataManifestParser;
 import co.prodly.sflocalstack.service.MetadataService;
 import co.prodly.sflocalstack.service.MetadataSoapParser;
 import co.prodly.sflocalstack.service.MetadataSoapRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,8 +18,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/services/Soap/m/60.0")
+@RequestMapping("/services/Soap/m/{version}")
 public class MetadataController {
+
+    private static final Logger log = LoggerFactory.getLogger(MetadataController.class);
 
     private final MetadataSoapParser parser;
     private final MetadataSoapRenderer renderer;
@@ -52,8 +56,10 @@ public class MetadataController {
             };
             return ResponseEntity.ok().contentType(MediaType.TEXT_XML).body(response);
         } catch (NoSuchElementException ex) {
+            log.error("NoSuchElementException processing SOAP request", ex);
             return ResponseEntity.ok().contentType(MediaType.TEXT_XML).body(renderer.renderFault("soapenv:Client", ex.getMessage()));
         } catch (IllegalArgumentException ex) {
+            log.error("IllegalArgumentException processing SOAP request: {}", body, ex);
             return ResponseEntity.ok().contentType(MediaType.TEXT_XML).body(renderer.renderFault("soapenv:Client", ex.getMessage()));
         }
     }

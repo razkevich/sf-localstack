@@ -3,11 +3,14 @@ package co.prodly.sflocalstack.service;
 import org.springframework.stereotype.Service;
 
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class MetadataToolingService {
@@ -16,11 +19,14 @@ public class MetadataToolingService {
             "(?is)^\\s*SELECT\\s+(.+?)\\s+FROM\\s+(\\w+)\\s*(?:WHERE\\s+(.+))?$"
     );
     private static final Pattern EQUALITY_PATTERN = Pattern.compile("(?i)^(\\w+)\\s*=\\s*(.+)$");
+    private static final Pattern IN_PATTERN = Pattern.compile("(?i)^(\\w+)\\s+IN\\s*\\((.+)\\)$");
 
     private final MetadataService metadataService;
+    private final OrgStateService orgStateService;
 
-    public MetadataToolingService(MetadataService metadataService) {
+    public MetadataToolingService(MetadataService metadataService, OrgStateService orgStateService) {
         this.metadataService = metadataService;
+        this.orgStateService = orgStateService;
     }
 
     public List<Map<String, Object>> executeToolingQuery(String soql) {
@@ -64,9 +70,21 @@ public class MetadataToolingService {
             return null;
         }
 
-        Matcher matcher = EQUALITY_PATTERN.matcher(rawWhereClause.trim());
+        String trimmed = rawWhereClause.trim();
+
+        Matcher inMatcher = IN_PATTERN.matcher(trimmed);
+        if (inMatcher.matches()) {
+            String field = inMatcher.group(1).trim();
+            Set<String> values = Arrays.stream(inMatcher.group(2).split(","))
+                    .map(String::trim)
+                    .map(v -> v.startsWith("'") && v.endsWith("'") ? v.substring(1, v.length() - 1) : v)
+                    .collect(Collectors.toSet());
+            return Condition.in(field, values);
+        }
+
+        Matcher matcher = EQUALITY_PATTERN.matcher(trimmed);
         if (!matcher.matches()) {
-            // Unsupported operator (e.g. >) — return null so caller gets all records (SourceMember returns empty anyway)
+            // Unsupported operator — return null so caller gets all records
             return null;
         }
 
@@ -80,7 +98,7 @@ public class MetadataToolingService {
         } else {
             value = rawValue;
         }
-        return new Condition(field, value);
+        return Condition.eq(field, value);
     }
 
     private List<Map<String, Object>> project(ParsedQuery query, List<Map<String, Object>> dataset, boolean toolingUrl) {
@@ -93,6 +111,12 @@ public class MetadataToolingService {
     private boolean matches(Map<String, Object> record, Condition condition) {
         if (condition == null) {
             return true;
+        }
+        if (condition.isIn()) {
+            Object current = record.get(condition.field());
+            if (current == null) return false;
+            return condition.inValues().stream()
+                    .anyMatch(v -> String.valueOf(current).equalsIgnoreCase(v));
         }
         Object current = record.get(condition.field());
         if (current == null) {
@@ -154,6 +178,9 @@ public class MetadataToolingService {
                             entry("DurableId", "FlowDefinition/" + resource.fullName())
                     ))
                     .toList();
+            case "StaticResource" -> orgStateService.findByType("StaticResource").stream()
+                    .map(record -> orgStateService.fromJson(record.getFieldsJson()))
+                    .toList();
             default -> throw new IllegalArgumentException("Unsupported tooling query object: " + objectName);
         };
     }
@@ -174,6 +201,15 @@ public class MetadataToolingService {
     private record ParsedQuery(List<String> fields, String objectName, Condition condition) {
     }
 
-    private record Condition(String field, Object value) {
+    private record Condition(String field, Object value, Set<String> inValues) {
+        static Condition eq(String field, Object value) {
+            return new Condition(field, value, null);
+        }
+        static Condition in(String field, Set<String> values) {
+            return new Condition(field, null, values);
+        }
+        boolean isIn() {
+            return inValues != null;
+        }
     }
 }

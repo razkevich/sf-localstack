@@ -23,7 +23,7 @@ public class SoqlEngine {
     );
     private static final Pattern NULL_PATTERN = Pattern.compile("(?i)^(\\S+)\\s+IS\\s+(NOT\\s+)?NULL$");
     private static final Pattern LIKE_PATTERN = Pattern.compile("(?i)^(\\S+)\\s+LIKE\\s+'(.*)'$");
-    private static final Pattern COMPARISON_PATTERN = Pattern.compile("(?i)^(\\S+)\\s*(=|!=)\\s*(.+)$");
+    private static final Pattern COMPARISON_PATTERN = Pattern.compile("(?i)^(\\S+)\\s*(=|!=|<>|<=|>=|<|>)\\s*(.+)$");
 
     private final OrgStateService orgStateService;
 
@@ -71,7 +71,7 @@ public class SoqlEngine {
 
         boolean countQuery = "COUNT()".equalsIgnoreCase(fieldsStr);
         List<String> selectedFields = countQuery ? List.of() : parseFields(fieldsStr);
-        List<SoqlCondition> conditions = whereClause == null ? List.of() : parseConditions(whereClause);
+        List<SoqlCondition> conditions = whereClause == null ? List.of() : parseConditions(stripOuterParens(whereClause));
         Integer limit = limitStr == null ? null : Integer.parseInt(limitStr);
 
         return new SoqlQueryModel(selectedFields, objectType, conditions, limit, countQuery);
@@ -115,13 +115,18 @@ public class SoqlEngine {
                 continue;
             }
 
+            // jOOQ trueCondition() renders as (1 = 1) standalone — always true, skip
+            if ("(1 = 1)".equals(condition)) {
+                continue;
+            }
+
             Matcher comparisonMatcher = COMPARISON_PATTERN.matcher(condition);
             if (comparisonMatcher.matches()) {
                 String rawValue = comparisonMatcher.group(3).trim();
                 boolean nullLiteral = "null".equalsIgnoreCase(rawValue);
                 conditions.add(new SoqlCondition(
                         comparisonMatcher.group(1),
-                        "!=".equals(comparisonMatcher.group(2)) ? SoqlCondition.Operator.NOT_EQUALS : SoqlCondition.Operator.EQUALS,
+                        ("!=".equals(comparisonMatcher.group(2)) || "<>".equals(comparisonMatcher.group(2))) ? SoqlCondition.Operator.NOT_EQUALS : SoqlCondition.Operator.EQUALS,
                         stripQuotes(rawValue),
                         nullLiteral
                 ));
@@ -178,6 +183,10 @@ public class SoqlEngine {
         if (fieldValue == null) {
             return false;
         }
+        // jOOQ trueCondition() renders as (1 = 1) — treat as boolean true
+        if ("(1 = 1)".equals(expected)) {
+            expected = "true";
+        }
         if (fieldValue instanceof Number number) {
             try {
                 return Double.compare(number.doubleValue(), Double.parseDouble(expected)) == 0;
@@ -193,5 +202,25 @@ public class SoqlEngine {
             return rawValue.substring(1, rawValue.length() - 1);
         }
         return rawValue;
+    }
+
+    private String stripOuterParens(String clause) {
+        String s = clause.trim();
+        while (s.startsWith("(") && s.endsWith(")") && matchingParen(s, 0) == s.length() - 1) {
+            s = s.substring(1, s.length() - 1).trim();
+        }
+        return s;
+    }
+
+    private int matchingParen(String s, int open) {
+        int depth = 0;
+        for (int i = open; i < s.length(); i++) {
+            if (s.charAt(i) == '(') depth++;
+            else if (s.charAt(i) == ')') {
+                depth--;
+                if (depth == 0) return i;
+            }
+        }
+        return -1;
     }
 }

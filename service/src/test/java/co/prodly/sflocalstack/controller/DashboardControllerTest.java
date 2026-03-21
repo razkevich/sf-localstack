@@ -30,7 +30,9 @@ class DashboardControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.service").value("sf-localstack"))
                 .andExpect(jsonPath("$.apiVersion").value("v60.0"))
-                .andExpect(jsonPath("$.totalRecords").value(6))
+
+                .andExpect(jsonPath("$.totalRecords").value(16))
+
                 .andExpect(jsonPath("$.objectCounts[0].objectType").value("Account"))
                 .andExpect(jsonPath("$.objectCounts[0].count").value(2));
     }

@@ -18,6 +18,8 @@ import java.util.Map;
 @RequestMapping({"/services/data/{apiVersion}", "/data/{apiVersion}"})
 public class QueryController {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(QueryController.class);
+
     private final SoqlEngine soqlEngine;
     private final MetadataToolingService metadataToolingService;
 
