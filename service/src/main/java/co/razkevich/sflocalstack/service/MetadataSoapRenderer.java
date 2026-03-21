@@ -81,19 +81,8 @@ public class MetadataSoapRenderer {
     }
 
     public String renderCancelDeploy(MetadataDeployJob job) {
-        return envelope("cancelDeployResponse", """
-                <result>
-                  <id>%s</id>
-                  <done>%s</done>
-                  <success>%s</success>
-                  <status>%s</status>
-                  <numberComponentsTotal>%d</numberComponentsTotal>
-                  <numberComponentsDeployed>%d</numberComponentsDeployed>
-                  <numberComponentErrors>%d</numberComponentErrors>
-                  <details/>
-                </result>
-                """.formatted(job.id(), job.done(), job.success(), job.status(),
-                job.numberComponentsTotal(), job.numberComponentsDeployed(), job.numberComponentErrors()));
+        return envelope("cancelDeployResponse",
+                "<result><done>%s</done><id>%s</id></result>".formatted(job.done(), job.id()));
     }
 
     public String renderRetrieve(MetadataRetrieveJob job) {

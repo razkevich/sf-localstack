@@ -28,7 +28,7 @@ public class QueryController {
         this.metadataToolingService = metadataToolingService;
     }
 
-    @GetMapping("/query")
+    @GetMapping({"/query", "/query/"})
     public ResponseEntity<?> query(
             @RequestParam("q") String soql,
             @RequestParam(name = "columns", defaultValue = "false") boolean includeColumns) {
