@@ -28,4 +28,4 @@ sf-localstack:
 
 logging:
   level:
-    co.prodly: DEBUG
+    co.razkevich: DEBUG
