@@ -23,6 +23,15 @@ class MetadataControllerVersionTest {
     @BeforeEach
     void reset() throws Exception {
         mockMvc.perform(post("/reset")).andExpect(status().isOk());
+        for (String body : java.util.List.of(
+                "{\"type\":\"CustomField\",\"fullName\":\"Account.Type\",\"fileName\":\"objects/Account.object\",\"directoryName\":\"objects\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Type\",\"attributes\":{\"fieldType\":\"Text\"}}",
+                "{\"type\":\"ApexClass\",\"fullName\":\"MyClass\",\"fileName\":\"classes/MyClass.cls\",\"directoryName\":\"classes\",\"inFolder\":false,\"metaFile\":true,\"label\":\"MyClass\",\"attributes\":{}}"
+        )) {
+            mockMvc.perform(post("/api/admin/metadata/resources")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                    .andExpect(status().isCreated());
+        }
     }
 
     @Test

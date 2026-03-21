@@ -155,18 +155,6 @@ public class MetadataService {
     }
 
     private List<MetadataResource> defaultResources() {
-        Instant seededAt = Instant.parse("2026-03-19T20:00:00Z");
-        return List.of(
-                new MetadataResource("CustomObject", "Account", "objects/Account.object", "objects", false, true, seededAt, "Account",
-                        Map.of("fields", List.of(Map.of("fullName", "Type", "label", "Type", "type", "Text"))), "object"),
-                new MetadataResource("CustomField", "Account.Type", "objects/Account.object", "objects", false, true, seededAt, "Type", Map.of("fieldType", "Text"), null),
-                new MetadataResource("StandardValueSet", "AccountType", "standardValueSets/AccountType.standardValueSet", "standardValueSets", false, true, seededAt, "Account Type", Map.of("values", List.of("Customer - Direct", "Customer - Channel")), "standardValueSet"),
-                new MetadataResource("GlobalValueSet", "CustomerPriority", "globalValueSets/CustomerPriority.globalValueSet", "globalValueSets", false, true, seededAt, "Customer Priority", Map.of("values", List.of("High", "Medium", "Low")), "globalValueSet"),
-                new MetadataResource("CustomApplication", "SalesConsole", "applications/SalesConsole.app", "applications", false, true, seededAt, "Sales Console", Map.of(), "app"),
-                new MetadataResource("FlowDefinition", "LoginFlow", "flowDefinitions/LoginFlow.flowDefinition", "flowDefinitions", false, true, seededAt, "Login Flow", Map.of(), "flowDefinition"),
-                new MetadataResource("DecisionTable", "RoutingDecision", "decisionTables/RoutingDecision.decisionTable", "decisionTables", false, true, seededAt, "Routing Decision", Map.of(), "decisionTable"),
-                new MetadataResource("CustomTab", "standard-Account", "tabs/standard-Account.tab", "tabs", false, true, seededAt, "Account", Map.of(), "tab"),
-                new MetadataResource("RecordType", "Account.Master", "objects/Account.object", "objects", false, true, seededAt, "Master", Map.of(), null)
-        );
+        return List.of();
     }
 }

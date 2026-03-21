@@ -29,6 +29,10 @@ class CrossSurfaceIntegrationTest {
     @Test
     void restBulkAndMetadataAllWorkThenResetRestoresBaseline() throws Exception {
         mockMvc.perform(post("/reset")).andExpect(status().isOk());
+        mockMvc.perform(post("/api/admin/metadata/resources")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"type\":\"CustomField\",\"fullName\":\"Account.Type\",\"fileName\":\"objects/Account.object\",\"directoryName\":\"objects\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Type\",\"attributes\":{\"fieldType\":\"Text\"}}"))
+                .andExpect(status().isCreated());
 
         // --- REST: create a record ---
         mockMvc.perform(post("/services/data/v60.0/sobjects/Account")

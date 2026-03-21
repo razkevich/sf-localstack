@@ -1,11 +1,14 @@
 package co.razkevich.sflocalstack.integration;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -21,9 +24,24 @@ class MetadataIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @BeforeEach
+    void resetAndSeed() throws Exception {
+        mockMvc.perform(post("/reset")).andExpect(status().isOk());
+        for (String body : List.of(
+                "{\"type\":\"FlowDefinition\",\"fullName\":\"LoginFlow\",\"fileName\":\"flowDefinitions/LoginFlow.flowDefinition\",\"directoryName\":\"flowDefinitions\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Login Flow\",\"attributes\":{}}",
+                "{\"type\":\"CustomField\",\"fullName\":\"Account.Type\",\"fileName\":\"objects/Account.object\",\"directoryName\":\"objects\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Type\",\"attributes\":{\"fieldType\":\"Text\"}}",
+                "{\"type\":\"GlobalValueSet\",\"fullName\":\"CustomerPriority\",\"fileName\":\"globalValueSets/CustomerPriority.globalValueSet\",\"directoryName\":\"globalValueSets\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Customer Priority\",\"attributes\":{\"values\":[\"High\",\"Medium\",\"Low\"]}}",
+                "{\"type\":\"StandardValueSet\",\"fullName\":\"AccountType\",\"fileName\":\"standardValueSets/AccountType.standardValueSet\",\"directoryName\":\"standardValueSets\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Account Type\",\"attributes\":{}}"
+        )) {
+            mockMvc.perform(post("/api/admin/metadata/resources")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                    .andExpect(status().isCreated());
+        }
+    }
+
     @Test
     void metadataFlowsWorkAfterReset() throws Exception {
-        mockMvc.perform(post("/reset")).andExpect(status().isOk());
 
         mockMvc.perform(post("/services/Soap/m/60.0")
                         .contentType(MediaType.TEXT_XML)
@@ -47,8 +65,6 @@ class MetadataIntegrationTest {
 
     @Test
     void multiTypeRetrieveProducesZipWithComponentsFromAllTypes() throws Exception {
-        mockMvc.perform(post("/reset")).andExpect(status().isOk());
-
         String retrieveEnvelope = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
@@ -119,8 +135,6 @@ class MetadataIntegrationTest {
 
     @Test
     void retrieveZipContainsSalesforceCompatibleXmlFormat() throws Exception {
-        mockMvc.perform(post("/reset")).andExpect(status().isOk());
-
         String retrieveResponse = mockMvc.perform(post("/services/Soap/m/60.0")
                         .contentType(MediaType.TEXT_XML)
                         .content("""
@@ -195,8 +209,6 @@ class MetadataIntegrationTest {
 
     @Test
     void retrieveFlowProducesZipAndCheckRetrieveStatusReturnsContent() throws Exception {
-        mockMvc.perform(post("/reset")).andExpect(status().isOk());
-
         String retrieveEnvelope = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"

@@ -1,12 +1,17 @@
 package co.razkevich.sflocalstack.controller;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -16,6 +21,20 @@ class MetadataRestControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @BeforeEach
+    void resetAndSeed() throws Exception {
+        mockMvc.perform(post("/reset")).andExpect(status().isOk());
+        for (String body : List.of(
+                "{\"type\":\"CustomApplication\",\"fullName\":\"SalesConsole\",\"fileName\":\"applications/SalesConsole.app\",\"directoryName\":\"applications\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Sales Console\",\"attributes\":{}}",
+                "{\"type\":\"FlowDefinition\",\"fullName\":\"LoginFlow\",\"fileName\":\"flowDefinitions/LoginFlow.flowDefinition\",\"directoryName\":\"flowDefinitions\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Login Flow\",\"attributes\":{}}"
+        )) {
+            mockMvc.perform(post("/api/admin/metadata/resources")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                    .andExpect(status().isCreated());
+        }
+    }
 
     @Test
     void toolingQueryReturnsTabsApplicationsCustomSettingsAndLoginFlows() throws Exception {
