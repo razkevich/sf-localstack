@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>co.prodly</groupId>
+        <groupId>co.razkevich</groupId>
         <artifactId>sf-localstack</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
