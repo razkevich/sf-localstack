@@ -166,15 +166,7 @@ public class MetadataService {
                 new MetadataResource("FlowDefinition", "LoginFlow", "flowDefinitions/LoginFlow.flowDefinition", "flowDefinitions", false, true, seededAt, "Login Flow", Map.of(), "flowDefinition"),
                 new MetadataResource("DecisionTable", "RoutingDecision", "decisionTables/RoutingDecision.decisionTable", "decisionTables", false, true, seededAt, "Routing Decision", Map.of(), "decisionTable"),
                 new MetadataResource("CustomTab", "standard-Account", "tabs/standard-Account.tab", "tabs", false, true, seededAt, "Account", Map.of(), "tab"),
-                new MetadataResource("RecordType", "Account.Master", "objects/Account.object", "objects", false, true, seededAt, "Master", Map.of(), null),
-                // Entries matching metadata-service WireMock fixtures for migration compatibility
-                new MetadataResource("ApexClass", "SBQQ__CalculateCallbackAdapterTests", "classes/SBQQ__CalculateCallbackAdapterTests.cls", "classes", false, true, Instant.parse("2050-01-01T01:01:01.000Z"), "SBQQ__CalculateCallbackAdapterTests", Map.of(), "cls"),
-                new MetadataResource("ApexClass", "SBQQ__CalculateCallbackAdapterTests2", "classes/SBQQ__CalculateCallbackAdapterTests2.cls", "classes", false, true, Instant.parse("1950-01-01T01:01:01.000Z"), "SBQQ__CalculateCallbackAdapterTests2", Map.of(), "cls"),
-                new MetadataResource("EmailTemplate", "SampleEmailTemplate", "email/SampleEmailTemplate.email", "email", true, true, seededAt, "Sample Email Template", Map.of(), "email"),
-                new MetadataResource("CustomObject", "Object2", "objects/Object2.object-meta.xml", "objects", false, true, Instant.parse("2051-01-01T01:01:01.000Z"), "Object2", Map.of(), "object"),
-                new MetadataResource("WorkFlow", "WorkFlow1", "flows/WorkFlow1.workflow-meta.xml", "flows", false, true, Instant.parse("2052-01-01T01:01:01.000Z"), "WorkFlow1", Map.of(), "workflow"),
-                new MetadataResource("StandardValueSet", "valueSet", "standardValueSets/valueSet.standardValueSet", "standardValueSets", false, true, seededAt, "valueSet", Map.of(), "standardValueSet"),
-                new MetadataResource("CustomField", "picklistField", "objects/picklistField.field-meta.xml", "objects", false, true, seededAt, "Lookup Type Field", Map.of("fieldType", "Picklist"), null)
+                new MetadataResource("RecordType", "Account.Master", "objects/Account.object", "objects", false, true, seededAt, "Master", Map.of(), null)
         );
     }
 }
