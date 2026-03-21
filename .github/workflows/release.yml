@@ -67,6 +67,8 @@ jobs:
   publish-jar:
     runs-on: ubuntu-latest
     needs: test
+    permissions:
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
