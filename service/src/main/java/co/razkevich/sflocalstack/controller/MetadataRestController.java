@@ -47,7 +47,7 @@ public class MetadataRestController {
         return Map.of("name", name, "type", type, "nillable", true, "updateable", false, "createable", false);
     }
 
-    @GetMapping("/query")
+    @GetMapping({"/query", "/query/"})
     public ResponseEntity<?> query(@RequestParam("q") String soql) {
         try {
             List<Map<String, Object>> records = metadataToolingService.executeToolingQuery(soql);
