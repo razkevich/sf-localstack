@@ -11,6 +11,7 @@ export function ResetButton({ onReset }: Props) {
   const [status, setStatus] = useState<Status>('idle')
 
   async function handleReset() {
+    if (!window.confirm('Reset the org? This will wipe all data and restore the seed baseline.')) return
     setStatus('loading')
     try {
       await resetOrg()

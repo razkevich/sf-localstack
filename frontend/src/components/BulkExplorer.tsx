@@ -97,8 +97,7 @@ export function BulkExplorer() {
   return (
     <div className="grid h-full grid-cols-1 overflow-hidden xl:grid-cols-[0.95fr,1.05fr]">
       <div className="overflow-auto border-r border-slate-800 bg-slate-950 p-6">
-        <div className="text-xs uppercase tracking-[0.2em] text-cyan-300">Feature 3</div>
-        <h2 className="mt-2 text-2xl font-semibold text-white">Bulk API v2</h2>
+        <h2 className="text-2xl font-semibold text-white">Bulk API v2</h2>
         <p className="mt-1 text-sm text-slate-400">
           Create an ingest job, upload CSV rows, close it synchronously, and inspect result files.
         </p>

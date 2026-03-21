@@ -33,3 +33,6 @@ target/
 
 # Serena
 .serena/
+
+# Temporary test projects
+tmp/
