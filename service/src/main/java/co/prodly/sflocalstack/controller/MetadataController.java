@@ -49,7 +49,7 @@ public class MetadataController {
                 }
                 case "deploy" -> renderer.renderDeploy(metadataService.deploy(String.valueOf(request.values().getOrDefault("ZipFile", ""))));
                 case "checkDeployStatus" -> renderer.renderCheckDeployStatus(metadataService.checkDeployStatus(String.valueOf(request.values().get("asyncProcessId"))));
-                case "cancelDeploy" -> renderer.renderCancelDeploy(metadataService.cancelDeploy(String.valueOf(request.values().get("String"))));
+                case "cancelDeploy" -> renderer.renderCancelDeploy(metadataService.cancelDeploy(String.valueOf(request.values().get("asyncProcessId"))));
                 case "retrieve" -> renderer.renderRetrieve(metadataService.retrieve(manifestParser.extractTypeRequests(request.values())));
                 case "checkRetrieveStatus" -> renderer.renderCheckRetrieveStatus(metadataService.checkRetrieveStatus(String.valueOf(request.values().get("asyncProcessId"))));
                 default -> renderer.renderFault("soapenv:Client", "Unsupported metadata operation: " + request.operation());

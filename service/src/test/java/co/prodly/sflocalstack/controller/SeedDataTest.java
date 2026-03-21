@@ -56,7 +56,7 @@ class SeedDataTest {
         mockMvc.perform(get("/services/data/v60.0/query")
                         .param("q", "SELECT Name, BodyLength FROM StaticResource"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalSize").value(2));
+                .andExpect(jsonPath("$.totalSize").value(3));
     }
 
     @Test
