@@ -15,14 +15,15 @@ public class MetadataSoapRenderer {
         String metadataObjects = entries.stream()
                 .map(entry -> """
                         <metadataObjects>
-                          <xmlName>%s</xmlName>
                           <directoryName>%s</directoryName>
                           <inFolder>%s</inFolder>
                           <metaFile>%s</metaFile>
                           %s
+                          <xmlName>%s</xmlName>
                         </metadataObjects>
-                        """.formatted(entry.type(), entry.directoryName(), entry.inFolder(), entry.metaFile(),
-                        entry.suffix() != null ? "<suffix>" + entry.suffix() + "</suffix>" : ""))
+                        """.formatted(entry.directoryName(), entry.inFolder(), entry.metaFile(),
+                        entry.suffix() != null ? "<suffix>" + entry.suffix() + "</suffix>" : "",
+                        entry.type()))
                 .distinct()
                 .reduce("", String::concat);
         return envelope("describeMetadataResponse", """
@@ -80,7 +81,7 @@ public class MetadataSoapRenderer {
     }
 
     public String renderCancelDeploy(MetadataDeployJob job) {
-        return envelope("cancelDeployResponse", "<result><id>%s</id><done>true</done><success>true</success></result>".formatted(job.id()));
+        return envelope("cancelDeployResponse", "<result><done>%s</done><id>%s</id></result>".formatted(job.done(), job.id()));
     }
 
     public String renderRetrieve(MetadataRetrieveJob job) {
@@ -157,13 +158,13 @@ public class MetadataSoapRenderer {
     private String valueEntries(MetadataService.ReadMetadataRecord record, String tagName) {
         Object values = record.attributes().get("values");
         if (!(values instanceof List<?> list) || list.isEmpty()) {
-            return "<%s><fullName>%s</fullName><default>false</default><label>%s</label></%s>"
-                    .formatted(tagName, record.label(), record.label(), tagName);
+            return "<%s><default>false</default><label>%s</label></%s>"
+                    .formatted(tagName, record.label(), tagName);
         }
         return list.stream()
                 .map(String::valueOf)
-                .map(value -> "<%s><fullName>%s</fullName><default>false</default><label>%s</label></%s>"
-                        .formatted(tagName, value, value, tagName))
+                .map(value -> "<%s><default>false</default><label>%s</label></%s>"
+                        .formatted(tagName, value, tagName))
                 .reduce("", String::concat);
     }
 

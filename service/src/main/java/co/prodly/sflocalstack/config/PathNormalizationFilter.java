@@ -31,6 +31,9 @@ public class PathNormalizationFilter extends OncePerRequestFilter {
             return "/";
         }
         String normalized = path.replaceAll("/{2,}", "/");
+        if (normalized.length() > 1 && normalized.endsWith("/")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
         return normalized.startsWith("/") ? normalized : "/" + normalized;
     }
 }

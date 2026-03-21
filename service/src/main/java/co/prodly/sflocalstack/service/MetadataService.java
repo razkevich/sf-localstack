@@ -119,7 +119,7 @@ public class MetadataService {
     public MetadataDeployJob cancelDeploy(String id) {
         MetadataDeployJob existing = deployJobs.get(id);
         if (existing == null) {
-            throw new NoSuchElementException("Unknown deploy id: " + id);
+            return new MetadataDeployJob(id, false, false, "Canceled", 0, 0, 0);
         }
         MetadataDeployJob canceled = new MetadataDeployJob(id, true, true, "Canceled", existing.numberComponentsTotal(), existing.numberComponentsDeployed(), existing.numberComponentErrors());
         deployJobs.put(id, canceled);
