@@ -1,5 +1,7 @@
 # SF LocalStack
 
+[![CI](https://github.com/razkevich/sf-localstack/actions/workflows/ci.yml/badge.svg)](https://github.com/razkevich/sf-localstack/actions/workflows/ci.yml)
+
 A local Salesforce org emulator for CI/CD pipelines and development workflows — no scratch orgs, no Developer Edition limits, no network dependency.
 
 ## What Is This?
@@ -41,19 +43,11 @@ It is designed for teams that need:
 
 ## Quick Start
 
-> **Note**: Docker packaging and JUnit test support are in progress. The steps below run the service directly from source.
-
-### Prerequisites
-
-- Java 21
-- Maven 3.9+
-- Node.js 20+ (for the dashboard)
-- [Salesforce CLI](https://developer.salesforce.com/tools/salesforcecli) (`sf`)
-
-### Run the backend
+### Docker (recommended)
 
 ```bash
-JAVA_HOME=/path/to/java21 mvn -pl service spring-boot:run
+docker pull razkevich/sf-localstack:latest
+docker run -p 8080:8080 razkevich/sf-localstack
 ```
 
 The service starts on `http://localhost:8080`.
@@ -84,16 +78,49 @@ curl -X POST http://localhost:8080/reset
 
 ### Dashboard
 
-```bash
-cd frontend && npm install && npm run dev
+The dashboard is bundled in the Docker image. Open `http://localhost:8080` after starting the container.
+
+### Maven dependency (GitHub Packages)
+
+```xml
+<repositories>
+  <repository>
+    <id>github</id>
+    <url>https://maven.pkg.github.com/razkevich/sf-localstack</url>
+  </repository>
+</repositories>
+
+<dependency>
+  <groupId>co.prodly</groupId>
+  <artifactId>sf-localstack-service</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+</dependency>
 ```
 
-Open `http://localhost:5173`.
+<details>
+<summary>Run from source</summary>
+
+### Prerequisites
+
+- Java 21
+- Maven 3.9+
+- Node.js 20+ (for the dashboard)
+- [Salesforce CLI](https://developer.salesforce.com/tools/salesforcecli) (`sf`)
+
+```bash
+mvn -pl service spring-boot:run
+```
+
+```bash
+cd frontend && npm install && npm run dev
+# Dashboard: http://localhost:5173
+```
+
+</details>
 
 ## Roadmap
 
-- [ ] Docker image with single-command startup
-- [ ] JUnit extension for hermetic integration tests
+- [ ] JUnit/Testcontainers extension for hermetic integration tests
 - [ ] Configurable seed files via environment variable
 - [ ] Deploy validation with component-level error injection
 - [ ] Expanded sObject schema (Opportunity, Lead, Case)

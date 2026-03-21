@@ -1,0 +1,12 @@
+target/
+node_modules/
+.git/
+*.md
+specs/
+tmp/
+client/src/
+dashboard/
+.omc/
+.specify/
+.idea/
+.vscode/

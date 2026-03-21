@@ -61,6 +61,13 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/razkevich/sf-localstack</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <plugin>
