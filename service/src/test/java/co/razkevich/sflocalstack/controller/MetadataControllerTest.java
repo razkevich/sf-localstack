@@ -8,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -22,6 +24,19 @@ class MetadataControllerTest {
     @BeforeEach
     void reset() throws Exception {
         mockMvc.perform(post("/reset")).andExpect(status().isOk());
+        for (String body : List.of(
+                "{\"type\":\"CustomField\",\"fullName\":\"Account.Type\",\"fileName\":\"objects/Account.object\",\"directoryName\":\"objects\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Type\",\"attributes\":{\"fieldType\":\"Text\"}}",
+                "{\"type\":\"CustomField\",\"fullName\":\"Account.Status\",\"fileName\":\"objects/Account.object\",\"directoryName\":\"objects\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Status\",\"attributes\":{\"fieldType\":\"Text\"}}",
+                "{\"type\":\"StandardValueSet\",\"fullName\":\"AccountType\",\"fileName\":\"standardValueSets/AccountType.standardValueSet\",\"directoryName\":\"standardValueSets\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Account Type\",\"attributes\":{}}",
+                "{\"type\":\"StandardValueSet\",\"fullName\":\"IndustryType\",\"fileName\":\"standardValueSets/IndustryType.standardValueSet\",\"directoryName\":\"standardValueSets\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Industry Type\",\"attributes\":{}}",
+                "{\"type\":\"CustomTab\",\"fullName\":\"standard-Account\",\"fileName\":\"tabs/standard-Account.tab\",\"directoryName\":\"tabs\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Account\",\"attributes\":{}}",
+                "{\"type\":\"GlobalValueSet\",\"fullName\":\"CustomerPriority\",\"fileName\":\"globalValueSets/CustomerPriority.globalValueSet\",\"directoryName\":\"globalValueSets\",\"inFolder\":false,\"metaFile\":true,\"label\":\"Customer Priority\",\"attributes\":{\"values\":[\"High\",\"Medium\",\"Low\"]}}"
+        )) {
+            mockMvc.perform(post("/api/admin/metadata/resources")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                    .andExpect(status().isCreated());
+        }
     }
 
     @Test

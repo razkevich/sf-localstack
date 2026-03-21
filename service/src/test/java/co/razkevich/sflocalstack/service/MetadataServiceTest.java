@@ -1,10 +1,13 @@
 package co.razkevich.sflocalstack.service;
 
+import co.razkevich.sflocalstack.model.MetadataResource;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,6 +19,14 @@ class MetadataServiceTest {
 
     @Autowired
     private MetadataManifestParser manifestParser;
+
+    @BeforeEach
+    void seed() {
+        metadataService.reset();
+        metadataService.createResource(new MetadataResource("CustomField", "Account.Type", "objects/Account.object", "objects", false, true, null, "Type", Map.of("fieldType", "Text")));
+        metadataService.createResource(new MetadataResource("StandardValueSet", "AccountType", "standardValueSets/AccountType.standardValueSet", "standardValueSets", false, true, null, "Account Type", Map.of()));
+        metadataService.createResource(new MetadataResource("GlobalValueSet", "CustomerPriority", "globalValueSets/CustomerPriority.globalValueSet", "globalValueSets", false, true, null, "Customer Priority", Map.of("values", List.of("High", "Medium", "Low"))));
+    }
 
     @Test
     void readMetadataSupportsCustomFieldAndValueSets() {
