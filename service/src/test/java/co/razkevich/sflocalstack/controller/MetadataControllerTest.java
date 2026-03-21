@@ -121,7 +121,7 @@ class MetadataControllerTest {
                                 </met:cancelDeploy>
                                 """.formatted(deployId))))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("<done>true</done>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<done>false</done>")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("<id>%s</id>".formatted(deployId))));
     }
 

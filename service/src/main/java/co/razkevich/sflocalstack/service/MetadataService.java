@@ -118,10 +118,10 @@ public class MetadataService {
 
     public MetadataDeployJob cancelDeploy(String id) {
         MetadataDeployJob existing = deployJobs.get(id);
-        if (existing == null) {
-            return new MetadataDeployJob(id, false, false, "Canceled", 0, 0, 0);
-        }
-        MetadataDeployJob canceled = new MetadataDeployJob(id, true, true, "Canceled", existing.numberComponentsTotal(), existing.numberComponentsDeployed(), existing.numberComponentErrors());
+        int total = existing != null ? existing.numberComponentsTotal() : 0;
+        int deployed = existing != null ? existing.numberComponentsDeployed() : 0;
+        int errors = existing != null ? existing.numberComponentErrors() : 0;
+        MetadataDeployJob canceled = new MetadataDeployJob(id, false, false, "Canceling", total, deployed, errors);
         deployJobs.put(id, canceled);
         return canceled;
     }
