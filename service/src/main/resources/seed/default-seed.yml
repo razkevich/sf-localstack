@@ -40,17 +40,6 @@ objects:
         EmailEncodingKey: "UTF-8"
         LanguageLocaleKey: "en_US"
         IsActive: true
-  - type: PDRI__Connection__c
-    records:
-      - Id: "a0D5e00000Q9h43EAB"
-        PDRI__Instance_URL__c: "http://localhost:8080"
-        PDRI__OrganizationId__c: "some-id"
-        PDRI__Org_Type__c: "Production"
-        PDRI__Local_Connection__c: true
-        PDRI__Active__c: true
-        PDRI__Target__c: "VCS"
-        OwnerId: "005000000000001AAA"
-        CreatedDate: "2024-01-01T00:00:00.000Z"
   - type: PDRI__ComparisonView__c
     records:
       - Id: "a1QDn000002BPrXMAW"
