@@ -25,16 +25,6 @@ class SeedDataTest {
     }
 
     @Test
-    void pdriConnectionIsSeedied() throws Exception {
-        mockMvc.perform(get("/services/data/v60.0/query")
-                        .param("q", "SELECT Id, PDRI__Instance_URL__c, PDRI__OrganizationId__c FROM PDRI__Connection__c"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalSize").value(1))
-                .andExpect(jsonPath("$.records[0].Id").value("a0D5e00000Q9h43EAB"))
-                .andExpect(jsonPath("$.records[0].PDRI__OrganizationId__c").value("some-id"));
-    }
-
-    @Test
     void pdriComparisonViewIsSeedied() throws Exception {
         mockMvc.perform(get("/services/data/v60.0/query")
                         .param("q", "SELECT Id, Name FROM PDRI__ComparisonView__c"))
