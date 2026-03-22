@@ -19,7 +19,7 @@ public class SoqlEngine {
     private static final Logger log = LoggerFactory.getLogger(SoqlEngine.class);
 
     private static final Pattern SELECT_PATTERN = Pattern.compile(
-            "(?is)^\\s*SELECT\\s+(.+?)\\s+FROM\\s+(\\w+)\\s*(?:WHERE\\s+(.+?))?\\s*(?:LIMIT\\s+(\\d+))?\\s*$"
+            "(?is)^\\s*SELECT\\s+(.+?)\\s+FROM\\s+(\\w+)\\s*(?:WHERE\\s+(.+?))?\\s*(?:ORDER\\s+BY\\s+.+?)?\\s*(?:LIMIT\\s+(\\d+))?\\s*$"
     );
     private static final Pattern NULL_PATTERN = Pattern.compile("(?i)^(\\S+)\\s+IS\\s+(NOT\\s+)?NULL$");
     private static final Pattern LIKE_PATTERN = Pattern.compile("(?i)^(\\S+)\\s+LIKE\\s+'(.*)'$");
