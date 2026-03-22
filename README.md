@@ -120,7 +120,7 @@ cd frontend && npm install && npm run dev
 
 ## Roadmap
 
-- [ ] JUnit/Testcontainers extension for hermetic integration tests
+- [x] JUnit/Testcontainers extension for hermetic integration tests — use `razkevich/sf-localstack` as a Testcontainers `GenericContainer` (see [metadata-service AbstractSfLocalstackTest](https://github.com/prodly/metadata-service) for a reference implementation)
 - [ ] Configurable seed files via environment variable
 - [ ] Deploy validation with component-level error injection
 - [ ] Expanded sObject schema (Opportunity, Lead, Case)
