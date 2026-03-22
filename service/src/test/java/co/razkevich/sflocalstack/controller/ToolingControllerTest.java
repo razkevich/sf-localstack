@@ -7,6 +7,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.http.MediaType;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -22,6 +24,14 @@ class ToolingControllerTest {
     @BeforeEach
     void reset() throws Exception {
         mockMvc.perform(post("/reset")).andExpect(status().isOk());
+        mockMvc.perform(post("/services/data/v60.0/sobjects/StaticResource")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"Name\":\"SmallResource\",\"BodyLength\":1}"))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/services/data/v60.0/sobjects/StaticResource")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"Name\":\"heavyResource\",\"BodyLength\":200000000}"))
+                .andExpect(status().isCreated());
     }
 
     @Test

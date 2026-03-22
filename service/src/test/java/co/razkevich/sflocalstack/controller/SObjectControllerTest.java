@@ -26,6 +26,10 @@ class SObjectControllerTest {
     @BeforeEach
     void reset() throws Exception {
         mockMvc.perform(post("/reset")).andExpect(status().isOk());
+        mockMvc.perform(post("/services/data/v60.0/sobjects/Account")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"Name\":\"Acme Corp\"}"))
+                .andExpect(status().isCreated());
     }
 
     @Test

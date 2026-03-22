@@ -46,7 +46,12 @@ public class MetadataToolingService {
     }
 
     public List<Map<String, Object>> executeStandardMetadataQuery(String soql) {
-        ParsedQuery query = parse(soql);
+        ParsedQuery query;
+        try {
+            query = parse(soql);
+        } catch (IllegalArgumentException e) {
+            return List.of();
+        }
         if (!"FlowDefinitionView".equals(query.objectName())) {
             return List.of();
         }

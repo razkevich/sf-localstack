@@ -27,9 +27,7 @@ class ResetControllerTest {
     }
 
     @Test
-    void resetRestoresSeedCountsAfterMutation() throws Exception {
-        mockMvc.perform(post("/reset")).andExpect(status().isOk());
-
+    void resetClearsStateAfterMutation() throws Exception {
         mockMvc.perform(post("/services/data/v60.0/sobjects/Account")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"Name\":\"Feature Zero Test\"}"))
@@ -39,6 +37,6 @@ class ResetControllerTest {
 
         mockMvc.perform(get("/api/dashboard/overview"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalRecords").value(14));
+                .andExpect(jsonPath("$.totalRecords").value(0));
     }
 }

@@ -16,13 +16,9 @@ class BulkJobServiceTest {
     @Autowired
     private OrgStateService orgStateService;
 
-    @Autowired
-    private SeedDataLoader seedDataLoader;
-
     @BeforeEach
     void reset() {
         orgStateService.reset();
-        seedDataLoader.load();
         bulkJobService.reset();
     }
 

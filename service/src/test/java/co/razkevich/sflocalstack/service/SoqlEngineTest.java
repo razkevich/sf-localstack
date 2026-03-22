@@ -20,13 +20,13 @@ class SoqlEngineTest {
     @Autowired
     private OrgStateService orgStateService;
 
-    @Autowired
-    private SeedDataLoader seedDataLoader;
-
     @BeforeEach
     void reset() {
         orgStateService.reset();
-        seedDataLoader.load();
+        var acme = orgStateService.create("Account", new java.util.HashMap<>(Map.of("Name", "Acme Corp", "Industry", "Technology")));
+        orgStateService.create("Account", new java.util.HashMap<>(Map.of("Name", "Globex Corp", "Industry", "Manufacturing")));
+        orgStateService.create("Contact", new java.util.HashMap<>(Map.of(
+                "FirstName", "John", "LastName", "Doe", "Email", "john.doe@acme.com", "AccountId", acme.getId())));
     }
 
     @Test

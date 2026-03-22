@@ -25,16 +25,12 @@ class DashboardControllerTest {
     }
 
     @Test
-    void overviewReturnsSeededObjectCounts() throws Exception {
+    void overviewReturnsEmptyState() throws Exception {
         mockMvc.perform(get("/api/dashboard/overview"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.service").value("sf-localstack"))
                 .andExpect(jsonPath("$.apiVersion").value("v60.0"))
-
-                .andExpect(jsonPath("$.totalRecords").value(14))
-
-                .andExpect(jsonPath("$.objectCounts[0].objectType").value("Account"))
-                .andExpect(jsonPath("$.objectCounts[0].count").value(2));
+                .andExpect(jsonPath("$.totalRecords").value(0));
     }
 
     @Test

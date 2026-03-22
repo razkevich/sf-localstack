@@ -7,6 +7,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.http.MediaType;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -22,6 +24,21 @@ class QueryControllerTest {
     @BeforeEach
     void reset() throws Exception {
         mockMvc.perform(post("/reset")).andExpect(status().isOk());
+        String acmeResponse = mockMvc.perform(post("/services/data/v60.0/sobjects/Account")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"Name\":\"Acme Corp\",\"Industry\":\"Technology\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String acmeId = new com.fasterxml.jackson.databind.ObjectMapper()
+                .readTree(acmeResponse).get("id").asText();
+        mockMvc.perform(post("/services/data/v60.0/sobjects/Contact")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"FirstName\":\"John\",\"LastName\":\"Doe\",\"AccountId\":\"" + acmeId + "\"}"))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/services/data/v60.0/sobjects/Account")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"Name\":\"Globex Corp\",\"Industry\":\"Manufacturing\"}"))
+                .andExpect(status().isCreated());
     }
 
     @Test
