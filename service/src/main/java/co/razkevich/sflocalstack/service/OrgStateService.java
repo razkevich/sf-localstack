@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
 import java.util.Comparator;
@@ -159,10 +161,12 @@ public class OrgStateService {
 
     private final SObjectRecordRepository repository;
     private final ObjectMapper objectMapper;
+    private final TransactionTemplate transactionTemplate;
 
-    public OrgStateService(SObjectRecordRepository repository, ObjectMapper objectMapper) {
+    public OrgStateService(SObjectRecordRepository repository, ObjectMapper objectMapper, PlatformTransactionManager transactionManager) {
         this.repository = repository;
         this.objectMapper = objectMapper;
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
     @Transactional
@@ -371,24 +375,25 @@ public class OrgStateService {
         });
     }
 
-    @Transactional
     public synchronized UpsertResult upsert(
             String objectType,
             String externalIdField,
             String externalIdValue,
             Map<String, Object> fields) {
-        Optional<SObjectRecord> existing = findByType(objectType).stream()
-                .filter(record -> externalIdValue.equals(String.valueOf(fromJson(record.getFieldsJson()).get(externalIdField))))
-                .findFirst();
+        return transactionTemplate.execute(status -> {
+            Optional<SObjectRecord> existing = findByType(objectType).stream()
+                    .filter(record -> externalIdValue.equals(String.valueOf(fromJson(record.getFieldsJson()).get(externalIdField))))
+                    .findFirst();
 
-        if (existing.isPresent()) {
-            SObjectRecord updated = update(existing.get().getId(), mergeExternalId(fields, externalIdField, externalIdValue))
-                    .orElseThrow();
-            return new UpsertResult(updated, false);
-        }
+            if (existing.isPresent()) {
+                SObjectRecord updated = update(existing.get().getId(), mergeExternalId(fields, externalIdField, externalIdValue))
+                        .orElseThrow();
+                return new UpsertResult(updated, false);
+            }
 
-        SObjectRecord created = create(objectType, mergeExternalId(fields, externalIdField, externalIdValue));
-        return new UpsertResult(created, true);
+            SObjectRecord created = create(objectType, mergeExternalId(fields, externalIdField, externalIdValue));
+            return new UpsertResult(created, true);
+        });
     }
 
     @Transactional
