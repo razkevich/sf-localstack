@@ -81,7 +81,8 @@ public class MetadataSoapRenderer {
     }
 
     public String renderCancelDeploy(MetadataDeployJob job) {
-        return envelope("cancelDeployResponse", "<result><done>%s</done><id>%s</id></result>".formatted(job.done(), job.id()));
+        return envelope("cancelDeployResponse",
+                "<result><done>%s</done><id>%s</id></result>".formatted(job.done(), job.id()));
     }
 
     public String renderRetrieve(MetadataRetrieveJob job) {

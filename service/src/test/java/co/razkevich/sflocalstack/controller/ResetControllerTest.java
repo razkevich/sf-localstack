@@ -39,6 +39,6 @@ class ResetControllerTest {
 
         mockMvc.perform(get("/api/dashboard/overview"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalRecords").value(16));
+                .andExpect(jsonPath("$.totalRecords").value(15));
     }
 }

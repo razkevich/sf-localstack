@@ -36,7 +36,7 @@ class ToolingControllerTest {
     @Test
     void bigStaticResourceQueryReturnsBodyLength200000000() throws Exception {
         mockMvc.perform(get("/services/data/v66.0/tooling/query")
-                        .param("q", "SELECT BodyLength FROM StaticResource WHERE Name IN ('BigResource')"))
+                        .param("q", "SELECT BodyLength FROM StaticResource WHERE Name IN ('heavyResource')"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalSize").value(1))
                 .andExpect(jsonPath("$.records[0].BodyLength").value(200000000));

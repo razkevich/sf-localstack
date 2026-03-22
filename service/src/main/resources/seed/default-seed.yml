@@ -97,7 +97,5 @@ objects:
     records:
       - Name: "SmallResource"
         BodyLength: 1
-      - Name: "BigResource"
-        BodyLength: 200000000
       - Name: "heavyResource"
         BodyLength: 200000000
