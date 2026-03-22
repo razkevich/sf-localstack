@@ -16,9 +16,9 @@
 
 **Purpose**: Configure secrets and verify build prerequisites before writing any workflow files.
 
-- [ ] T001 Create Docker Hub access token and add `DOCKERHUB_USERNAME` + `DOCKERHUB_TOKEN` secrets to the GitHub repo (Settings → Secrets and variables → Actions)
-- [ ] T002 Verify `service/pom.xml` has `<groupId>co.prodly</groupId>` and `<artifactId>sf-localstack</artifactId>` — update if needed
-- [ ] T003 Add `distributionManagement` block to `service/pom.xml` pointing to GitHub Packages Maven registry (`https://maven.pkg.github.com/razkevich/sf-localstack`)
+- [x] T001 Create Docker Hub access token and add `DOCKERHUB_USERNAME` + `DOCKERHUB_TOKEN` secrets to the GitHub repo (Settings → Secrets and variables → Actions)
+- [x] T002 Verify `service/pom.xml` has `<groupId>co.prodly</groupId>` and `<artifactId>sf-localstack</artifactId>` — update if needed
+- [x] T003 Add `distributionManagement` block to `service/pom.xml` pointing to GitHub Packages Maven registry (`https://maven.pkg.github.com/razkevich/sf-localstack`)
 
 **Checkpoint**: Secrets configured; pom.xml has correct coordinates and distributionManagement.
 
@@ -32,12 +32,12 @@
 
 ### Implementation
 
-- [ ] T004 [F0] Create `Dockerfile` at repo root — multi-stage: stage 1 `maven:3.9-eclipse-temurin-21` builds the fat JAR with `mvn -pl service package -DskipTests`; stage 2 `eclipse-temurin:21-jre-jammy` copies only the JAR, sets `ENTRYPOINT ["java","-jar","/app/sf-localstack.jar"]`, exposes port 8080
-- [ ] T005 [P] [F0] Create `.dockerignore` at repo root excluding `target/`, `node_modules/`, `.git/`, `*.md`, `specs/`, `tmp/`
+- [x] T004 [F0] Create `Dockerfile` at repo root — multi-stage: stage 1 `maven:3.9-eclipse-temurin-21` builds the fat JAR with `mvn -pl service package -DskipTests`; stage 2 `eclipse-temurin:21-jre-jammy` copies only the JAR, sets `ENTRYPOINT ["java","-jar","/app/sf-localstack.jar"]`, exposes port 8080
+- [x] T005 [P] [F0] Create `.dockerignore` at repo root excluding `target/`, `node_modules/`, `.git/`, `*.md`, `specs/`, `tmp/`
 
 ### Verification
 
-- [ ] T006 [F0] Run `docker build -t sf-localstack .` locally and confirm successful build; run container and verify `GET /actuator/health` returns 200
+- [x] T006 [F0] Run `docker build -t sf-localstack .` locally and confirm successful build; run container and verify `GET /actuator/health` returns 200
 
 ---
 
@@ -49,7 +49,7 @@
 
 ### Implementation
 
-- [ ] T007 [F1] Create `.github/workflows/ci.yml` with:
+- [x] T007 [F1] Create `.github/workflows/ci.yml` with:
   - Trigger: `push` to `main`, `pull_request` to `main`
   - Jobs: `test` (Java 21, `mvn -pl service test`), `docker` (depends on `test`, builds and pushes `razkevich/sf-localstack:main-${{ github.sha }}` using `docker/build-push-action`)
   - Maven `.m2` cache via `actions/cache`
@@ -57,7 +57,7 @@
 
 ### Verification
 
-- [ ] T008 [F1] Push a commit to `main` on the feature branch (via PR) and confirm: Actions workflow passes, Docker Hub shows new `main-<sha>` tag
+- [x] T008 [F1] Push a commit to `main` on the feature branch (via PR) and confirm: Actions workflow passes, Docker Hub shows new `main-<sha>` tag
 
 ---
 
@@ -69,17 +69,17 @@
 
 ### Implementation
 
-- [ ] T009 [F2] Create `.github/workflows/release.yml` with:
+- [x] T009 [F2] Create `.github/workflows/release.yml` with:
   - Trigger: `push` to tags matching `v*.*.*`
   - Job 1 `test`: Java 21, `mvn -pl service test`
   - Job 2 `docker` (depends on `test`): `docker/setup-qemu-action`, `docker/setup-buildx-action`, `docker/build-push-action` with `platforms: linux/amd64,linux/arm64`; tags `razkevich/sf-localstack:${{ github.ref_name }}` and `razkevich/sf-localstack:latest` (skip `latest` if tag contains `-` pre-release marker)
   - Job 3 `publish-jar` (depends on `test`): `mvn -pl service deploy -DskipTests` with `GITHUB_TOKEN` as server password for GitHub Packages
   - Job 4 `release` (depends on `docker` and `publish-jar`): `softprops/action-gh-release` to create GitHub Release with JAR artifact attached and auto-generated release notes
-- [ ] T010 [P] [F2] Add `<server>` entry with `<id>github</id>` to Maven settings in the workflow (`echo` a `settings.xml` to `~/.m2/settings.xml`) using `GITHUB_TOKEN`
+- [x] T010 [P] [F2] Add `<server>` entry with `<id>github</id>` to Maven settings in the workflow (`echo` a `settings.xml` to `~/.m2/settings.xml`) using `GITHUB_TOKEN`
 
 ### Verification
 
-- [ ] T011 [F2] Push tag `v0.1.0` → confirm Docker Hub has `0.1.0` + `latest` tags (multi-platform); GitHub Packages shows the JAR; GitHub Releases page shows `v0.1.0` with JAR attached
+- [x] T011 [F2] Push tag `v0.1.0` → confirm Docker Hub has `0.1.0` + `latest` tags (multi-platform); GitHub Packages shows the JAR; GitHub Releases page shows `v0.1.0` with JAR attached
 
 ---
 
@@ -91,7 +91,7 @@
 
 ### Implementation
 
-- [ ] T012 [P] [F3] Update `README.md` Quick Start section:
+- [x] T012 [P] [F3] Update `README.md` Quick Start section:
   - Replace source-based run instructions with `docker pull razkevich/sf-localstack:latest && docker run -p 8080:8080 razkevich/sf-localstack`
   - Add GitHub Packages Maven snippet (repository + dependency XML)
   - Add SF CLI connect command using the running container's URL
@@ -101,8 +101,8 @@
 
 ## Phase Final: Polish
 
-- [ ] T013 [P] Add `CHANGELOG.md` with initial `v0.1.0` entry describing the initial release
-- [ ] T014 [P] Add GitHub Actions workflow status badge to README.md header (`[![CI](https://github.com/razkevich/sf-localstack/actions/workflows/ci.yml/badge.svg)](...)`)
+- [x] T013 [P] Add `CHANGELOG.md` with initial `v0.1.0` entry describing the initial release
+- [x] T014 [P] Add GitHub Actions workflow status badge to README.md header (`[![CI](https://github.com/razkevich/sf-localstack/actions/workflows/ci.yml/badge.svg)](...)`)
 
 ---
 

@@ -19,8 +19,8 @@
 
 **Purpose**: Confirm test infrastructure baseline in sf-localstack before starting work.
 
-- [ ] T001 Verify `mvn test -pl service` passes green in `sf-localstack` on branch `003-ms-test-sf-localstack`
-- [ ] T002 Verify `mvn test -pl service` passes green in `metadata-service` on current branch (WireMock baseline)
+- [x] T001 Verify `mvn test -pl service` passes green in `sf-localstack` on branch `003-ms-test-sf-localstack`
+- [x] T002 Verify `mvn test -pl service` passes green in `metadata-service` on current branch (WireMock baseline)
 
 **Checkpoint**: Both repos have a known-green test baseline before any changes.
 
@@ -34,19 +34,19 @@
 
 ### Tests First
 
-- [ ] T003 [P] [F0] Add `MetadataControllerVersionTest` in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataControllerVersionTest.java` — assert `POST /services/Soap/m/66.0` routes `describeMetadata`, `listMetadata`, `readMetadata`, and `cancelDeploy` identically to `/services/Soap/m/60.0` (4 test methods, all expected to fail before T005)
-- [ ] T004 [P] [F0] Add `MetadataSoapRendererShapeTest` in `service/src/test/java/co/prodly/sflocalstack/service/MetadataSoapRendererShapeTest.java` — assert `renderDescribeMetadata` output contains `<suffix>`, `<partialSaveAllowed>true</partialSaveAllowed>`; assert `renderReadMetadata` for `StandardValueSet` contains `<sorted>false</sorted>`; assert `renderCancelDeploy` produces `<done>false</done><id>` envelope (expected to fail before T006–T008)
+- [x] T003 [P] [F0] Add `MetadataControllerVersionTest` in `service/src/test/java/co/prodly/sflocalstack/controller/MetadataControllerVersionTest.java` — assert `POST /services/Soap/m/66.0` routes `describeMetadata`, `listMetadata`, `readMetadata`, and `cancelDeploy` identically to `/services/Soap/m/60.0` (4 test methods, all expected to fail before T005)
+- [x] T004 [P] [F0] Add `MetadataSoapRendererShapeTest` in `service/src/test/java/co/prodly/sflocalstack/service/MetadataSoapRendererShapeTest.java` — assert `renderDescribeMetadata` output contains `<suffix>`, `<partialSaveAllowed>true</partialSaveAllowed>`; assert `renderReadMetadata` for `StandardValueSet` contains `<sorted>false</sorted>`; assert `renderCancelDeploy` produces `<done>false</done><id>` envelope (expected to fail before T006–T008)
 
 ### Implementation
 
-- [ ] T005 [F0] Change `@RequestMapping` in `service/src/main/java/co/prodly/sflocalstack/controller/MetadataController.java` from `/services/Soap/m/60.0` to `/services/Soap/m/{version}` to accept all API versions
-- [ ] T006 [P] [F0] Fix `renderDescribeMetadata` in `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapRenderer.java` — add `<suffix>%s</suffix>` to the `metadataObjects` template; change `partialSaveAllowed` to `true`; verify `MetadataCatalogEntry` record has `suffix` field populated in seed
-- [ ] T007 [P] [F0] Fix `renderReadMetadata` for `StandardValueSet` in `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapRenderer.java` — add `<sorted>false</sorted>` between `<fullName>` and `<standardValue>` in the `StandardValueSet` branch of `renderReadRecord`
-- [ ] T008 [P] [F0] Fix `renderCancelDeploy` in `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapRenderer.java` — change body to `<result><done>false</done><id>%s</id></result>` to match `canceldeployresult-response.xml` (remove `<success>` tag)
+- [x] T005 [F0] Change `@RequestMapping` in `service/src/main/java/co/prodly/sflocalstack/controller/MetadataController.java` from `/services/Soap/m/60.0` to `/services/Soap/m/{version}` to accept all API versions
+- [x] T006 [P] [F0] Fix `renderDescribeMetadata` in `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapRenderer.java` — add `<suffix>%s</suffix>` to the `metadataObjects` template; change `partialSaveAllowed` to `true`; verify `MetadataCatalogEntry` record has `suffix` field populated in seed
+- [x] T007 [P] [F0] Fix `renderReadMetadata` for `StandardValueSet` in `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapRenderer.java` — add `<sorted>false</sorted>` between `<fullName>` and `<standardValue>` in the `StandardValueSet` branch of `renderReadRecord`
+- [x] T008 [P] [F0] Fix `renderCancelDeploy` in `service/src/main/java/co/prodly/sflocalstack/service/MetadataSoapRenderer.java` — change body to `<result><done>false</done><id>%s</id></result>` to match `canceldeployresult-response.xml` (remove `<success>` tag)
 
 ### Verification
 
-- [ ] T009 [F0] Run `mvn test -pl service` in `sf-localstack` — confirm `MetadataControllerVersionTest` and `MetadataSoapRendererShapeTest` pass green; confirm no existing tests regressed
+- [x] T009 [F0] Run `mvn test -pl service` in `sf-localstack` — confirm `MetadataControllerVersionTest` and `MetadataSoapRendererShapeTest` pass green; confirm no existing tests regressed
 
 **Checkpoint**: sf-localstack accepts v66 SOAP requests and all response shapes match the `__files/*.xml` fixtures field-by-field.
 
@@ -60,20 +60,20 @@
 
 ### Tests First
 
-- [ ] T010 [P] [F1] Add `SeedDataTest` in `service/src/test/java/co/prodly/sflocalstack/controller/SeedDataTest.java` — assert after `POST /reset`, SOQL queries for `PDRI__Connection__c`, `PDRI__ComparisonViewRule__c`, `StaticResource` (via Tooling path once T019 is done), and `Organization` each return records with IDs and field values matching the fixture files (expected to fail before T012–T015)
-- [ ] T011 [P] [F1] Add `ResetOverrideTest` in `service/src/test/java/co/prodly/sflocalstack/controller/ResetOverrideTest.java` — assert `POST /reset` with body `{"seedOverrides":{"PDRI__Connection__c":{"PDRI__Instance_URL__c":"http://override-url"}}}` causes subsequent SOQL query for `PDRI__Connection__c` to return `PDRI__Instance_URL__c: "http://override-url"` (expected to fail before T016)
+- [x] T010 [P] [F1] Add `SeedDataTest` in `service/src/test/java/co/prodly/sflocalstack/controller/SeedDataTest.java` — assert after `POST /reset`, SOQL queries for `PDRI__Connection__c`, `PDRI__ComparisonViewRule__c`, `StaticResource` (via Tooling path once T019 is done), and `Organization` each return records with IDs and field values matching the fixture files (expected to fail before T012–T015)
+- [x] T011 [P] [F1] Add `ResetOverrideTest` in `service/src/test/java/co/prodly/sflocalstack/controller/ResetOverrideTest.java` — assert `POST /reset` with body `{"seedOverrides":{"PDRI__Connection__c":{"PDRI__Instance_URL__c":"http://override-url"}}}` causes subsequent SOQL query for `PDRI__Connection__c` to return `PDRI__Instance_URL__c: "http://override-url"` (expected to fail before T016)
 
 ### Implementation
 
-- [ ] T012 [F1] Update `service/src/main/resources/seed/default-seed.yml` — add `PDRI__Connection__c` record (Id: `a0D5e00000Q9h43EAB`, fields per `data-model.md`); add `PDRI__ComparisonView__c` record (Id: `a1QDn000002BPrXMAW`); add 5 `PDRI__ComparisonViewRule__c` records with IDs and fields from `data-model.md`; update `Organization` record to set `IsSandbox: true`, `OrganizationType: "abcd"`, `TrialExpirationDate: "some-date"`
-- [ ] T013 [P] [F1] Update `service/src/main/resources/seed/default-seed.yml` — add 2 `StaticResource` records: `{Name: "SmallResource", BodyLength: 1}` and `{Name: "BigResource", BodyLength: 200000000}`
-- [ ] T014 [P] [F1] Verify sf-localstack's `SeedService` / `SObjectRepository` handles arbitrary custom object types (PDRI__ prefix) without schema errors — add type registration in `service/src/main/java/co/prodly/sflocalstack/service/SeedService.java` (or equivalent) if needed
-- [ ] T015 [P] [F1] Update `DashboardControllerTest` and `ResetControllerTest` in `service/src/test/java/co/prodly/sflocalstack/controller/` to reflect the new `totalRecords` count after adding PDRI and StaticResource seed records
-- [ ] T016 [F1] Enhance `POST /reset` in `service/src/main/java/co/prodly/sflocalstack/controller/ResetController.java` to accept optional JSON body `{"seedOverrides": {"<ObjectType>": {"<field>": "<value>"}}}` and apply field-level overrides after the base seed restore; update `service/src/main/java/co/prodly/sflocalstack/service/SeedService.java` (or `ResetService`) to apply the overrides
+- [x] T012 [F1] Update `service/src/main/resources/seed/default-seed.yml` — add `PDRI__Connection__c` record (Id: `a0D5e00000Q9h43EAB`, fields per `data-model.md`); add `PDRI__ComparisonView__c` record (Id: `a1QDn000002BPrXMAW`); add 5 `PDRI__ComparisonViewRule__c` records with IDs and fields from `data-model.md`; update `Organization` record to set `IsSandbox: true`, `OrganizationType: "abcd"`, `TrialExpirationDate: "some-date"`
+- [x] T013 [P] [F1] Update `service/src/main/resources/seed/default-seed.yml` — add 2 `StaticResource` records: `{Name: "SmallResource", BodyLength: 1}` and `{Name: "BigResource", BodyLength: 200000000}`
+- [x] T014 [P] [F1] Verify sf-localstack's `SeedService` / `SObjectRepository` handles arbitrary custom object types (PDRI__ prefix) without schema errors — add type registration in `service/src/main/java/co/prodly/sflocalstack/service/SeedService.java` (or equivalent) if needed
+- [x] T015 [P] [F1] Update `DashboardControllerTest` and `ResetControllerTest` in `service/src/test/java/co/prodly/sflocalstack/controller/` to reflect the new `totalRecords` count after adding PDRI and StaticResource seed records
+- [x] T016 [F1] Enhance `POST /reset` in `service/src/main/java/co/prodly/sflocalstack/controller/ResetController.java` to accept optional JSON body `{"seedOverrides": {"<ObjectType>": {"<field>": "<value>"}}}` and apply field-level overrides after the base seed restore; update `service/src/main/java/co/prodly/sflocalstack/service/SeedService.java` (or `ResetService`) to apply the overrides
 
 ### Verification
 
-- [ ] T017 [F1] Run `mvn test -pl service` in `sf-localstack` — confirm `SeedDataTest` and `ResetOverrideTest` pass; confirm `DashboardControllerTest` and `ResetControllerTest` still pass with updated counts
+- [x] T017 [F1] Run `mvn test -pl service` in `sf-localstack` — confirm `SeedDataTest` and `ResetOverrideTest` pass; confirm `DashboardControllerTest` and `ResetControllerTest` still pass with updated counts
 
 **Checkpoint**: All PDRI objects and StaticResource records are seeded and survive reset; the reset override mechanism works for dynamic URL injection.
 
@@ -87,15 +87,15 @@
 
 ### Tests First
 
-- [ ] T018 [P] [F2] Add `ToolingControllerTest` in `service/src/test/java/co/prodly/sflocalstack/controller/ToolingControllerTest.java` — assert small resource query returns `BodyLength: 1`; assert big resource query returns `BodyLength: 200000000`; assert unknown resource returns `totalSize: 0, records: []`; assert the endpoint is at `/services/data/v66.0/tooling/query/` (expected to fail before T019)
+- [x] T018 [P] [F2] Add `ToolingControllerTest` in `service/src/test/java/co/prodly/sflocalstack/controller/ToolingControllerTest.java` — assert small resource query returns `BodyLength: 1`; assert big resource query returns `BodyLength: 200000000`; assert unknown resource returns `totalSize: 0, records: []`; assert the endpoint is at `/services/data/v66.0/tooling/query/` (expected to fail before T019)
 
 ### Implementation
 
-- [ ] T019 [F2] Create `service/src/main/java/co/prodly/sflocalstack/controller/ToolingController.java` — map `GET /services/data/{version}/tooling/query/` with param `q`; parse `WHERE Name IN (...)` clause to extract resource names; query `StaticResource` from the sObject store; return standard SOQL response envelope `{"totalSize":N,"done":true,"records":[{"attributes":{"type":"StaticResource","url":"..."},"BodyLength":N}]}`
+- [x] T019 [F2] Create `service/src/main/java/co/prodly/sflocalstack/controller/ToolingController.java` — map `GET /services/data/{version}/tooling/query/` with param `q`; parse `WHERE Name IN (...)` clause to extract resource names; query `StaticResource` from the sObject store; return standard SOQL response envelope `{"totalSize":N,"done":true,"records":[{"attributes":{"type":"StaticResource","url":"..."},"BodyLength":N}]}`
 
 ### Verification
 
-- [ ] T020 [F2] Run `mvn test -pl service` in `sf-localstack` — confirm `ToolingControllerTest` passes; run `SeedDataTest` Tooling assertions that were skipped in F1
+- [x] T020 [F2] Run `mvn test -pl service` in `sf-localstack` — confirm `ToolingControllerTest` passes; run `SeedDataTest` Tooling assertions that were skipped in F1
 
 **Checkpoint**: Tooling API returns StaticResource BodyLength for both small and large records, matching the `__files/static-resources-*.json` fixture shapes.
 
@@ -109,15 +109,15 @@
 
 ### Tests First
 
-- [ ] T021 [F3] Add `SfLocalstackContainerStartTest` in `metadata-service/service/src/test/java/co/prodly/metadata/shared/SfLocalstackContainerStartTest.java` — extend `AbstractSfLocalstackTest` (not yet created); assert container health endpoint returns 200; assert the `salesforce.instance.url` Spring property is set to the container's mapped URL (expected to fail until T022 is implemented)
+- [x] T021 [F3] Add `SfLocalstackContainerStartTest` in `metadata-service/service/src/test/java/co/prodly/metadata/shared/SfLocalstackContainerStartTest.java` — extend `AbstractSfLocalstackTest` (not yet created); assert container health endpoint returns 200; assert the `salesforce.instance.url` Spring property is set to the container's mapped URL (expected to fail until T022 is implemented)
 
 ### Implementation
 
-- [ ] T022 [F3] Create `metadata-service/service/src/test/java/co/prodly/metadata/shared/AbstractSfLocalstackTest.java` — extend `AbstractContainerTest`; declare `static final GenericContainer<?> SF_LOCALSTACK` built from sf-localstack local `Dockerfile` (`ImageFromDockerfile` with `.withDockerfile(...)` or using `razkevich/sf-localstack:main-<sha>` Docker Hub image); expose port 8080; add `Wait.forHttp("/actuator/health").forStatusCode(200)`; `@DynamicPropertySource` registers `salesforce.instance.url` (or the exact property key used by metadata-service's Salesforce client) as `http://<host>:<mappedPort>`; `@BeforeEach` calls `POST /reset` with `{"seedOverrides":{"PDRI__Connection__c":{"PDRI__Instance_URL__c":"http://<host>:<mappedPort>"}}}` to inject dynamic URL
+- [x] T022 [F3] Create `metadata-service/service/src/test/java/co/prodly/metadata/shared/AbstractSfLocalstackTest.java` — extend `AbstractContainerTest`; declare `static final GenericContainer<?> SF_LOCALSTACK` built from sf-localstack local `Dockerfile` (`ImageFromDockerfile` with `.withDockerfile(...)` or using `razkevich/sf-localstack:main-<sha>` Docker Hub image); expose port 8080; add `Wait.forHttp("/actuator/health").forStatusCode(200)`; `@DynamicPropertySource` registers `salesforce.instance.url` (or the exact property key used by metadata-service's Salesforce client) as `http://<host>:<mappedPort>`; `@BeforeEach` calls `POST /reset` with `{"seedOverrides":{"PDRI__Connection__c":{"PDRI__Instance_URL__c":"http://<host>:<mappedPort>"}}}` to inject dynamic URL
 
 ### Verification
 
-- [ ] T023 [F3] Run `SfLocalstackContainerStartTest` in metadata-service — confirm container starts, health check passes, property is injected, no WireMock is started
+- [x] T023 [F3] Run `SfLocalstackContainerStartTest` in metadata-service — confirm container starts, health check passes, property is injected, no WireMock is started
 
 **Checkpoint**: sf-localstack starts from Testcontainers, health-gated, URL-injected, reset before each test. Port 8090 is never bound.
 
@@ -131,16 +131,16 @@
 
 ### Implementation
 
-- [ ] T024 [F4] Identify all test classes in `metadata-service/service/src/test/java/` that extend `AbstractContainerWithWiremockTest` — list their file paths and the `Mocks.*()` methods they call
-- [ ] T025 [P] [F4] Update each test class identified in T024 to extend `AbstractSfLocalstackTest` instead of `AbstractContainerWithWiremockTest` — remove `@BeforeEach` WireMock setup calls and all `Mocks.mock*()` call sites for Salesforce stubs; retain `Mocks.mockAppOpsClientSettings()` calls
-- [ ] T026 [P] [F4] Remove all Salesforce stub methods from `metadata-service/service/src/test/java/co/prodly/metadata/shared/Mocks.java`: `mockDescribeMetadata`, `mockReadMetadataPicklist`, `mockReadMetadataStandardValueSet`, `mockListMetadata`, `mockComparisonViewRules`, `mockDefaultComparisonViewRules`, `mockFindConnectionByOrgId`, `mockFindControlConnection`, `mockFindVcConnection`, `mockSmallStaticResourceToolingQuery`, `mockBigStaticResourceToolingQuery`, `mockCancelJobResponse`, `mockCheckUsingVcsRepo`; retain `mockAppOpsClientSettings`
-- [ ] T027 [P] [F4] Delete or empty `metadata-service/service/src/test/java/co/prodly/metadata/shared/AbstractContainerWithWiremockTest.java` — if deleting, remove any import references; if emptying, convert to a deprecated stub that logs a warning
-- [ ] T028 [F4] Remove WireMock dependencies from `metadata-service/service/pom.xml` test scope if they are no longer used anywhere (check for remaining WireMock references first with `grep -r "wiremock" service/src/test`)
+- [x] T024 [F4] Identify all test classes in `metadata-service/service/src/test/java/` that extend `AbstractContainerWithWiremockTest` — list their file paths and the `Mocks.*()` methods they call
+- [x] T025 [P] [F4] Update each test class identified in T024 to extend `AbstractSfLocalstackTest` instead of `AbstractContainerWithWiremockTest` — remove `@BeforeEach` WireMock setup calls and all `Mocks.mock*()` call sites for Salesforce stubs; retain `Mocks.mockAppOpsClientSettings()` calls
+- [x] T026 [P] [F4] Remove all Salesforce stub methods from `metadata-service/service/src/test/java/co/prodly/metadata/shared/Mocks.java`: `mockDescribeMetadata`, `mockReadMetadataPicklist`, `mockReadMetadataStandardValueSet`, `mockListMetadata`, `mockComparisonViewRules`, `mockDefaultComparisonViewRules`, `mockFindConnectionByOrgId`, `mockFindControlConnection`, `mockFindVcConnection`, `mockSmallStaticResourceToolingQuery`, `mockBigStaticResourceToolingQuery`, `mockCancelJobResponse`, `mockCheckUsingVcsRepo`; retain `mockAppOpsClientSettings`
+- [x] T027 [P] [F4] Delete or empty `metadata-service/service/src/test/java/co/prodly/metadata/shared/AbstractContainerWithWiremockTest.java` — if deleting, remove any import references; if emptying, convert to a deprecated stub that logs a warning
+- [x] T028 [F4] Remove WireMock dependencies from `metadata-service/service/pom.xml` test scope if they are no longer used anywhere (check for remaining WireMock references first with `grep -r "wiremock" service/src/test`)
 
 ### Verification
 
-- [ ] T029 [F4] Run `grep -r "WireMockServer\|wiremock\|port 8090" metadata-service/service/src/test` — confirm zero Salesforce-related WireMock references remain (only `mockAppOpsClientSettings` imports if WireMock is still used there)
-- [ ] T030 [F4] Run `mvn test -pl service` in `metadata-service` — confirm full test suite passes green with zero failures; confirm wall-clock time is within 30 seconds of WireMock baseline
+- [x] T029 [F4] Run `grep -r "WireMockServer\|wiremock\|port 8090" metadata-service/service/src/test` — confirm zero Salesforce-related WireMock references remain (only `mockAppOpsClientSettings` imports if WireMock is still used there)
+- [x] T030 [F4] Run `mvn test -pl service` in `metadata-service` — confirm full test suite passes green with zero failures; confirm wall-clock time is within 30 seconds of WireMock baseline
 
 **Checkpoint**: Zero WireMock stubs for Salesforce endpoints. Full metadata-service test suite passes at the same rate as the WireMock baseline.
 
@@ -150,9 +150,9 @@
 
 **Purpose**: Cross-cutting cleanup after all feature slices are complete.
 
-- [ ] T031 [P] Update `metadata-service` README or test docs to document the new `AbstractSfLocalstackTest` base class and the requirement for Docker to be running
-- [ ] T032 [P] Update `sf-localstack` README roadmap to mark "JUnit extension for hermetic integration tests" as complete (now delivered via Testcontainers pattern)
-- [ ] T033 Run full test suite in both repos one final time to confirm joint green state: `mvn test -pl service` in sf-localstack and `mvn test -pl service` in metadata-service
+- [x] T031 [P] Update `metadata-service` README or test docs to document the new `AbstractSfLocalstackTest` base class and the requirement for Docker to be running
+- [x] T032 [P] Update `sf-localstack` README roadmap to mark "JUnit extension for hermetic integration tests" as complete (now delivered via Testcontainers pattern)
+- [x] T033 Run full test suite in both repos one final time to confirm joint green state: `mvn test -pl service` in sf-localstack and `mvn test -pl service` in metadata-service
 
 ---
 
