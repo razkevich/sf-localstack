@@ -72,4 +72,23 @@ class MetadataRestControllerTest {
                 .andExpect(jsonPath("$.entityTypeName").value("FieldDefinition"))
                 .andExpect(jsonPath("$.records[0].QualifiedApiName").exists());
     }
+
+    @Test
+    void toolingDescribeReturnsFieldMetadata() throws Exception {
+        mockMvc.perform(get("/services/data/v60.0/tooling/sobjects/SourceMember/describe"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("SourceMember"))
+                .andExpect(jsonPath("$.fields").isArray())
+                .andExpect(jsonPath("$.fields[?(@.name == 'MemberName')]").exists())
+                .andExpect(jsonPath("$.queryable").value(true));
+    }
+
+    @Test
+    void toolingDescribeDefaultObjectReturnsBasicFields() throws Exception {
+        mockMvc.perform(get("/services/data/v60.0/tooling/sobjects/SomeObject/describe"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("SomeObject"))
+                .andExpect(jsonPath("$.fields[?(@.name == 'Id')]").exists())
+                .andExpect(jsonPath("$.fields[?(@.name == 'Name')]").exists());
+    }
 }

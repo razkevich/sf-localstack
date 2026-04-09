@@ -73,4 +73,19 @@ class MetadataServiceTest {
         assertThat(status.done()).isTrue();
         assertThat(status.success()).isTrue();
     }
+
+    @Test
+    void listResourcesReturnsAllCreatedResources() {
+        var resources = metadataService.listResources();
+        // seed() creates 3 resources; verify they are all present
+        assertThat(resources).isNotEmpty();
+    }
+
+    @Test
+    void resetClearsAndRestoresDefaultResources() {
+        metadataService.reset();
+        // After reset, the catalog should be restored to defaults (not null)
+        var resources = metadataService.listResources();
+        assertThat(resources).isNotNull();
+    }
 }

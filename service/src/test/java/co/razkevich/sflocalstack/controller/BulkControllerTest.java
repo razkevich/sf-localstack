@@ -73,4 +73,61 @@ class BulkControllerTest {
         mockMvc.perform(delete("/services/data/v60.0/jobs/ingest/{jobId}", jobId))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void failedResultsReturnsCsvAfterJobComplete() throws Exception {
+        String jobResponse = mockMvc.perform(post("/services/data/v60.0/jobs/ingest")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"object\":\"Account\",\"operation\":\"update\",\"contentType\":\"CSV\"}"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String jobId = jobResponse.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+
+        mockMvc.perform(put("/services/data/v60.0/jobs/ingest/{jobId}/batches", jobId)
+                        .contentType("text/csv")
+                        .content("Name,Industry\nFail Corp,Technology\n"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(patch("/services/data/v60.0/jobs/ingest/{jobId}", jobId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"state\":\"UploadComplete\"}"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/services/data/v60.0/jobs/ingest/{jobId}", jobId))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/services/data/v60.0/jobs/ingest/{jobId}/failedResults", jobId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", org.hamcrest.Matchers.containsString("text/csv")));
+    }
+
+    @Test
+    void unprocessedRecordsReturnsCsvAfterJobComplete() throws Exception {
+        String jobResponse = mockMvc.perform(post("/services/data/v60.0/jobs/ingest")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"object\":\"Account\",\"operation\":\"insert\",\"contentType\":\"CSV\"}"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String jobId = jobResponse.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+
+        mockMvc.perform(put("/services/data/v60.0/jobs/ingest/{jobId}/batches", jobId)
+                        .contentType("text/csv")
+                        .content("Name\nUnproc Test\n"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(patch("/services/data/v60.0/jobs/ingest/{jobId}", jobId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"state\":\"UploadComplete\"}"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/services/data/v60.0/jobs/ingest/{jobId}/unprocessedrecords", jobId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", org.hamcrest.Matchers.containsString("text/csv")));
+    }
 }

@@ -33,7 +33,7 @@ public class VersionController {
         return versions();
     }
 
-    @GetMapping("/data")
+    @GetMapping({"/data", "/data/"})
     public ResponseEntity<List<Map<String, String>>> versionsAlias() {
         return versions();
     }

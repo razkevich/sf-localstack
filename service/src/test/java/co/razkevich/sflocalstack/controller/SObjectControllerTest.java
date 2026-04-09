@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -117,5 +118,57 @@ class SObjectControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.Name").value("Replace Test Updated"))
                 .andExpect(jsonPath("$.Industry").doesNotExist());
+    }
+
+    @Test
+    void getRecordByIdReturnsFullRecord() throws Exception {
+        String createResponse = mockMvc.perform(post("/services/data/v60.0/sobjects/Account")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"Name\":\"Get By Id Test\"}"))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String recordId = createResponse.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+
+        mockMvc.perform(get("/services/data/v60.0/sobjects/Account/{id}", recordId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.Name").exists())
+                .andExpect(jsonPath("$.attributes.type").value("Account"))
+                .andExpect(jsonPath("$.attributes.url").value(org.hamcrest.Matchers.containsString(recordId)));
+    }
+
+    @Test
+    void getRecordByIdReturns404ForMissingRecord() throws Exception {
+        mockMvc.perform(get("/services/data/v60.0/sobjects/Account/001000000000000AAA"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$[0].errorCode").value("NOT_FOUND"));
+    }
+
+    @Test
+    void deleteRecordReturns204() throws Exception {
+        String createResponse = mockMvc.perform(post("/services/data/v60.0/sobjects/Account")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"Name\":\"Delete Test\"}"))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String recordId = createResponse.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+
+        mockMvc.perform(delete("/services/data/v60.0/sobjects/Account/{id}", recordId))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/services/data/v60.0/sobjects/Account/{id}", recordId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteNonexistentRecordReturns404() throws Exception {
+        mockMvc.perform(delete("/services/data/v60.0/sobjects/Account/001000000000000AAA"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$[0].errorCode").value("NOT_FOUND"));
     }
 }

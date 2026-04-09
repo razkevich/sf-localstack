@@ -113,4 +113,90 @@ class CrossSurfaceIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalSize").value(0));
     }
+
+    @Test
+    void restCreateThenBulkUpsertThenSoqlQuery() throws Exception {
+        mockMvc.perform(post("/reset")).andExpect(status().isOk());
+
+        // Create Account via REST with external ID
+        mockMvc.perform(patch("/services/data/v60.0/sobjects/Account/External_Id__c/CROSS-001")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"Name\":\"Original Name\",\"Industry\":\"Tech\"}"))
+                .andExpect(status().isCreated());
+
+        // Verify via SOQL
+        mockMvc.perform(get("/services/data/v60.0/query")
+                        .param("q", "SELECT Id, Name FROM Account WHERE External_Id__c = 'CROSS-001'"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSize").value(1))
+                .andExpect(jsonPath("$.records[0].Name").value("Original Name"));
+
+        // Bulk upsert to update the same record
+        String jobResponse = mockMvc.perform(post("/services/data/v60.0/jobs/ingest")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"object\":\"Account\",\"operation\":\"upsert\",\"externalIdFieldName\":\"External_Id__c\",\"contentType\":\"CSV\"}"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String jobId = jobResponse.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+
+        mockMvc.perform(put("/services/data/v60.0/jobs/ingest/{jobId}/batches", jobId)
+                        .contentType("text/csv")
+                        .content("External_Id__c,Name\nCROSS-001,Updated Via Bulk\n"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(patch("/services/data/v60.0/jobs/ingest/{jobId}", jobId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"state\":\"UploadComplete\"}"))
+                .andExpect(status().isOk());
+
+        // Verify update via SOQL
+        mockMvc.perform(get("/services/data/v60.0/query")
+                        .param("q", "SELECT Id, Name FROM Account WHERE External_Id__c = 'CROSS-001'"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSize").value(1))
+                .andExpect(jsonPath("$.records[0].Name").value("Updated Via Bulk"));
+    }
+
+    @Test
+    void fullLifecycleWithResetVerifiesCleanState() throws Exception {
+        mockMvc.perform(post("/reset")).andExpect(status().isOk());
+
+        // Create records via REST
+        mockMvc.perform(post("/services/data/v60.0/sobjects/Account")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"Name\":\"Lifecycle Test\"}"))
+                .andExpect(status().isCreated());
+
+        // Query via SOQL — should find record
+        mockMvc.perform(get("/services/data/v60.0/query")
+                        .param("q", "SELECT Id, Name FROM Account WHERE Name = 'Lifecycle Test'"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSize").value(1));
+
+        // Describe still works
+        mockMvc.perform(get("/services/data/v60.0/sobjects/Account/describe"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Account"))
+                .andExpect(jsonPath("$.fields").isArray());
+
+        // Reset
+        mockMvc.perform(post("/reset")).andExpect(status().isOk());
+
+        // Query via SOQL — should be empty
+        mockMvc.perform(get("/services/data/v60.0/query")
+                        .param("q", "SELECT Id, Name FROM Account WHERE Name = 'Lifecycle Test'"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSize").value(0));
+
+        // Describe still works after reset (metadata, not data)
+        mockMvc.perform(get("/services/data/v60.0/sobjects/Account/describe"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Account"));
+
+        // Dashboard shows clean state
+        mockMvc.perform(get("/api/dashboard/overview"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalRecords").value(0));
+    }
 }

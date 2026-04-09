@@ -31,4 +31,18 @@ class VersionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.query").value("/services/data/v60.0/query"));
     }
+
+    @Test
+    void dataAliasReturnsVersionList() throws Exception {
+        mockMvc.perform(get("/data/"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].version").value("50.0"));
+    }
+
+    @Test
+    void dataAliasVersionReturnsResourceMap() throws Exception {
+        mockMvc.perform(get("/data/v60.0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.query").exists());
+    }
 }

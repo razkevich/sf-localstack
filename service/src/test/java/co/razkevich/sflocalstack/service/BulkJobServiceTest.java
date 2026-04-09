@@ -43,4 +43,23 @@ class BulkJobServiceTest {
         assertThat(completed.numberRecordsFailed()).isEqualTo(1);
         assertThat(bulkJobService.failedResults(job.id())).contains("Missing required Id");
     }
+
+    @Test
+    void failedResultsReturnsCsvWithErrorColumn() {
+        // Create an update job — uploading CSV without Id column causes failures
+        var job = bulkJobService.createJob("update", "Account", null);
+        bulkJobService.upload(job.id(), "Name,Industry\nFail Corp,Tech\n");
+        bulkJobService.close(job.id());
+        String csv = bulkJobService.failedResults(job.id());
+        assertThat(csv).contains("sf__Error");
+    }
+
+    @Test
+    void unprocessedResultsReturnsCsvAfterInsert() {
+        var job = bulkJobService.createJob("insert", "Account", null);
+        bulkJobService.upload(job.id(), "Name\nUnproc Test\n");
+        bulkJobService.close(job.id());
+        String csv = bulkJobService.unprocessedResults(job.id());
+        assertThat(csv).isNotNull();
+    }
 }

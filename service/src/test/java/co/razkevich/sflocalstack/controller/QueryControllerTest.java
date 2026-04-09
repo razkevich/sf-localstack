@@ -78,4 +78,13 @@ class QueryControllerTest {
                 .andExpect(jsonPath("$[0].errorCode").value("MALFORMED_QUERY"))
                 .andExpect(jsonPath("$[0].message").exists());
     }
+
+    @Test
+    void queryWithTrailingSlashWorks() throws Exception {
+        mockMvc.perform(get("/services/data/v60.0/query/")
+                        .param("q", "SELECT Id, Name FROM Account"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.done").value(true))
+                .andExpect(jsonPath("$.records").isArray());
+    }
 }

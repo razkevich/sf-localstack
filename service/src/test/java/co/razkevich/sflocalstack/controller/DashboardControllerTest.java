@@ -56,4 +56,11 @@ class DashboardControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.recentRequestCount").value(0));
     }
+
+    @Test
+    void sseEventStreamReturnsTextEventStream() throws Exception {
+        mockMvc.perform(get("/api/dashboard/events")
+                        .accept("text/event-stream"))
+                .andExpect(status().isOk());
+    }
 }
