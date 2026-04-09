@@ -89,6 +89,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private boolean shouldSkip(String path) {
+        // Only enforce auth on API paths — let static content through
+        if (!path.startsWith("/services/") && !path.startsWith("/api/") && !path.equals("/reset")) {
+            return true;
+        }
         if (SKIP_EXACT.contains(path)) {
             return true;
         }
