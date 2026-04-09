@@ -1,70 +1,109 @@
-import { useState } from 'react'
-import { BulkExplorer } from './components/BulkExplorer'
-import { DataManager } from './components/DataManager'
-import { MetadataManager } from './components/MetadataManager'
-import { OverviewPanel } from './components/OverviewPanel'
-import { RestExplorer } from './components/RestExplorer'
-import { Sidebar } from './components/Sidebar'
-import { RequestLog } from './components/RequestLog'
-import { RequestDetail } from './components/RequestDetail'
+import { useState, useEffect, useMemo } from 'react'
+import { AppShell } from './components/layout/AppShell'
+import type { ViewId } from './components/layout/Sidebar'
+import { ToastProvider } from './components/ui/Toast'
+import { LoginPage } from './views/LoginPage'
+import { ObjectListView } from './views/ObjectListView'
+import { MetadataView } from './views/MetadataView'
+import { BulkJobView } from './views/BulkJobView'
+import { RequestLogView } from './views/RequestLogView'
+import { SetupView } from './views/SetupView'
 import { useDashboardOverview } from './hooks/useDashboardOverview'
 import { useSse } from './hooks/useSse'
-import type { RequestLogEntry } from './types'
+
+const TOKEN_KEY = 'sf_localstack_access_token'
+const USER_KEY = 'sf_localstack_user'
 
 export default function App() {
-  const [selectedView, setSelectedView] = useState<'overview' | 'requests' | 'data' | 'metadata' | 'bulk' | 'rest'>('overview')
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY))
+  const [user, setUser] = useState<{ username: string; role: string }>(() => {
+    try {
+      const stored = localStorage.getItem(USER_KEY)
+      return stored ? JSON.parse(stored) as { username: string; role: string } : { username: 'admin', role: 'admin' }
+    } catch {
+      return { username: 'admin', role: 'admin' }
+    }
+  })
+  const [activeView, setActiveView] = useState<ViewId>('object:Account')
   const [refreshToken, setRefreshToken] = useState(0)
+
   const { entries, connected, clear } = useSse(refreshToken)
-  const { overview, loading, error } = useDashboardOverview(refreshToken)
-  const [selectedEntry, setSelectedEntry] = useState<RequestLogEntry | null>(null)
+  const { overview } = useDashboardOverview(refreshToken)
 
-  const detailTitle = selectedEntry ? `${selectedEntry.method} ${selectedEntry.statusCode} — ${selectedEntry.path}` : 'Request detail'
-  const showDetailPane = selectedView === 'requests' || selectedView === 'rest' || selectedView === 'bulk'
+  const customObjects = useMemo(() => {
+    return overview?.objectCounts.map((o) => o.objectType) ?? []
+  }, [overview])
 
-  function handleResetComplete() {
-    setRefreshToken((value) => value + 1)
+  useEffect(() => {
+    // If token exists but no user info, try to verify
+    if (token && user.username === 'admin') {
+      // Try loading user from stored data
+      try {
+        const stored = localStorage.getItem(USER_KEY)
+        if (stored) {
+          setUser(JSON.parse(stored) as { username: string; role: string })
+        }
+      } catch {
+        // Keep default
+      }
+    }
+  }, [token, user.username])
+
+  function handleLoginSuccess(newToken: string, newUser: { username: string; role: string }) {
+    localStorage.setItem(TOKEN_KEY, newToken)
+    localStorage.setItem(USER_KEY, JSON.stringify(newUser))
+    setToken(newToken)
+    setUser(newUser)
+    setRefreshToken((v) => v + 1)
+  }
+
+  function handleLogout() {
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(USER_KEY)
+    setToken(null)
+    setUser({ username: 'admin', role: 'admin' })
+  }
+
+  if (!token) {
+    return (
+      <ToastProvider>
+        <LoginPage onLoginSuccess={handleLoginSuccess} />
+      </ToastProvider>
+    )
+  }
+
+  function renderView() {
+    if (activeView.startsWith('object:')) {
+      const objectType = activeView.replace('object:', '')
+      return <ObjectListView key={objectType} objectType={objectType} />
+    }
+
+    switch (activeView) {
+      case 'metadata':
+        return <MetadataView />
+      case 'bulk':
+        return <BulkJobView />
+      case 'requests':
+        return <RequestLogView entries={entries} connected={connected} onClear={clear} />
+      case 'setup':
+        return <SetupView currentUser={user} apiVersion={overview?.apiVersion ?? 'v60.0'} />
+      default:
+        return <ObjectListView objectType="Account" />
+    }
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-950 text-slate-100">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.14),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.12),_transparent_22%)]" />
-      <Sidebar
-        selectedView={selectedView}
-        onSelect={setSelectedView}
-        overview={overview}
-        onReset={handleResetComplete}
-      />
-      <div className="relative z-10 flex flex-1 flex-col overflow-hidden xl:flex-row">
-        <div className="min-h-0 flex-1 overflow-hidden border-b border-slate-800 xl:border-b-0 xl:border-r">
-          {selectedView === 'overview' ? (
-            <OverviewPanel overview={overview} loading={loading} error={error} />
-          ) : selectedView === 'data' ? (
-            <DataManager overview={overview} />
-          ) : selectedView === 'metadata' ? (
-            <MetadataManager />
-          ) : selectedView === 'bulk' ? (
-            <BulkExplorer />
-          ) : selectedView === 'rest' ? (
-            <RestExplorer overview={overview} />
-          ) : (
-            <RequestLog
-              entries={entries}
-              connected={connected}
-              selectedEntry={selectedEntry}
-              onSelect={setSelectedEntry}
-              onClear={clear}
-            />
-          )}
-        </div>
-        {showDetailPane ? (
-          <div className="flex h-[20rem] flex-col overflow-hidden border-t border-slate-800 bg-slate-950/95 backdrop-blur xl:h-auto xl:w-[28rem] xl:border-l xl:border-t-0">
-            <div className="border-b border-slate-800 px-4 py-3 text-xs uppercase tracking-[0.18em] text-slate-500">
-              {detailTitle}
-            </div>
-            <RequestDetail entry={selectedEntry} />
-          </div>
-        ) : null}
-      </div>
-    </div>
+    <ToastProvider>
+      <AppShell
+        username={user.username}
+        role={user.role}
+        activeView={activeView}
+        onNavigate={setActiveView}
+        onLogout={handleLogout}
+        customObjects={customObjects}
+      >
+        {renderView()}
+      </AppShell>
+    </ToastProvider>
   )
 }
