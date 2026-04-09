@@ -2,12 +2,14 @@ package co.razkevich.sflocalstack.bulk.controller;
 
 import co.razkevich.sflocalstack.bulk.model.BulkIngestJob;
 import co.razkevich.sflocalstack.bulk.service.BulkJobService;
+import co.razkevich.sflocalstack.model.SalesforceError;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -72,8 +74,9 @@ public class BulkController {
     }
 
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<Map<String, Object>> notFound(NoSuchElementException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<List<SalesforceError>> notFound(NoSuchElementException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(List.of(new SalesforceError(ex.getMessage(), "NOT_FOUND")));
     }
 
     private ResponseEntity<String> csv(String content) {

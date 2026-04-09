@@ -2,6 +2,7 @@ package co.razkevich.sflocalstack.metadata.controller;
 
 import co.razkevich.sflocalstack.metadata.model.MetadataResource;
 import co.razkevich.sflocalstack.metadata.service.MetadataService;
+import co.razkevich.sflocalstack.model.SalesforceError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +46,8 @@ public class MetadataAdminController {
     }
 
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<Map<String, String>> notFound(NoSuchElementException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<List<SalesforceError>> notFound(NoSuchElementException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(List.of(new SalesforceError(ex.getMessage(), "NOT_FOUND")));
     }
 }

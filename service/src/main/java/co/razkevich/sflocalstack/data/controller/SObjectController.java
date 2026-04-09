@@ -125,7 +125,7 @@ public class SObjectController {
         describe.put("activateable", false);
         describe.put("associateEntityType", null);
         describe.put("associateParentEntity", null);
-        describe.put("childRelationships", List.of());
+        describe.put("childRelationships", buildChildRelationships(objectType));
         describe.put("compactLayoutable", true);
         describe.put("createable", true);
         describe.put("custom", objectType.endsWith("__c"));
@@ -153,7 +153,7 @@ public class SObjectController {
         describe.put("mruEnabled", true);
         describe.put("name", objectType);
         describe.put("queryable", true);
-        describe.put("recordTypeInfos", List.of());
+        describe.put("recordTypeInfos", buildRecordTypeInfos());
         describe.put("replicateable", true);
         describe.put("retrieveable", true);
         describe.put("searchLayoutable", true);
@@ -211,6 +211,44 @@ public class SObjectController {
                 "rowTemplate", base + "/{ID}",
                 "sobject", base
         );
+    }
+
+    private List<Map<String, Object>> buildRecordTypeInfos() {
+        Map<String, Object> master = new LinkedHashMap<>();
+        master.put("active", true);
+        master.put("available", true);
+        master.put("defaultRecordTypeMapping", true);
+        master.put("developerName", "Master");
+        master.put("master", true);
+        master.put("name", "Master");
+        master.put("recordTypeId", "012000000000000AAA");
+        return List.of(master);
+    }
+
+    private List<Map<String, Object>> buildChildRelationships(String objectType) {
+        return switch (objectType) {
+            case "Account" -> List.of(
+                    childRelationship("Contact", "Contacts", "AccountId"),
+                    childRelationship("Opportunity", "Opportunities", "AccountId")
+            );
+            case "Contact" -> List.of(
+                    childRelationship("Case", "Cases", "ContactId")
+            );
+            default -> List.of();
+        };
+    }
+
+    private Map<String, Object> childRelationship(String childSObject, String relationshipName, String field) {
+        Map<String, Object> rel = new LinkedHashMap<>();
+        rel.put("cascadeDelete", false);
+        rel.put("childSObject", childSObject);
+        rel.put("deprecatedAndHidden", false);
+        rel.put("field", field);
+        rel.put("junctionIdListNames", List.of());
+        rel.put("junctionReferenceTo", List.of());
+        rel.put("relationshipName", relationshipName);
+        rel.put("restrictedDelete", false);
+        return rel;
     }
 
     private String keyPrefixFor(String objectType) {
