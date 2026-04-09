@@ -1,5 +1,9 @@
 # sf_localstack — Salesforce API Emulator
 
+## Workflow Priority
+- **Speckit workflow takes precedence over superpowers skills** when both apply. Follow speckit's specify → plan → tasks → implement cycle. Superpowers skills (brainstorming, writing-plans, etc.) are supplementary.
+- Each feature gets its own git branch and PR, merged after implementation and testing.
+
 ## Project Purpose
 Local Salesforce API emulator for development, CI/CD testing, and eventually SaaS offering. Emulates REST, Bulk v2, Metadata SOAP, Tooling, and OAuth2 surfaces. Goal: drop-in replacement for real Salesforce orgs in dev/test workflows.
 
