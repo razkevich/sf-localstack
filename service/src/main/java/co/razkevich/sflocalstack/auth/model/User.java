@@ -1,7 +1,5 @@
 package co.razkevich.sflocalstack.auth.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.time.Instant;
 
 public class User {
@@ -9,7 +7,6 @@ public class User {
     private String id;
     private String username;
     private String email;
-    @JsonIgnore
     private String passwordHash;
     private Role role;
     private Instant createdAt;
