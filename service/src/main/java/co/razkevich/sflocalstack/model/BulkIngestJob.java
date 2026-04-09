@@ -1,21 +1,28 @@
 package co.razkevich.sflocalstack.model;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
+import java.time.Instant;
+
+@Entity
+@Table(name = "bulk_ingest_jobs")
 public class BulkIngestJob {
-    private final String id;
-    private final String operation;
-    private final String object;
-    private final String externalIdFieldName;
-    private final Instant createdDate;
-    private final Instant systemModstamp;
+
+    @Id
+    private String id;
+
+    private String operation;
+    private String object;
+    private String externalIdFieldName;
+    private Instant createdDate;
+    private Instant systemModstamp;
     private String state;
-    private final List<String> uploadedCsvBatches = new ArrayList<>();
-    private final List<BulkRowResult> successfulResults = new ArrayList<>();
-    private final List<BulkRowResult> failedResults = new ArrayList<>();
-    private final List<BulkRowResult> unprocessedResults = new ArrayList<>();
+    private int numberRecordsProcessed;
+    private int numberRecordsFailed;
+
+    public BulkIngestJob() {}
 
     public BulkIngestJob(String id, String operation, String object, String externalIdFieldName, Instant createdDate, String state) {
         this.id = id;
@@ -35,10 +42,8 @@ public class BulkIngestJob {
     public Instant systemModstamp() { return systemModstamp; }
     public String state() { return state; }
     public void setState(String state) { this.state = state; }
-    public List<String> uploadedCsvBatches() { return uploadedCsvBatches; }
-    public List<BulkRowResult> successfulResults() { return successfulResults; }
-    public List<BulkRowResult> failedResults() { return failedResults; }
-    public List<BulkRowResult> unprocessedResults() { return unprocessedResults; }
-    public int numberRecordsProcessed() { return successfulResults.size(); }
-    public int numberRecordsFailed() { return failedResults.size(); }
+    public int numberRecordsProcessed() { return numberRecordsProcessed; }
+    public void setNumberRecordsProcessed(int numberRecordsProcessed) { this.numberRecordsProcessed = numberRecordsProcessed; }
+    public int numberRecordsFailed() { return numberRecordsFailed; }
+    public void setNumberRecordsFailed(int numberRecordsFailed) { this.numberRecordsFailed = numberRecordsFailed; }
 }

@@ -1,97 +1,136 @@
 package co.razkevich.sflocalstack.service;
 
+import co.razkevich.sflocalstack.model.BulkBatchEntity;
 import co.razkevich.sflocalstack.model.BulkIngestJob;
 import co.razkevich.sflocalstack.model.BulkRowResult;
+import co.razkevich.sflocalstack.model.BulkRowResultEntity;
+import co.razkevich.sflocalstack.repository.BulkBatchRepository;
+import co.razkevich.sflocalstack.repository.BulkIngestJobRepository;
+import co.razkevich.sflocalstack.repository.BulkRowResultRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class BulkJobService {
 
-    private final Map<String, BulkIngestJob> jobs = new ConcurrentHashMap<>();
+    private final BulkIngestJobRepository jobRepository;
+    private final BulkBatchRepository batchRepository;
+    private final BulkRowResultRepository rowResultRepository;
     private final OrgStateService orgStateService;
 
-    public BulkJobService(OrgStateService orgStateService) {
+    public BulkJobService(BulkIngestJobRepository jobRepository,
+                          BulkBatchRepository batchRepository,
+                          BulkRowResultRepository rowResultRepository,
+                          OrgStateService orgStateService) {
+        this.jobRepository = jobRepository;
+        this.batchRepository = batchRepository;
+        this.rowResultRepository = rowResultRepository;
         this.orgStateService = orgStateService;
     }
 
+    @Transactional
     public BulkIngestJob createJob(String operation, String object, String externalIdFieldName) {
         String id = "750" + UUID.randomUUID().toString().replace("-", "").substring(0, 15);
         BulkIngestJob job = new BulkIngestJob(id, operation, object, externalIdFieldName, Instant.now(), "Open");
-        jobs.put(id, job);
-        return job;
+        return jobRepository.save(job);
     }
 
     public BulkIngestJob getJob(String jobId) {
-        BulkIngestJob job = jobs.get(jobId);
-        if (job == null) {
-            throw new NoSuchElementException("Bulk job not found: " + jobId);
-        }
-        return job;
+        return jobRepository.findById(jobId)
+                .orElseThrow(() -> new NoSuchElementException("Bulk job not found: " + jobId));
     }
 
+    @Transactional
     public void upload(String jobId, String csv) {
-        getJob(jobId).uploadedCsvBatches().add(csv);
+        getJob(jobId); // verify job exists
+        int nextSeq = batchRepository.findByJobIdOrderBySequenceNumber(jobId).size();
+        batchRepository.save(new BulkBatchEntity(jobId, csv, nextSeq));
     }
 
+    @Transactional
     public BulkIngestJob close(String jobId) {
         BulkIngestJob job = getJob(jobId);
-        job.successfulResults().clear();
-        job.failedResults().clear();
-        job.unprocessedResults().clear();
 
-        for (String csv : job.uploadedCsvBatches()) {
-            processCsv(job, csv);
+        // Clear any previous results for this job
+        rowResultRepository.deleteByJobId(jobId);
+
+        List<BulkBatchEntity> batches = batchRepository.findByJobIdOrderBySequenceNumber(jobId);
+        int successCount = 0;
+        int failCount = 0;
+
+        for (BulkBatchEntity batch : batches) {
+            int[] counts = processCsv(job, batch.getCsvData());
+            successCount += counts[0];
+            failCount += counts[1];
         }
 
         job.setState("JobComplete");
-        return job;
+        job.setNumberRecordsProcessed(successCount);
+        job.setNumberRecordsFailed(failCount);
+        return jobRepository.save(job);
     }
 
+    @Transactional
     public boolean delete(String jobId) {
-        return jobs.remove(jobId) != null;
+        if (!jobRepository.existsById(jobId)) {
+            return false;
+        }
+        rowResultRepository.deleteByJobId(jobId);
+        batchRepository.deleteByJobId(jobId);
+        jobRepository.deleteById(jobId);
+        return true;
     }
 
+    @Transactional
     public void reset() {
-        jobs.clear();
+        rowResultRepository.deleteAll();
+        batchRepository.deleteAll();
+        jobRepository.deleteAll();
     }
 
     public String successfulResults(String jobId) {
+        getJob(jobId); // verify job exists
+        List<BulkRowResultEntity> rows = rowResultRepository.findByJobIdAndResultType(jobId, "successfulResults");
         StringBuilder csv = new StringBuilder("sf__Id,sf__Created\n");
-        for (BulkRowResult row : getJob(jobId).successfulResults()) {
-            csv.append(row.id()).append(',').append(row.created()).append('\n');
+        for (BulkRowResultEntity row : rows) {
+            csv.append(row.getSfId()).append(',').append(row.getSfCreated()).append('\n');
         }
         return csv.toString();
     }
 
     public String failedResults(String jobId) {
+        getJob(jobId); // verify job exists
+        List<BulkRowResultEntity> rows = rowResultRepository.findByJobIdAndResultType(jobId, "failedResults");
         StringBuilder csv = new StringBuilder("sf__Id,sf__Error\n");
-        for (BulkRowResult row : getJob(jobId).failedResults()) {
-            csv.append(row.id() == null ? "" : row.id()).append(',').append(row.error()).append('\n');
+        for (BulkRowResultEntity row : rows) {
+            csv.append(row.getSfId() == null ? "" : row.getSfId()).append(',').append(row.getSfError()).append('\n');
         }
         return csv.toString();
     }
 
     public String unprocessedResults(String jobId) {
+        getJob(jobId); // verify job exists
+        List<BulkRowResultEntity> rows = rowResultRepository.findByJobIdAndResultType(jobId, "unprocessedRecords");
         StringBuilder csv = new StringBuilder("sf__Id,sf__Error\n");
-        for (BulkRowResult row : getJob(jobId).unprocessedResults()) {
-            csv.append(row.id() == null ? "" : row.id()).append(',').append(row.error()).append('\n');
+        for (BulkRowResultEntity row : rows) {
+            csv.append(row.getSfId() == null ? "" : row.getSfId()).append(',').append(row.getSfError()).append('\n');
         }
         return csv.toString();
     }
 
-    private void processCsv(BulkIngestJob job, String csv) {
+    private int[] processCsv(BulkIngestJob job, String csv) {
         String[] lines = csv.strip().split("\\r?\\n");
+        int successCount = 0;
+        int failCount = 0;
         if (lines.length < 2) {
-            return;
+            return new int[]{0, 0};
         }
 
         String[] headers = lines[0].split(",");
@@ -100,8 +139,14 @@ public class BulkJobService {
                 continue;
             }
             Map<String, Object> row = parseRow(headers, lines[i]);
-            handleRow(job, row, lines[i]);
+            boolean success = handleRow(job, row, lines[i]);
+            if (success) {
+                successCount++;
+            } else {
+                failCount++;
+            }
         }
+        return new int[]{successCount, failCount};
     }
 
     private Map<String, Object> parseRow(String[] headers, String line) {
@@ -113,12 +158,13 @@ public class BulkJobService {
         return row;
     }
 
-    private void handleRow(BulkIngestJob job, Map<String, Object> row, String originalRow) {
+    private boolean handleRow(BulkIngestJob job, Map<String, Object> row, String originalRow) {
         try {
             switch (job.operation()) {
                 case "insert" -> {
                     var record = orgStateService.create(job.object(), row);
-                    job.successfulResults().add(new BulkRowResult(record.getId(), true, null, originalRow));
+                    rowResultRepository.save(new BulkRowResultEntity(
+                            job.id(), "successfulResults", record.getId(), true, null, originalRow));
                 }
                 case "update" -> {
                     Object id = row.get("Id");
@@ -126,7 +172,8 @@ public class BulkJobService {
                         throw new IllegalArgumentException("Missing required Id");
                     }
                     orgStateService.update(idValue, row).orElseThrow(() -> new IllegalArgumentException("Record not found"));
-                    job.successfulResults().add(new BulkRowResult(idValue, false, null, originalRow));
+                    rowResultRepository.save(new BulkRowResultEntity(
+                            job.id(), "successfulResults", idValue, false, null, originalRow));
                 }
                 case "delete" -> {
                     Object id = row.get("Id");
@@ -136,7 +183,8 @@ public class BulkJobService {
                     if (!orgStateService.delete(idValue)) {
                         throw new IllegalArgumentException("Record not found");
                     }
-                    job.successfulResults().add(new BulkRowResult(idValue, false, null, originalRow));
+                    rowResultRepository.save(new BulkRowResultEntity(
+                            job.id(), "successfulResults", idValue, false, null, originalRow));
                 }
                 case "upsert" -> {
                     if (job.externalIdFieldName() == null || job.externalIdFieldName().isBlank()) {
@@ -147,12 +195,16 @@ public class BulkJobService {
                         throw new IllegalArgumentException("Missing required external id value");
                     }
                     var result = orgStateService.upsert(job.object(), job.externalIdFieldName(), extValue, row);
-                    job.successfulResults().add(new BulkRowResult(result.record().getId(), result.created(), null, originalRow));
+                    rowResultRepository.save(new BulkRowResultEntity(
+                            job.id(), "successfulResults", result.record().getId(), result.created(), null, originalRow));
                 }
                 default -> throw new IllegalArgumentException("Unsupported bulk operation");
             }
+            return true;
         } catch (IllegalArgumentException ex) {
-            job.failedResults().add(new BulkRowResult(null, false, ex.getMessage(), originalRow));
+            rowResultRepository.save(new BulkRowResultEntity(
+                    job.id(), "failedResults", null, false, ex.getMessage(), originalRow));
+            return false;
         }
     }
 }
