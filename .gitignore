@@ -29,7 +29,7 @@ Thumbs.db
 target/
 
 # H2 persistent data (dev profile)
-data/
+/data/
 
 # Local agent/session state
 .omc/
