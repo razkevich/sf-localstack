@@ -16,11 +16,11 @@
 
 **Purpose**: Shared test helpers to reduce boilerplate across all new tests.
 
-- [ ] T001 [P] [F3] Create TestDataFactory helper in `service/src/test/java/co/razkevich/sflocalstack/helpers/TestDataFactory.java` — static methods: `createAccountJson(name)`, `createContactJson(first, last)`, `createLeadJson(company, last)`, `createAccountViaApi(MockMvc)`, `createAccountViaApi(MockMvc, name)`, `resetOrg(MockMvc)`
-- [ ] T002 [P] [F3] Create SoapTestHelper in `service/src/test/java/co/razkevich/sflocalstack/helpers/SoapTestHelper.java` — static methods: `envelope(op, body)`, `describeMetadata()`, `listMetadata(type)`, `readMetadata(type, fullNames...)`, `deploy(zipBase64)`, `checkDeployStatus(asyncId)`, `retrieve(type, members...)`, `checkRetrieveStatus(asyncId)`, `cancelDeploy(asyncId)`
-- [ ] T003 [P] [F3] Create AssertionHelpers in `service/src/test/java/co/razkevich/sflocalstack/helpers/AssertionHelpers.java` — static methods: `assertCreatedResponse(MvcResult)`, `assertSalesforceError(MvcResult, status, errorCode)`, `assertQueryResult(MvcResult, expectedSize)`, `assertRecordShape(json, objectType)`, `extractId(MvcResult)`
-- [ ] T004 Verify test infrastructure compiles: run `mvn -pl service test-compile` and fix any issues
-- [ ] T005 Commit test infrastructure: `git commit -m "test: add TestDataFactory, SoapTestHelper, AssertionHelpers"`
+- [X] T001 [P] [F3] Create TestDataFactory helper in `service/src/test/java/co/razkevich/sflocalstack/helpers/TestDataFactory.java` — static methods: `createAccountJson(name)`, `createContactJson(first, last)`, `createLeadJson(company, last)`, `createAccountViaApi(MockMvc)`, `createAccountViaApi(MockMvc, name)`, `resetOrg(MockMvc)`
+- [X] T002 [P] [F3] Create SoapTestHelper in `service/src/test/java/co/razkevich/sflocalstack/helpers/SoapTestHelper.java` — static methods: `envelope(op, body)`, `describeMetadata()`, `listMetadata(type)`, `readMetadata(type, fullNames...)`, `deploy(zipBase64)`, `checkDeployStatus(asyncId)`, `retrieve(type, members...)`, `checkRetrieveStatus(asyncId)`, `cancelDeploy(asyncId)`
+- [X] T003 [P] [F3] Create AssertionHelpers in `service/src/test/java/co/razkevich/sflocalstack/helpers/AssertionHelpers.java` — static methods: `assertCreatedResponse(MvcResult)`, `assertSalesforceError(MvcResult, status, errorCode)`, `assertQueryResult(MvcResult, expectedSize)`, `assertRecordShape(json, objectType)`, `extractId(MvcResult)`
+- [X] T004 Verify test infrastructure compiles: run `mvn -pl service test-compile` and fix any issues
+- [X] T005 Commit test infrastructure: `git commit -m "test: add TestDataFactory, SoapTestHelper, AssertionHelpers"`
 
 **Checkpoint**: Test helpers compile and are importable by all test classes.
 
@@ -32,15 +32,15 @@
 
 **Independent Test**: `mvn -pl service test -Dtest="*ControllerTest"` passes.
 
-- [ ] T006 [P] [F0] Add `getRecordByIdReturnsFullRecord()` and `getRecordByIdReturns404ForMissingRecord()` to `service/src/test/java/co/razkevich/sflocalstack/controller/SObjectControllerTest.java` — create Account via POST, GET by ID, assert 200 with attributes; GET missing ID, assert 404 with SF error shape
-- [ ] T007 [P] [F0] Add `deleteRecordReturns204()` and `deleteNonexistentRecordReturns404()` to `service/src/test/java/co/razkevich/sflocalstack/controller/SObjectControllerTest.java` — create Account, DELETE by ID, assert 204; DELETE missing, assert 404
-- [ ] T008 [P] [F0] Add `failedResultsReturnsCsvFormat()` and `unprocessedRecordsReturnsCsvFormat()` and `resultsOnOpenJobReturns400()` to `service/src/test/java/co/razkevich/sflocalstack/controller/BulkControllerTest.java` — test GET failedResults/unprocessedrecords CSV endpoints and error on open job
-- [ ] T009 [P] [F0] Add `sseEventStreamReturnsTextEventStream()` to `service/src/test/java/co/razkevich/sflocalstack/controller/DashboardControllerTest.java` — GET /api/dashboard/events with Accept: text/event-stream, assert content type
-- [ ] T010 [P] [F0] Add `toolingDescribeReturnsFieldMetadata()` and `toolingDescribeUnknownObjectReturns404()` to `service/src/test/java/co/razkevich/sflocalstack/controller/MetadataRestControllerTest.java` — GET tooling/sobjects/{obj}/describe
-- [ ] T011 [P] [F0] Add `dataAliasReturnsVersionList()`, `dataAliasVersionReturnsResourceMap()`, `servicesDataNoSlashReturnsVersionList()` to `service/src/test/java/co/razkevich/sflocalstack/controller/VersionControllerTest.java` — test /data alias routes
-- [ ] T012 [P] [F0] Add `queryWithTrailingSlashWorks()` to `service/src/test/java/co/razkevich/sflocalstack/controller/QueryControllerTest.java` — GET /query/ with trailing slash
-- [ ] T013 [F0] Run all controller tests: `mvn -pl service test -Dtest="*ControllerTest"` — verify 0 failures
-- [ ] T014 [F0] Commit controller tests: `git commit -m "test: add integration tests for all untested controller endpoints"`
+- [X] T006 [P] [F0] Add `getRecordByIdReturnsFullRecord()` and `getRecordByIdReturns404ForMissingRecord()` to `service/src/test/java/co/razkevich/sflocalstack/controller/SObjectControllerTest.java` — create Account via POST, GET by ID, assert 200 with attributes; GET missing ID, assert 404 with SF error shape
+- [X] T007 [P] [F0] Add `deleteRecordReturns204()` and `deleteNonexistentRecordReturns404()` to `service/src/test/java/co/razkevich/sflocalstack/controller/SObjectControllerTest.java` — create Account, DELETE by ID, assert 204; DELETE missing, assert 404
+- [X] T008 [P] [F0] Add `failedResultsReturnsCsvFormat()` and `unprocessedRecordsReturnsCsvFormat()` and `resultsOnOpenJobReturns400()` to `service/src/test/java/co/razkevich/sflocalstack/controller/BulkControllerTest.java` — test GET failedResults/unprocessedrecords CSV endpoints and error on open job
+- [X] T009 [P] [F0] Add `sseEventStreamReturnsTextEventStream()` to `service/src/test/java/co/razkevich/sflocalstack/controller/DashboardControllerTest.java` — GET /api/dashboard/events with Accept: text/event-stream, assert content type
+- [X] T010 [P] [F0] Add `toolingDescribeReturnsFieldMetadata()` and `toolingDescribeUnknownObjectReturns404()` to `service/src/test/java/co/razkevich/sflocalstack/controller/MetadataRestControllerTest.java` — GET tooling/sobjects/{obj}/describe
+- [X] T011 [P] [F0] Add `dataAliasReturnsVersionList()`, `dataAliasVersionReturnsResourceMap()`, `servicesDataNoSlashReturnsVersionList()` to `service/src/test/java/co/razkevich/sflocalstack/controller/VersionControllerTest.java` — test /data alias routes
+- [X] T012 [P] [F0] Add `queryWithTrailingSlashWorks()` to `service/src/test/java/co/razkevich/sflocalstack/controller/QueryControllerTest.java` — GET /query/ with trailing slash
+- [X] T013 [F0] Run all controller tests: `mvn -pl service test -Dtest="*ControllerTest"` — verify 0 failures
+- [X] T014 [F0] Commit controller tests: `git commit -m "test: add integration tests for all untested controller endpoints"`
 
 **Checkpoint**: All 32 controller endpoints have at least one integration test.
 
@@ -52,13 +52,13 @@
 
 **Independent Test**: `mvn -pl service test -Dtest="*ServiceTest"` passes.
 
-- [ ] T015 [P] [F1] Create `service/src/test/java/co/razkevich/sflocalstack/service/OrgStateServiceTest.java` with tests: `findByIdReturnsCreatedRecord()`, `findByIdReturnsEmptyForMissingId()`, `findByTypeAndIdReturnsMatchingRecord()`, `findByTypeAndIdReturnsEmptyForWrongType()`, `findAllReturnsAllRecords()`, `deleteRemovesRecord()`, `deleteReturnsFalseForMissingId()`, `resetClearsAllRecords()`, `fromJsonParsesValidJson()` — use `@SpringBootTest` with real OrgStateService
-- [ ] T016 [P] [F1] Add `failedResultsReturnsCsvWithErrors()` and `unprocessedResultsReturnsEmptyOnSuccess()` to `service/src/test/java/co/razkevich/sflocalstack/service/BulkJobServiceTest.java` — test failedResults/unprocessedResults CSV generation
-- [ ] T017 [P] [F1] Add `listResourcesReturnsAllCreatedResources()` and `resetClearsAllResources()` to `service/src/test/java/co/razkevich/sflocalstack/service/MetadataServiceTest.java` — test listResources() and reset()
-- [ ] T018 [P] [F1] Create `service/src/test/java/co/razkevich/sflocalstack/service/RequestLogServiceTest.java` with tests: `logAddsEntryToRecentList()`, `resetClearsAllEntries()`, `newEmitterReturnsNonNull()` — unit test with plain instantiation
-- [ ] T019 [P] [F1] Create `service/src/test/java/co/razkevich/sflocalstack/service/MetadataToolingServiceTest.java` with test: `executeStandardMetadataQueryReturnsResults()`, `executeStandardMetadataQueryOnEmptyReturnsEmpty()` — test standard metadata query path
-- [ ] T020 [F1] Run all service tests: `mvn -pl service test -Dtest="*ServiceTest"` — verify 0 failures
-- [ ] T021 [F1] Commit service tests: `git commit -m "test: add unit tests for all untested service methods"`
+- [X] T015 [P] [F1] Create `service/src/test/java/co/razkevich/sflocalstack/service/OrgStateServiceTest.java` with tests: `findByIdReturnsCreatedRecord()`, `findByIdReturnsEmptyForMissingId()`, `findByTypeAndIdReturnsMatchingRecord()`, `findByTypeAndIdReturnsEmptyForWrongType()`, `findAllReturnsAllRecords()`, `deleteRemovesRecord()`, `deleteReturnsFalseForMissingId()`, `resetClearsAllRecords()`, `fromJsonParsesValidJson()` — use `@SpringBootTest` with real OrgStateService
+- [X] T016 [P] [F1] Add `failedResultsReturnsCsvWithErrors()` and `unprocessedResultsReturnsEmptyOnSuccess()` to `service/src/test/java/co/razkevich/sflocalstack/service/BulkJobServiceTest.java` — test failedResults/unprocessedResults CSV generation
+- [X] T017 [P] [F1] Add `listResourcesReturnsAllCreatedResources()` and `resetClearsAllResources()` to `service/src/test/java/co/razkevich/sflocalstack/service/MetadataServiceTest.java` — test listResources() and reset()
+- [X] T018 [P] [F1] Create `service/src/test/java/co/razkevich/sflocalstack/service/RequestLogServiceTest.java` with tests: `logAddsEntryToRecentList()`, `resetClearsAllEntries()`, `newEmitterReturnsNonNull()` — unit test with plain instantiation
+- [X] T019 [P] [F1] Create `service/src/test/java/co/razkevich/sflocalstack/service/MetadataToolingServiceTest.java` with test: `executeStandardMetadataQueryReturnsResults()`, `executeStandardMetadataQueryOnEmptyReturnsEmpty()` — test standard metadata query path
+- [X] T020 [F1] Run all service tests: `mvn -pl service test -Dtest="*ServiceTest"` — verify 0 failures
+- [X] T021 [F1] Commit service tests: `git commit -m "test: add unit tests for all untested service methods"`
 
 **Checkpoint**: All 52 service public methods have at least one test.
 
@@ -70,10 +70,10 @@
 
 **Independent Test**: `mvn -pl service test -Dtest="CrossSurfaceIntegrationTest"` passes.
 
-- [ ] T022 [P] [F2] Add `restCreateThenBulkUpsertThenSoqlQuery()` to `service/src/test/java/co/razkevich/sflocalstack/integration/CrossSurfaceIntegrationTest.java` — create Account via REST, Bulk upsert to update, SOQL query to verify updated data
-- [ ] T023 [P] [F2] Add `fullLifecycleWithResetVerifiesCleanState()` to `service/src/test/java/co/razkevich/sflocalstack/integration/CrossSurfaceIntegrationTest.java` — REST create → SOQL query → Describe → Reset → verify empty → verify describe still works → verify dashboard overview
-- [ ] T024 [F2] Run cross-surface tests: `mvn -pl service test -Dtest="CrossSurfaceIntegrationTest"` — verify 0 failures
-- [ ] T025 [F2] Commit cross-surface tests: `git commit -m "test: add cross-surface integration tests for REST/Bulk/SOQL/Reset workflows"`
+- [X] T022 [P] [F2] Add `restCreateThenBulkUpsertThenSoqlQuery()` to `service/src/test/java/co/razkevich/sflocalstack/integration/CrossSurfaceIntegrationTest.java` — create Account via REST, Bulk upsert to update, SOQL query to verify updated data
+- [X] T023 [P] [F2] Add `fullLifecycleWithResetVerifiesCleanState()` to `service/src/test/java/co/razkevich/sflocalstack/integration/CrossSurfaceIntegrationTest.java` — REST create → SOQL query → Describe → Reset → verify empty → verify describe still works → verify dashboard overview
+- [X] T024 [F2] Run cross-surface tests: `mvn -pl service test -Dtest="CrossSurfaceIntegrationTest"` — verify 0 failures
+- [X] T025 [F2] Commit cross-surface tests: `git commit -m "test: add cross-surface integration tests for REST/Bulk/SOQL/Reset workflows"`
 
 **Checkpoint**: 4+ multi-API workflows tested (2 existing + 2 new).
 
@@ -83,10 +83,10 @@
 
 **Purpose**: Verify full suite passes and coverage targets met.
 
-- [ ] T026 Run full test suite: `mvn -pl service test` — verify 0 failures, execution time < 60 seconds
-- [ ] T027 Count total test methods — target: 75+ (up from 56)
-- [ ] T028 Verify all endpoints from gap analysis have coverage — spot-check GET by ID, DELETE, failedResults, SSE, tooling describe
-- [ ] T029 Final commit if any fixes needed: `git commit -m "test: final test suite fixes"`
+- [X] T026 Run full test suite: `mvn -pl service test` — verify 0 failures, execution time < 60 seconds
+- [X] T027 Count total test methods — target: 75+ (up from 56)
+- [X] T028 Verify all endpoints from gap analysis have coverage — spot-check GET by ID, DELETE, failedResults, SSE, tooling describe
+- [X] T029 Final commit if any fixes needed: `git commit -m "test: final test suite fixes"`
 
 ---
 
