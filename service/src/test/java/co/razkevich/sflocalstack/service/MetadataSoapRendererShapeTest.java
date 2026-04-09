@@ -1,6 +1,8 @@
 package co.razkevich.sflocalstack.service;
 
-import co.razkevich.sflocalstack.model.MetadataCatalogEntry;
+import co.razkevich.sflocalstack.metadata.model.MetadataCatalogEntry;
+import co.razkevich.sflocalstack.metadata.service.MetadataService;
+import co.razkevich.sflocalstack.metadata.service.MetadataSoapRenderer;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;

@@ -1,6 +1,8 @@
 package co.razkevich.sflocalstack.service;
 
-import co.razkevich.sflocalstack.model.MetadataResource;
+import co.razkevich.sflocalstack.metadata.model.MetadataResource;
+import co.razkevich.sflocalstack.metadata.service.MetadataManifestParser;
+import co.razkevich.sflocalstack.metadata.service.MetadataService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
