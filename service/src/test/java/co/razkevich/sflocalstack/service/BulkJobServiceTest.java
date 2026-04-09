@@ -1,5 +1,7 @@
 package co.razkevich.sflocalstack.service;
 
+import co.razkevich.sflocalstack.bulk.service.BulkJobService;
+import co.razkevich.sflocalstack.data.service.OrgStateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

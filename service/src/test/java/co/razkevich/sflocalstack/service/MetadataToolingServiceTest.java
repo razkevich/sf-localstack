@@ -1,5 +1,6 @@
 package co.razkevich.sflocalstack.service;
 
+import co.razkevich.sflocalstack.metadata.service.MetadataToolingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

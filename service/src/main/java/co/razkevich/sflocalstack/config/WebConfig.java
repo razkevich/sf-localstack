@@ -1,6 +1,6 @@
 package co.razkevich.sflocalstack.config;
 
-import co.razkevich.sflocalstack.interceptor.RequestLoggingInterceptor;
+import co.razkevich.sflocalstack.observability.filter.RequestLoggingInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

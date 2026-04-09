@@ -1,6 +1,7 @@
 package co.razkevich.sflocalstack.service;
 
-import co.razkevich.sflocalstack.model.RequestLogEntry;
+import co.razkevich.sflocalstack.observability.model.RequestLogEntry;
+import co.razkevich.sflocalstack.observability.service.RequestLogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
