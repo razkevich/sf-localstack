@@ -1,0 +1,21 @@
+# Production profile — PostgreSQL configuration
+# Activate with: java -jar sf-localstack.jar --spring.profiles.active=prod
+#
+# Prerequisites:
+#   1. Add PostgreSQL driver to pom.xml: org.postgresql:postgresql
+#   2. Create database: CREATE DATABASE sfdb;
+#   3. Set environment variables or fill in values below
+
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/sfdb}
+    driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USERNAME:sfadmin}
+    password: ${DATABASE_PASSWORD:changeme}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: public

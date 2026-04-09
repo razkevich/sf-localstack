@@ -28,6 +28,9 @@ Thumbs.db
 # Maven build output
 target/
 
+# H2 persistent data (dev profile)
+data/
+
 # Local agent/session state
 .omc/
 
