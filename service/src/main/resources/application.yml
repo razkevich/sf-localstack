@@ -19,6 +19,8 @@ server:
 sf-localstack:
   api-version: v60.0
   seed-file: classpath:seed/default-seed.yml
+  jwt:
+    secret: ""
 
 logging:
   level:
