@@ -27,7 +27,13 @@ export function LoginPage({ onLoginSuccess }: Props) {
         onLoginSuccess(result.accessToken, { username: result.username ?? username, role: result.role ?? 'user' })
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Authentication failed')
+      const msg = err instanceof Error ? err.message : 'Authentication failed'
+      if (mode === 'register' && msg.includes('Admin JWT required')) {
+        setError('An account already exists. Please log in instead.')
+        setMode('login')
+      } else {
+        setError(msg)
+      }
     } finally {
       setLoading(false)
     }
