@@ -10,13 +10,14 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import co.razkevich.sflocalstack.model.SalesforceIdGenerator;
+
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -190,7 +191,14 @@ public class OrgStateService {
 
     @Transactional(readOnly = true)
     public Optional<SObjectRecord> findById(String id) {
-        return repository.findById(id);
+        Optional<SObjectRecord> result = repository.findById(id);
+        if (result.isEmpty() && id != null && id.length() == 18) {
+            result = repository.findById(SalesforceIdGenerator.to15(id));
+        }
+        if (result.isEmpty() && id != null && id.length() == 15) {
+            result = repository.findById(SalesforceIdGenerator.to18(id));
+        }
+        return result;
     }
 
     @Transactional(readOnly = true)
@@ -439,8 +447,7 @@ public class OrgStateService {
                     ? objectType.substring(0, 3).toUpperCase()
                     : objectType.toUpperCase();
         };
-        String uid = UUID.randomUUID().toString().replace("-", "").substring(0, 15);
-        return prefix + uid;
+        return SalesforceIdGenerator.generate(prefix);
     }
 
     @SuppressWarnings("unchecked")

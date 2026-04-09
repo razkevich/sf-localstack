@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.StandardCharsets;
+
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -22,6 +24,7 @@ import java.util.NoSuchElementException;
 public class MetadataController {
 
     private static final Logger log = LoggerFactory.getLogger(MetadataController.class);
+    private static final MediaType TEXT_XML_UTF8 = new MediaType("text", "xml", StandardCharsets.UTF_8);
 
     private final MetadataSoapParser parser;
     private final MetadataSoapRenderer renderer;
@@ -59,13 +62,13 @@ public class MetadataController {
                 case "checkRetrieveStatus" -> renderer.renderCheckRetrieveStatus(metadataService.checkRetrieveStatus(String.valueOf(request.values().get("asyncProcessId"))));
                 default -> renderer.renderFault("soapenv:Client", "Unsupported metadata operation: " + request.operation());
             };
-            return ResponseEntity.ok().contentType(MediaType.TEXT_XML).body(response);
+            return ResponseEntity.ok().contentType(TEXT_XML_UTF8).body(response);
         } catch (NoSuchElementException ex) {
             log.error("NoSuchElementException processing SOAP request", ex);
-            return ResponseEntity.ok().contentType(MediaType.TEXT_XML).body(renderer.renderFault("soapenv:Client", ex.getMessage()));
+            return ResponseEntity.ok().contentType(TEXT_XML_UTF8).body(renderer.renderFault("soapenv:Client", ex.getMessage()));
         } catch (IllegalArgumentException ex) {
             log.error("IllegalArgumentException processing SOAP request: {}", body, ex);
-            return ResponseEntity.ok().contentType(MediaType.TEXT_XML).body(renderer.renderFault("soapenv:Client", ex.getMessage()));
+            return ResponseEntity.ok().contentType(TEXT_XML_UTF8).body(renderer.renderFault("soapenv:Client", ex.getMessage()));
         }
     }
 
