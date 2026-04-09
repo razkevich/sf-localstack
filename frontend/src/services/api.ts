@@ -16,8 +16,92 @@ function url(path: string): string {
   return `${DEFAULT_API_BASE}${path}`
 }
 
+function authHeaders(): Record<string, string> {
+  const token = localStorage.getItem('sf_localstack_access_token')
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
+// --- Auth API ---
+
+export interface AuthResponse {
+  accessToken: string
+  refreshToken?: string
+  username?: string
+  role?: string
+}
+
+export async function login(username: string, password: string): Promise<AuthResponse> {
+  const response = await fetch(url('/api/auth/login'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  })
+  if (!response.ok) {
+    const body = await response.json().catch(() => null) as Record<string, unknown> | null
+    throw new Error(body?.message ? String(body.message) : 'Login failed')
+  }
+  return response.json() as Promise<AuthResponse>
+}
+
+export async function register(username: string, email: string, password: string): Promise<AuthResponse> {
+  const response = await fetch(url('/api/auth/register'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, email, password }),
+  })
+  if (!response.ok) {
+    const body = await response.json().catch(() => null) as Record<string, unknown> | null
+    throw new Error(body?.message ? String(body.message) : 'Registration failed')
+  }
+  return response.json() as Promise<AuthResponse>
+}
+
+export async function refreshAuthToken(token: string): Promise<AuthResponse> {
+  const response = await fetch(url('/api/auth/refresh'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken: token }),
+  })
+  if (!response.ok) {
+    throw new Error('Token refresh failed')
+  }
+  return response.json() as Promise<AuthResponse>
+}
+
+export async function getCurrentUser(): Promise<{ id: string; username: string; email?: string; role: string }> {
+  const response = await fetch(url('/api/auth/me'), {
+    headers: { ...authHeaders() },
+  })
+  if (!response.ok) {
+    throw new Error('Failed to get current user')
+  }
+  return response.json() as Promise<{ id: string; username: string; email?: string; role: string }>
+}
+
+export async function listUsers(): Promise<{ id: string; username: string; email?: string; role?: string }[]> {
+  const response = await fetch(url('/api/auth/users'), {
+    headers: { ...authHeaders() },
+  })
+  if (!response.ok) {
+    throw new Error('Failed to list users')
+  }
+  return response.json() as Promise<{ id: string; username: string; email?: string; role?: string }[]>
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  const response = await fetch(url(`/api/auth/users/${id}`), {
+    method: 'DELETE',
+    headers: { ...authHeaders() },
+  })
+  if (!response.ok) {
+    throw new Error('Failed to delete user')
+  }
+}
+
 export async function fetchRecentRequests(limit = 100): Promise<RequestLogEntry[]> {
-  const response = await fetch(url(`/api/dashboard/requests?limit=${limit}`))
+  const response = await fetch(url(`/api/dashboard/requests?limit=${limit}`), {
+    headers: { ...authHeaders() },
+  })
   if (!response.ok) {
     throw new Error('Failed to load requests')
   }
@@ -27,7 +111,9 @@ export async function fetchRecentRequests(limit = 100): Promise<RequestLogEntry[
 }
 
 export async function fetchDashboardOverview(): Promise<DashboardOverview> {
-  const response = await fetch(url('/api/dashboard/overview'))
+  const response = await fetch(url('/api/dashboard/overview'), {
+    headers: { ...authHeaders() },
+  })
   if (!response.ok) {
     throw new Error('Failed to load overview')
   }
@@ -36,14 +122,19 @@ export async function fetchDashboardOverview(): Promise<DashboardOverview> {
 }
 
 export async function resetOrg(): Promise<void> {
-  const response = await fetch(url('/reset'), { method: 'POST' })
+  const response = await fetch(url('/reset'), {
+    method: 'POST',
+    headers: { ...authHeaders() },
+  })
   if (!response.ok) {
     throw new Error('Failed to reset org')
   }
 }
 
 export async function runSoqlQuery(soql: string): Promise<QueryResult> {
-  const response = await fetch(url(`/services/data/v60.0/query?q=${encodeURIComponent(soql)}`))
+  const response = await fetch(url(`/services/data/v60.0/query?q=${encodeURIComponent(soql)}`), {
+    headers: { ...authHeaders() },
+  })
   if (!response.ok) {
     const errorBody = await response.json().catch(() => null)
     const message = Array.isArray(errorBody) && errorBody[0]?.message
@@ -56,7 +147,9 @@ export async function runSoqlQuery(soql: string): Promise<QueryResult> {
 }
 
 export async function fetchObjectRecords(objectType: string): Promise<SObjectListResult> {
-  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}`))
+  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}`), {
+    headers: { ...authHeaders() },
+  })
   if (!response.ok) {
     throw new Error(`Failed to load ${objectType} records`)
   }
@@ -67,7 +160,7 @@ export async function fetchObjectRecords(objectType: string): Promise<SObjectLis
 export async function createRecord(objectType: string, fields: Record<string, unknown>): Promise<MutationResult> {
   const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}`), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify(fields),
   })
   const body = await response.json().catch(() => null)
@@ -85,7 +178,7 @@ export async function createRecord(objectType: string, fields: Record<string, un
 export async function replaceRecord(objectType: string, id: string, fields: Record<string, unknown>): Promise<MutationResult> {
   const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}/${id}`), {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify(fields),
   })
   const body = await response.json().catch(() => null)
@@ -101,7 +194,10 @@ export async function replaceRecord(objectType: string, id: string, fields: Reco
 }
 
 export async function deleteRecord(objectType: string, id: string): Promise<void> {
-  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}/${id}`), { method: 'DELETE' })
+  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}/${id}`), {
+    method: 'DELETE',
+    headers: { ...authHeaders() },
+  })
   if (!response.ok) {
     const body = await response.json().catch(() => null)
     throw new Error(Array.isArray(body) && body[0]?.message ? String(body[0].message) : `Failed to delete ${objectType}`)
@@ -109,7 +205,9 @@ export async function deleteRecord(objectType: string, id: string): Promise<void
 }
 
 export async function fetchDescribe(objectType: string): Promise<DescribeResult> {
-  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}/describe`))
+  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}/describe`), {
+    headers: { ...authHeaders() },
+  })
   if (!response.ok) {
     throw new Error(`Failed to describe ${objectType}`)
   }
@@ -127,7 +225,7 @@ export async function upsertByExternalId(
     url(`/services/data/v60.0/sobjects/${objectType}/${externalIdField}/${encodeURIComponent(externalIdValue)}`),
     {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify(fields),
     },
   )
@@ -157,7 +255,7 @@ export async function createBulkJob(payload: {
 }): Promise<BulkJob> {
   const response = await fetch(url('/services/data/v60.0/jobs/ingest'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ ...payload, contentType: 'CSV' }),
   })
   if (!response.ok) {
@@ -169,7 +267,7 @@ export async function createBulkJob(payload: {
 export async function uploadBulkCsv(jobId: string, csv: string): Promise<void> {
   const response = await fetch(url(`/services/data/v60.0/jobs/ingest/${jobId}/batches`), {
     method: 'PUT',
-    headers: { 'Content-Type': 'text/csv' },
+    headers: { 'Content-Type': 'text/csv', ...authHeaders() },
     body: csv,
   })
   if (!response.ok) {
@@ -180,7 +278,7 @@ export async function uploadBulkCsv(jobId: string, csv: string): Promise<void> {
 export async function closeBulkJob(jobId: string): Promise<BulkJob> {
   const response = await fetch(url(`/services/data/v60.0/jobs/ingest/${jobId}`), {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ state: 'UploadComplete' }),
   })
   if (!response.ok) {
@@ -190,7 +288,9 @@ export async function closeBulkJob(jobId: string): Promise<BulkJob> {
 }
 
 export async function fetchBulkJob(jobId: string): Promise<BulkJob> {
-  const response = await fetch(url(`/services/data/v60.0/jobs/ingest/${jobId}`))
+  const response = await fetch(url(`/services/data/v60.0/jobs/ingest/${jobId}`), {
+    headers: { ...authHeaders() },
+  })
   if (!response.ok) {
     throw new Error('Failed to load bulk job')
   }
@@ -201,7 +301,9 @@ export async function fetchBulkCsvResult(
   jobId: string,
   kind: 'successfulResults' | 'failedResults' | 'unprocessedrecords',
 ): Promise<string> {
-  const response = await fetch(url(`/services/data/v60.0/jobs/ingest/${jobId}/${kind}`))
+  const response = await fetch(url(`/services/data/v60.0/jobs/ingest/${jobId}/${kind}`), {
+    headers: { ...authHeaders() },
+  })
   if (!response.ok) {
     throw new Error(`Failed to load ${kind}`)
   }
@@ -213,7 +315,9 @@ export function eventStreamUrl(path: string): string {
 }
 
 export async function runToolingQuery(soql: string): Promise<ToolingQueryResult> {
-  const response = await fetch(url(`/services/data/v60.0/tooling/query?q=${encodeURIComponent(soql)}`))
+  const response = await fetch(url(`/services/data/v60.0/tooling/query?q=${encodeURIComponent(soql)}`), {
+    headers: { ...authHeaders() },
+  })
   if (!response.ok) {
     const body = await response.json().catch(() => null)
     const message = Array.isArray(body) && body[0]?.message ? String(body[0].message) : 'Failed to run tooling query'
@@ -232,7 +336,7 @@ export async function callMetadataSoap(operationBody: string): Promise<string> {
 
   const response = await fetch(url('/services/Soap/m/60.0'), {
     method: 'POST',
-    headers: { 'Content-Type': 'text/xml' },
+    headers: { 'Content-Type': 'text/xml', ...authHeaders() },
     body: envelope,
   })
   if (!response.ok) {
@@ -242,7 +346,9 @@ export async function callMetadataSoap(operationBody: string): Promise<string> {
 }
 
 export async function fetchMetadataResources(): Promise<MetadataResource[]> {
-  const response = await fetch(url('/api/admin/metadata/resources'))
+  const response = await fetch(url('/api/admin/metadata/resources'), {
+    headers: { ...authHeaders() },
+  })
   if (!response.ok) {
     throw new Error('Failed to load metadata resources')
   }
@@ -252,7 +358,7 @@ export async function fetchMetadataResources(): Promise<MetadataResource[]> {
 export async function createMetadataResource(resource: MetadataResource): Promise<MetadataResource> {
   const response = await fetch(url('/api/admin/metadata/resources'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify(resource),
   })
   if (!response.ok) {
@@ -264,7 +370,7 @@ export async function createMetadataResource(resource: MetadataResource): Promis
 export async function updateMetadataResource(originalType: string, originalFullName: string, resource: MetadataResource): Promise<MetadataResource> {
   const response = await fetch(url(`/api/admin/metadata/resources/${encodeURIComponent(originalType)}/${encodeURIComponent(originalFullName)}`), {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify(resource),
   })
   if (!response.ok) {
@@ -276,6 +382,7 @@ export async function updateMetadataResource(originalType: string, originalFullN
 export async function deleteMetadataResource(type: string, fullName: string): Promise<void> {
   const response = await fetch(url(`/api/admin/metadata/resources/${encodeURIComponent(type)}/${encodeURIComponent(fullName)}`), {
     method: 'DELETE',
+    headers: { ...authHeaders() },
   })
   if (!response.ok) {
     throw new Error('Failed to delete metadata resource')
