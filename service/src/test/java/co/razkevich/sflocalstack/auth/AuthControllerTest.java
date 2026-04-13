@@ -197,12 +197,12 @@ class AuthControllerTest {
         Map<String, Object> body = objectMapper.readValue(result.getResponse().getContentAsString(), Map.class);
         String userToken = (String) body.get("accessToken");
 
-        // Regular user should not be able to register another user
+        // Open registration: any user can register (role is USER, not ADMIN)
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"user2\",\"email\":\"user2@test.com\",\"password\":\"pass456\"}")
                         .header("Authorization", "Bearer " + userToken))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -215,7 +215,7 @@ class AuthControllerTest {
                         .param("password", "secret123"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.access_token").exists())
-                .andExpect(jsonPath("$.instance_url").value("http://localhost:8080"))
+                .andExpect(jsonPath("$.instance_url").value("http://localhost"))
                 .andExpect(jsonPath("$.token_type").value("Bearer"))
                 .andExpect(jsonPath("$.signature").value("jwt"));
     }

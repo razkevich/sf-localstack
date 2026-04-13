@@ -1,9 +1,5 @@
 import {
   Database,
-  Users,
-  Contact,
-  Target,
-  Briefcase,
   FileCode,
   UploadCloud,
   Activity,
@@ -14,10 +10,7 @@ import {
 import { useState } from 'react'
 
 export type ViewId =
-  | 'object:Account'
-  | 'object:Contact'
-  | 'object:Lead'
-  | 'object:Opportunity'
+  | 'objects'
   | 'metadata'
   | 'bulk'
   | 'requests'
@@ -35,29 +28,18 @@ interface NavSection {
 }
 
 interface Props {
-  activeView: ViewId
+  activeView: string
   onNavigate: (view: ViewId) => void
-  customObjects?: string[]
 }
 
-export function LayoutSidebar({ activeView, onNavigate, customObjects = [] }: Props) {
+export function LayoutSidebar({ activeView, onNavigate }: Props) {
   const [collapsed, setCollapsed] = useState(false)
 
   const sections: NavSection[] = [
     {
-      title: 'Objects',
+      title: 'Data',
       items: [
-        { id: 'object:Account', label: 'Accounts', icon: <Briefcase className="h-4 w-4" /> },
-        { id: 'object:Contact', label: 'Contacts', icon: <Contact className="h-4 w-4" /> },
-        { id: 'object:Lead', label: 'Leads', icon: <Target className="h-4 w-4" /> },
-        { id: 'object:Opportunity', label: 'Opportunities', icon: <Database className="h-4 w-4" /> },
-        ...customObjects
-          .filter((name) => !['Account', 'Contact', 'Lead', 'Opportunity'].includes(name))
-          .map((name): NavItem => ({
-            id: `object:${name}` as ViewId,
-            label: name,
-            icon: <Users className="h-4 w-4" />,
-          })),
+        { id: 'objects', label: 'Objects', icon: <Database className="h-4 w-4" /> },
       ],
     },
     {
@@ -99,7 +81,9 @@ export function LayoutSidebar({ activeView, onNavigate, customObjects = [] }: Pr
                 {section.title}
               </div>
               {section.items.map((item) => {
-                const isActive = activeView === item.id
+                const isActive = item.id === 'objects'
+                  ? activeView === 'objects' || activeView.startsWith('object:')
+                  : activeView === item.id
                 return (
                   <button
                     key={item.id}

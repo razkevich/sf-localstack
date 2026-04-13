@@ -16,6 +16,8 @@ interface Props {
 
 const DEFAULT_COLUMNS = ['Name', 'Id', 'CreatedDate', 'LastModifiedDate']
 
+type ViewTab = 'records' | 'fields'
+
 export function ObjectListView({ objectType }: Props) {
   const [recordsResult, setRecordsResult] = useState<SObjectListResult | null>(null)
   const [describeResult, setDescribeResult] = useState<DescribeResult | null>(null)
@@ -23,6 +25,7 @@ export function ObjectListView({ objectType }: Props) {
   const [showCreate, setShowCreate] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState<SalesforceRecord | null>(null)
   const [saving, setSaving] = useState(false)
+  const [viewTab, setViewTab] = useState<ViewTab>('records')
   const { showSuccess, showError } = useToast()
 
   async function loadData() {
@@ -78,6 +81,35 @@ export function ObjectListView({ objectType }: Props) {
       return clone
     })
   }, [recordsResult])
+
+  const fieldColumns = useMemo((): Column[] => [
+    { key: 'name', label: 'API Name', sortable: true },
+    { key: 'label', label: 'Label', sortable: true },
+    { key: 'type', label: 'Type', sortable: true },
+    {
+      key: 'kind',
+      label: 'Kind',
+      sortable: true,
+      render: (value) => {
+        const isCustom = value === 'Custom'
+        return (
+          <span className={`inline-block rounded-full px-2 py-0.5 text-body-sm font-medium ${isCustom ? 'bg-brand-lighter text-brand-dark' : 'bg-neutral-10 text-neutral-60'}`}>
+            {String(value)}
+          </span>
+        )
+      },
+    },
+  ], [])
+
+  const fieldsData = useMemo(() => {
+    if (!describeResult) return []
+    return describeResult.fields.map((f) => ({
+      name: f.name,
+      label: f.label,
+      type: f.type,
+      kind: f.custom ? 'Custom' : 'Standard',
+    }))
+  }, [describeResult])
 
   async function handleCreate(values: Record<string, unknown>) {
     setSaving(true)
@@ -147,10 +179,28 @@ export function ObjectListView({ objectType }: Props) {
     <div className="flex h-full flex-col">
       <PageHeader
         title={describeResult?.labelPlural ?? objectType}
-        subtitle={`${records.length} record${records.length !== 1 ? 's' : ''}`}
+        subtitle={viewTab === 'records'
+          ? `${records.length} record${records.length !== 1 ? 's' : ''}`
+          : `${fieldsData.length} field${fieldsData.length !== 1 ? 's' : ''}`}
         icon={<Database className="h-5 w-5" />}
         actions={
           <div className="flex items-center gap-2">
+            <div className="flex overflow-hidden rounded-slds border border-neutral-20">
+              <button
+                type="button"
+                onClick={() => setViewTab('records')}
+                className={`px-3 py-1.5 text-body-sm font-medium ${viewTab === 'records' ? 'bg-brand text-neutral-00' : 'bg-neutral-00 text-neutral-70 hover:bg-neutral-05'}`}
+              >
+                Records
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewTab('fields')}
+                className={`border-l border-neutral-20 px-3 py-1.5 text-body-sm font-medium ${viewTab === 'fields' ? 'bg-brand text-neutral-00' : 'bg-neutral-00 text-neutral-70 hover:bg-neutral-05'}`}
+              >
+                Fields
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => { void loadData() }}
@@ -159,26 +209,37 @@ export function ObjectListView({ objectType }: Props) {
               <RefreshCw className="h-3.5 w-3.5" />
               Refresh
             </button>
-            <button
-              type="button"
-              onClick={() => setShowCreate(true)}
-              className="flex items-center gap-1.5 rounded-slds bg-brand px-3 py-1.5 text-body-sm font-semibold text-neutral-00 hover:bg-brand-dark"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              New
-            </button>
+            {viewTab === 'records' && (
+              <button
+                type="button"
+                onClick={() => setShowCreate(true)}
+                className="flex items-center gap-1.5 rounded-slds bg-brand px-3 py-1.5 text-body-sm font-semibold text-neutral-00 hover:bg-brand-dark"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                New
+              </button>
+            )}
           </div>
         }
       />
 
       <div className="flex-1 overflow-auto p-6">
-        <DataTable
-          columns={columns}
-          data={records as Record<string, unknown>[]}
-          loading={loading}
-          onRowClick={(row) => setSelectedRecord(row as SalesforceRecord)}
-          emptyMessage={`No ${objectType} records to display`}
-        />
+        {viewTab === 'records' ? (
+          <DataTable
+            columns={columns}
+            data={records as Record<string, unknown>[]}
+            loading={loading}
+            onRowClick={(row) => setSelectedRecord(row as SalesforceRecord)}
+            emptyMessage={`No ${objectType} records to display`}
+          />
+        ) : (
+          <DataTable
+            columns={fieldColumns}
+            data={fieldsData as Record<string, unknown>[]}
+            loading={loading}
+            emptyMessage={`No fields to display for ${objectType}`}
+          />
+        )}
       </div>
 
       <Modal

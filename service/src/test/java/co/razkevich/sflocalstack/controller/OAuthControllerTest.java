@@ -23,7 +23,7 @@ class OAuthControllerTest {
         mockMvc.perform(post("/services/oauth2/token"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.access_token").exists())
-                .andExpect(jsonPath("$.instance_url").value("http://localhost:8080"))
+                .andExpect(jsonPath("$.instance_url").value("http://localhost"))
                 .andExpect(jsonPath("$.token_type").value("Bearer"));
     }
 

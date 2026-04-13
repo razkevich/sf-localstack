@@ -34,12 +34,18 @@ public class InMemoryUserStore implements UserStore {
 
     @Override
     public User createUser(String username, String email, String password, Role role) {
+        return createUser(username, email, password, role, null);
+    }
+
+    @Override
+    public User createUser(String username, String email, String password, Role role, String orgId) {
         User user = new User(
                 UUID.randomUUID().toString(),
                 username,
                 email,
                 passwordEncoder.encode(password),
                 role,
+                orgId,
                 Instant.now(),
                 null
         );

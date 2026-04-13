@@ -12,4 +12,7 @@ public interface MetadataResourceRepository extends JpaRepository<MetadataResour
     List<MetadataResourceEntity> findByType(String type);
     Optional<MetadataResourceEntity> findByTypeAndFullName(String type, String fullName);
     void deleteByTypeAndFullName(String type, String fullName);
+    List<MetadataResourceEntity> findByOrgIdAndType(String orgId, String type);
+    Optional<MetadataResourceEntity> findByOrgIdAndTypeAndFullName(String orgId, String type, String fullName);
+    List<MetadataResourceEntity> findByOrgId(String orgId);
 }

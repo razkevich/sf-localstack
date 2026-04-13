@@ -10,6 +10,11 @@ public interface UserStore {
     Optional<User> findByUsername(String username);
     Optional<User> findById(String id);
     User createUser(String username, String email, String password, Role role);
+    default User createUser(String username, String email, String password, Role role, String orgId) {
+        User user = createUser(username, email, password, role);
+        user.setOrgId(orgId);
+        return user;
+    }
     boolean validateCredentials(String username, String password);
     List<User> listUsers();
     boolean deleteUser(String id);

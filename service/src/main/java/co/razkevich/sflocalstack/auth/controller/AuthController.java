@@ -43,28 +43,16 @@ public class AuthController {
                     .body(Map.of("error", "Conflict", "message", "Username already exists"));
         }
 
-        Role role;
-        if (!userStore.hasUsers()) {
-            role = Role.ADMIN;
-        } else {
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("error", "Unauthorized", "message", "Admin JWT required to register new users"));
-            }
-            try {
-                String tokenRole = jwtService.extractRole(authHeader.substring(7));
-                if (!"ADMIN".equals(tokenRole)) {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                            .body(Map.of("error", "Forbidden", "message", "Only admins can register new users"));
-                }
-            } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("error", "Unauthorized", "message", "Invalid token"));
-            }
-            role = Role.USER;
-        }
+        // First user becomes ADMIN, all others are USER. Open registration — no auth required.
+        boolean firstUser = !userStore.hasUsers();
+        Role role = firstUser ? Role.ADMIN : Role.USER;
 
-        User user = userStore.createUser(username, email, password, role);
+        // Generate unique org ID per user
+        String orgId = firstUser
+                ? "00D000000000001AAA"
+                : "00D" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 15).toUpperCase();
+
+        User user = userStore.createUser(username, email, password, role, orgId);
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 

@@ -10,4 +10,8 @@ import java.util.List;
 public interface SObjectRecordRepository extends JpaRepository<SObjectRecord, String> {
     List<SObjectRecord> findByObjectType(String objectType);
     void deleteByObjectType(String objectType);
+    List<SObjectRecord> findByOrgIdAndObjectType(String orgId, String objectType);
+    List<SObjectRecord> findByOrgId(String orgId);
+    void deleteByOrgId(String orgId);
+    void deleteByOrgIdAndObjectType(String orgId, String objectType);
 }

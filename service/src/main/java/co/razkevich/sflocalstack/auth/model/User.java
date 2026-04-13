@@ -9,6 +9,7 @@ public class User {
     private String email;
     private String passwordHash;
     private Role role;
+    private String orgId;
     private Instant createdAt;
     private Instant lastLoginAt;
 
@@ -21,6 +22,18 @@ public class User {
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
+        this.createdAt = createdAt;
+        this.lastLoginAt = lastLoginAt;
+    }
+
+    public User(String id, String username, String email, String passwordHash,
+                Role role, String orgId, Instant createdAt, Instant lastLoginAt) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.role = role;
+        this.orgId = orgId;
         this.createdAt = createdAt;
         this.lastLoginAt = lastLoginAt;
     }
@@ -39,6 +52,9 @@ public class User {
 
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+
+    public String getOrgId() { return orgId; }
+    public void setOrgId(String orgId) { this.orgId = orgId; }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }

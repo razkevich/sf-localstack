@@ -12,12 +12,15 @@ import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
 
 @Entity
-@Table(name = "metadata_resources", uniqueConstraints = @UniqueConstraint(columnNames = {"type", "fullName"}))
+@Table(name = "metadata_resources", uniqueConstraints = @UniqueConstraint(columnNames = {"org_id", "type", "fullName"}))
 public class MetadataResourceEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "org_id", columnDefinition = "VARCHAR(255) DEFAULT '00D000000000001AAA'")
+    private String orgId;
 
     @Column(nullable = false)
     private String type;
@@ -46,6 +49,9 @@ public class MetadataResourceEntity {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public String getOrgId() { return orgId; }
+    public void setOrgId(String orgId) { this.orgId = orgId; }
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
