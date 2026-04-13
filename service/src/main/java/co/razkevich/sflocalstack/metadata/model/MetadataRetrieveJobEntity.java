@@ -1,5 +1,6 @@
 package co.razkevich.sflocalstack.metadata.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
@@ -13,6 +14,9 @@ public class MetadataRetrieveJobEntity {
 
     @Id
     private String id;
+
+    @Column(name = "org_id", columnDefinition = "VARCHAR(255) DEFAULT '00D000000000001AAA'")
+    private String orgId;
 
     private boolean done;
 
@@ -33,6 +37,9 @@ public class MetadataRetrieveJobEntity {
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+
+    public String getOrgId() { return orgId; }
+    public void setOrgId(String orgId) { this.orgId = orgId; }
 
     public boolean isDone() { return done; }
     public void setDone(boolean done) { this.done = done; }

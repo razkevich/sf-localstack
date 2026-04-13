@@ -38,9 +38,19 @@ public class BulkJobService {
 
     @Transactional
     public BulkIngestJob createJob(String operation, String object, String externalIdFieldName) {
+        return createJob(operation, object, externalIdFieldName, null);
+    }
+
+    @Transactional
+    public BulkIngestJob createJob(String operation, String object, String externalIdFieldName, String orgId) {
         String id = "750" + UUID.randomUUID().toString().replace("-", "").substring(0, 15);
         BulkIngestJob job = new BulkIngestJob(id, operation, object, externalIdFieldName, Instant.now(), "Open");
+        if (orgId != null) job.setOrgId(orgId);
         return jobRepository.save(job);
+    }
+
+    public List<BulkIngestJob> listJobs(String orgId) {
+        return orgId != null ? jobRepository.findByOrgId(orgId) : jobRepository.findAll();
     }
 
     public BulkIngestJob getJob(String jobId) {

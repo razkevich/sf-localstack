@@ -1,8 +1,11 @@
 package co.razkevich.sflocalstack.data.controller;
 
+import co.razkevich.sflocalstack.auth.model.User;
+import co.razkevich.sflocalstack.auth.store.UserStore;
 import co.razkevich.sflocalstack.data.model.SObjectRecord;
 import co.razkevich.sflocalstack.model.SalesforceError;
 import co.razkevich.sflocalstack.data.service.OrgStateService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +21,11 @@ import java.util.Optional;
 public class SObjectController {
 
     private final OrgStateService orgStateService;
+    private final UserStore userStore;
 
-    public SObjectController(OrgStateService orgStateService) {
+    public SObjectController(OrgStateService orgStateService, UserStore userStore) {
         this.orgStateService = orgStateService;
+        this.userStore = userStore;
     }
 
     @GetMapping("/describe")
@@ -33,8 +38,10 @@ public class SObjectController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> list(
             @PathVariable String apiVersion,
-            @PathVariable String objectType) {
-        List<SObjectRecord> records = orgStateService.findByType(objectType);
+            @PathVariable String objectType,
+            HttpServletRequest request) {
+        String orgId = (String) request.getAttribute("orgId");
+        List<SObjectRecord> records = orgStateService.findByType(orgId, objectType);
         List<Map<String, Object>> recentItems = records.stream()
                 .map(r -> orgStateService.toSalesforceRecord(apiVersion, objectType, orgStateService.fromJson(r.getFieldsJson())))
                 .toList();
@@ -48,8 +55,28 @@ public class SObjectController {
     public ResponseEntity<?> getById(
             @PathVariable String apiVersion,
             @PathVariable String objectType,
-            @PathVariable String id) {
-        Optional<SObjectRecord> record = orgStateService.findById(id);
+            @PathVariable String id,
+            HttpServletRequest request) {
+        String orgId = (String) request.getAttribute("orgId");
+        Optional<SObjectRecord> record = orgStateService.findById(id)
+                .filter(r -> orgId == null || orgId.equals(r.getOrgId()));
+        if (record.isEmpty() && "User".equalsIgnoreCase(objectType)) {
+            // Fall back to auth UserStore for User sObject lookups (needed by SF CLI)
+            Optional<User> authUser = userStore.findById(id);
+            if (authUser.isPresent()) {
+                User u = authUser.get();
+                Map<String, Object> userFields = new LinkedHashMap<>();
+                userFields.put("Id", u.getId());
+                userFields.put("Username", u.getUsername());
+                userFields.put("Email", u.getEmail() != null ? u.getEmail() : u.getUsername() + "@sf-localstack.dev");
+                userFields.put("Name", u.getUsername());
+                userFields.put("FirstName", u.getUsername());
+                userFields.put("LastName", u.getUsername());
+                userFields.put("IsActive", true);
+                userFields.put("ProfileId", "00e000000000001AAA");
+                return ResponseEntity.ok(orgStateService.toSalesforceRecord(apiVersion, objectType, userFields));
+            }
+        }
         if (record.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(List.of(new SalesforceError("Record not found", "NOT_FOUND")));
@@ -60,8 +87,10 @@ public class SObjectController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(
             @PathVariable String objectType,
-            @RequestBody Map<String, Object> fields) {
-        SObjectRecord record = orgStateService.create(objectType, fields);
+            @RequestBody Map<String, Object> fields,
+            HttpServletRequest request) {
+        String orgId = (String) request.getAttribute("orgId");
+        SObjectRecord record = orgStateService.create(orgId, objectType, fields);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("id", record.getId(), "success", true, "errors", List.of()));
     }

@@ -10,6 +10,8 @@ interface Props {
 }
 
 export function RecordForm({ fields, initialValues, onSave, onCancel, saving = false }: Props) {
+  const KEY_FIELDS = ['Name', 'FirstName', 'LastName', 'Email', 'Company', 'Subject', 'Phone', 'Industry', 'StageName', 'Status', 'Priority', 'AccountId']
+
   const editableFields = fields.filter((f) =>
     !f.deprecatedAndHidden &&
     f.name !== 'Id' &&
@@ -20,7 +22,14 @@ export function RecordForm({ fields, initialValues, onSave, onCancel, saving = f
     f.name !== 'CreatedById' &&
     f.name !== 'LastModifiedById' &&
     (initialValues ? f.updateable : f.createable)
-  )
+  ).sort((a, b) => {
+    const ai = KEY_FIELDS.indexOf(a.name)
+    const bi = KEY_FIELDS.indexOf(b.name)
+    if (ai !== -1 && bi !== -1) return ai - bi
+    if (ai !== -1) return -1
+    if (bi !== -1) return 1
+    return a.label.localeCompare(b.label)
+  })
 
   const [values, setValues] = useState<Record<string, unknown>>({})
 

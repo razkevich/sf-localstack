@@ -3,6 +3,7 @@ package co.razkevich.sflocalstack.bulk.controller;
 import co.razkevich.sflocalstack.bulk.model.BulkIngestJob;
 import co.razkevich.sflocalstack.bulk.service.BulkJobService;
 import co.razkevich.sflocalstack.model.SalesforceError;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +24,28 @@ public class BulkController {
         this.bulkJobService = bulkJobService;
     }
 
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> list(HttpServletRequest request) {
+        String orgId = (String) request.getAttribute("orgId");
+        List<BulkIngestJob> jobs = bulkJobService.listJobs(orgId);
+        List<Map<String, Object>> records = jobs.stream()
+                .map(j -> toResponse(j, ResponseShape.GET))
+                .toList();
+        return ResponseEntity.ok(Map.of(
+                "done", true,
+                "records", records,
+                "nextRecordsUrl", (Object) ""
+        ));
+    }
+
     @PostMapping
-    public ResponseEntity<Map<String, Object>> create(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<Map<String, Object>> create(@RequestBody Map<String, Object> body, HttpServletRequest request) {
+        String orgId = (String) request.getAttribute("orgId");
         BulkIngestJob job = bulkJobService.createJob(
                 String.valueOf(body.get("operation")),
                 String.valueOf(body.get("object")),
-                body.get("externalIdFieldName") == null ? null : String.valueOf(body.get("externalIdFieldName"))
+                body.get("externalIdFieldName") == null ? null : String.valueOf(body.get("externalIdFieldName")),
+                orgId
         );
         return ResponseEntity.ok(toResponse(job, ResponseShape.CREATE));
     }

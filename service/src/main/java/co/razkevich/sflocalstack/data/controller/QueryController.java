@@ -5,6 +5,7 @@ import co.razkevich.sflocalstack.metadata.service.MetadataToolingService;
 import co.razkevich.sflocalstack.data.service.SoqlEngine;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,9 +32,11 @@ public class QueryController {
     @GetMapping({"/query", "/query/"})
     public ResponseEntity<?> query(
             @RequestParam("q") String soql,
-            @RequestParam(name = "columns", defaultValue = "false") boolean includeColumns) {
+            @RequestParam(name = "columns", defaultValue = "false") boolean includeColumns,
+            HttpServletRequest request) {
+        String orgId = (String) request.getAttribute("orgId");
         try {
-            List<Map<String, Object>> records = soqlEngine.execute(soql);
+            List<Map<String, Object>> records = soqlEngine.execute(orgId, soql);
             if (records.isEmpty()) {
                 List<Map<String, Object>> metadataRecords = metadataToolingService.executeStandardMetadataQuery(soql);
                 if (!metadataRecords.isEmpty()) {

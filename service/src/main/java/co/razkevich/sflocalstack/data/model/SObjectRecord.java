@@ -16,6 +16,9 @@ public class SObjectRecord {
 
     private String objectType;
 
+    @Column(name = "org_id", columnDefinition = "VARCHAR(255) DEFAULT '00D000000000001AAA'")
+    private String orgId;
+
     @Column(columnDefinition = "TEXT")
     private String fieldsJson;
 
@@ -35,6 +38,9 @@ public class SObjectRecord {
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+
+    public String getOrgId() { return orgId; }
+    public void setOrgId(String orgId) { this.orgId = orgId; }
 
     public String getObjectType() { return objectType; }
     public void setObjectType(String objectType) { this.objectType = objectType; }

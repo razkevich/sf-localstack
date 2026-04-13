@@ -21,6 +21,23 @@ function authHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
+function handleUnauthorized(response: Response): void {
+  if (response.status === 401) {
+    localStorage.removeItem('sf_localstack_access_token')
+    localStorage.removeItem('sf_localstack_user')
+    window.location.reload()
+  }
+}
+
+async function authenticatedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const response = await fetch(input, {
+    ...init,
+    headers: { ...authHeaders(), ...init?.headers },
+  })
+  handleUnauthorized(response)
+  return response
+}
+
 // --- Auth API ---
 
 export interface AuthResponse {
@@ -132,9 +149,7 @@ export async function resetOrg(): Promise<void> {
 }
 
 export async function runSoqlQuery(soql: string): Promise<QueryResult> {
-  const response = await fetch(url(`/services/data/v60.0/query?q=${encodeURIComponent(soql)}`), {
-    headers: { ...authHeaders() },
-  })
+  const response = await authenticatedFetch(url(`/services/data/v60.0/query?q=${encodeURIComponent(soql)}`))
   if (!response.ok) {
     const errorBody = await response.json().catch(() => null)
     const message = Array.isArray(errorBody) && errorBody[0]?.message
@@ -147,9 +162,7 @@ export async function runSoqlQuery(soql: string): Promise<QueryResult> {
 }
 
 export async function fetchObjectRecords(objectType: string): Promise<SObjectListResult> {
-  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}`), {
-    headers: { ...authHeaders() },
-  })
+  const response = await authenticatedFetch(url(`/services/data/v60.0/sobjects/${objectType}`))
   if (!response.ok) {
     throw new Error(`Failed to load ${objectType} records`)
   }
@@ -158,9 +171,9 @@ export async function fetchObjectRecords(objectType: string): Promise<SObjectLis
 }
 
 export async function createRecord(objectType: string, fields: Record<string, unknown>): Promise<MutationResult> {
-  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}`), {
+  const response = await authenticatedFetch(url(`/services/data/v60.0/sobjects/${objectType}`), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(fields),
   })
   const body = await response.json().catch(() => null)
@@ -176,9 +189,9 @@ export async function createRecord(objectType: string, fields: Record<string, un
 }
 
 export async function replaceRecord(objectType: string, id: string, fields: Record<string, unknown>): Promise<MutationResult> {
-  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}/${id}`), {
+  const response = await authenticatedFetch(url(`/services/data/v60.0/sobjects/${objectType}/${id}`), {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(fields),
   })
   const body = await response.json().catch(() => null)
@@ -194,9 +207,8 @@ export async function replaceRecord(objectType: string, id: string, fields: Reco
 }
 
 export async function deleteRecord(objectType: string, id: string): Promise<void> {
-  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}/${id}`), {
+  const response = await authenticatedFetch(url(`/services/data/v60.0/sobjects/${objectType}/${id}`), {
     method: 'DELETE',
-    headers: { ...authHeaders() },
   })
   if (!response.ok) {
     const body = await response.json().catch(() => null)
@@ -205,9 +217,7 @@ export async function deleteRecord(objectType: string, id: string): Promise<void
 }
 
 export async function fetchDescribe(objectType: string): Promise<DescribeResult> {
-  const response = await fetch(url(`/services/data/v60.0/sobjects/${objectType}/describe`), {
-    headers: { ...authHeaders() },
-  })
+  const response = await authenticatedFetch(url(`/services/data/v60.0/sobjects/${objectType}/describe`))
   if (!response.ok) {
     throw new Error(`Failed to describe ${objectType}`)
   }
@@ -343,6 +353,15 @@ export async function callMetadataSoap(operationBody: string): Promise<string> {
     throw new Error('Failed to call metadata SOAP endpoint')
   }
   return response.text()
+}
+
+export async function createCustomObject(label: string, apiName: string): Promise<void> {
+  const res = await fetch(url('/api/admin/metadata/custom-objects'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ label, apiName }),
+  })
+  if (!res.ok) throw new Error('Failed to create custom object')
 }
 
 export async function fetchMetadataResources(): Promise<MetadataResource[]> {

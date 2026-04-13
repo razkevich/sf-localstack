@@ -21,6 +21,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private static final Set<String> SKIP_EXACT = Set.of(
             "/services/oauth2/token",
+            "/services/oauth2/authorize",
             "/api/auth/login",
             "/api/auth/refresh",
             "/api/auth/register",
@@ -31,7 +32,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private static final List<String> SKIP_PREFIXES = List.of(
             "/assets/",
             "/h2-console",
-            "/api/dashboard/events"
+            "/api/dashboard/events",
+            "/id/"
     );
 
     private final JwtService jwtService;
@@ -69,6 +71,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
+        // Strip Salesforce-style org ID prefix (e.g., "00D000000000001!<jwt>")
+        if (token.contains("!")) {
+            token = token.substring(token.indexOf('!') + 1);
+        }
         try {
             Claims claims = jwtService.validateToken(token);
 
@@ -81,6 +87,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             request.setAttribute("userId", claims.get("userId", String.class));
             request.setAttribute("username", claims.get("username", String.class));
             request.setAttribute("role", claims.get("role", String.class));
+            String orgId = claims.get("orgId", String.class);
+            request.setAttribute("orgId", orgId != null ? orgId : "00D000000000001AAA");
 
             filterChain.doFilter(request, response);
         } catch (Exception e) {

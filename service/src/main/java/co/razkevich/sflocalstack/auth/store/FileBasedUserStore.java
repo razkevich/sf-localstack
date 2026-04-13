@@ -82,6 +82,11 @@ public class FileBasedUserStore implements UserStore {
 
     @Override
     public synchronized User createUser(String username, String email, String password, Role role) {
+        return createUser(username, email, password, role, null);
+    }
+
+    @Override
+    public synchronized User createUser(String username, String email, String password, Role role, String orgId) {
         List<User> users = readUsers();
         User user = new User(
                 UUID.randomUUID().toString(),
@@ -89,6 +94,7 @@ public class FileBasedUserStore implements UserStore {
                 email,
                 passwordEncoder.encode(password),
                 role,
+                orgId,
                 Instant.now(),
                 null
         );

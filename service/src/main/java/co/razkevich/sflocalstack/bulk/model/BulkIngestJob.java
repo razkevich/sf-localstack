@@ -1,5 +1,6 @@
 package co.razkevich.sflocalstack.bulk.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -12,6 +13,9 @@ public class BulkIngestJob {
 
     @Id
     private String id;
+
+    @Column(name = "org_id", columnDefinition = "VARCHAR(255) DEFAULT '00D000000000001AAA'")
+    private String orgId;
 
     private String operation;
     private String object;
@@ -35,6 +39,8 @@ public class BulkIngestJob {
     }
 
     public String id() { return id; }
+    public String getOrgId() { return orgId; }
+    public void setOrgId(String orgId) { this.orgId = orgId; }
     public String operation() { return operation; }
     public String object() { return object; }
     public String externalIdFieldName() { return externalIdFieldName; }

@@ -3,6 +3,7 @@ import { AppShell } from './components/layout/AppShell'
 import type { ViewId } from './components/layout/Sidebar'
 import { ToastProvider } from './components/ui/Toast'
 import { LoginPage } from './views/LoginPage'
+import { ObjectManagerView } from './views/ObjectManagerView'
 import { ObjectListView } from './views/ObjectListView'
 import { MetadataView } from './views/MetadataView'
 import { BulkJobView } from './views/BulkJobView'
@@ -24,20 +25,18 @@ export default function App() {
       return { username: 'admin', role: 'admin' }
     }
   })
-  const [activeView, setActiveView] = useState<ViewId>('object:Account')
+  const [activeView, setActiveView] = useState<string>('objects')
   const [refreshToken, setRefreshToken] = useState(0)
 
   const { entries, connected, clear } = useSse(refreshToken)
   const { overview } = useDashboardOverview(refreshToken)
 
-  const customObjects = useMemo(() => {
-    return overview?.objectCounts.map((o) => o.objectType) ?? []
+  const objectCounts = useMemo(() => {
+    return overview?.objectCounts ?? []
   }, [overview])
 
   useEffect(() => {
-    // If token exists but no user info, try to verify
     if (token && user.username === 'admin') {
-      // Try loading user from stored data
       try {
         const stored = localStorage.getItem(USER_KEY)
         if (stored) {
@@ -64,6 +63,10 @@ export default function App() {
     setUser({ username: 'admin', role: 'admin' })
   }
 
+  function handleNavigate(view: string) {
+    setActiveView(view)
+  }
+
   if (!token) {
     return (
       <ToastProvider>
@@ -79,6 +82,14 @@ export default function App() {
     }
 
     switch (activeView) {
+      case 'objects':
+        return (
+          <ObjectManagerView
+            objectCounts={objectCounts}
+            onSelectObject={(name) => setActiveView(`object:${name}`)}
+            onRefresh={() => setRefreshToken((v) => v + 1)}
+          />
+        )
       case 'metadata':
         return <MetadataView />
       case 'bulk':
@@ -88,7 +99,13 @@ export default function App() {
       case 'setup':
         return <SetupView currentUser={user} apiVersion={overview?.apiVersion ?? 'v60.0'} />
       default:
-        return <ObjectListView objectType="Account" />
+        return (
+          <ObjectManagerView
+            objectCounts={objectCounts}
+            onSelectObject={(name) => setActiveView(`object:${name}`)}
+            onRefresh={() => setRefreshToken((v) => v + 1)}
+          />
+        )
     }
   }
 
@@ -98,9 +115,8 @@ export default function App() {
         username={user.username}
         role={user.role}
         activeView={activeView}
-        onNavigate={setActiveView}
+        onNavigate={handleNavigate}
         onLogout={handleLogout}
-        customObjects={customObjects}
       >
         {renderView()}
       </AppShell>

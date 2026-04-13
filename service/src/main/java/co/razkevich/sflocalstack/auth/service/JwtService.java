@@ -38,6 +38,7 @@ public class JwtService {
                 .claim("userId", user.getId())
                 .claim("username", user.getUsername())
                 .claim("role", user.getRole().name())
+                .claim("orgId", user.getOrgId())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(Duration.ofHours(1))))
                 .signWith(key)
@@ -50,6 +51,7 @@ public class JwtService {
                 .subject(user.getId())
                 .claim("userId", user.getId())
                 .claim("username", user.getUsername())
+                .claim("orgId", user.getOrgId())
                 .claim("type", "refresh")
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(Duration.ofDays(7))))
@@ -75,5 +77,9 @@ public class JwtService {
 
     public String extractRole(String token) {
         return validateToken(token).get("role", String.class);
+    }
+
+    public String extractOrgId(String token) {
+        return validateToken(token).get("orgId", String.class);
     }
 }

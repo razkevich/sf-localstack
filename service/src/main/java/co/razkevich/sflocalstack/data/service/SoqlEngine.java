@@ -24,11 +24,15 @@ public class SoqlEngine {
     }
 
     public List<Map<String, Object>> execute(String soql) {
+        return execute(null, soql);
+    }
+
+    public List<Map<String, Object>> execute(String orgId, String soql) {
         log.debug("Executing SOQL: {}", soql);
 
         SoqlAst.SelectStatement query = parse(soql);
         String objectType = query.fromObject();
-        List<SObjectRecord> records = orgStateService.findByType(objectType);
+        List<SObjectRecord> records = orgStateService.findByType(orgId, objectType);
 
         List<Map<String, Object>> filtered = records.stream()
                 .map(record -> orgStateService.fromJson(record.getFieldsJson()))
